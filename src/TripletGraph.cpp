@@ -10,6 +10,18 @@
 namespace triplet_graph
 {
 
+Node* TripletGraph::addNode(std::string id, Node *n_1, Node *n_2, double side13, double side23)
+{
+    Node node(id);
+
+    Triplet triplet(n_1, n_2, &node, side23, side13);
+
+    nodes_.push_back(node);
+    edges_.push_back(triplet);
+
+    return &nodes_.back();
+}
+
 // -----------------------------------------------------------------------------------------------
 
 //Node* TripletGraph::addNode(std::string id)

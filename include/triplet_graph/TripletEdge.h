@@ -15,6 +15,9 @@ struct Node;
 class Triplet
 {
 public:
+    Triplet(Node* n_1, Node* n_2, Node* n_3, double &a, double&b):
+        A_(n_1), B_(n_2), C_(n_3), a_(a), b_(b) {}
+
     Triplet(Node* n_1, Node* n_2, Node* n_3, double &a, double &b, double &c):
         A_(n_1), B_(n_2), C_(n_3), a_(a), b_(b), c_(c) {}
 
