@@ -3,7 +3,7 @@
 
 #include <geolib/datatypes.h>
 
-namespace triplet_graph_map
+namespace triplet_graph
 {
 
 struct TripleRelation

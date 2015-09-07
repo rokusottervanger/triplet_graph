@@ -1,6 +1,6 @@
-#include "graph_map/Measurement.h"
+#include "triplet_graph/Measurement.h"
 
-namespace graph_map
+namespace triplet_graph
 {
 
 // ----------------------------------------------------------------------------------------------------

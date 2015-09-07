@@ -4,13 +4,13 @@
 #include <list>
 #include <geolib/datatypes.h>
 #include <tue/config/configuration.h>
-#include <graph_map/Measurement.h>
+#include <triplet_graph/Measurement.h>
 
 #include "TripletEdge.h"
 #include "TripletNode.h"
 #include "TripletPath.h"
 
-namespace triplet_graph_map
+namespace triplet_graph
 {
 
 class TripletGraph
@@ -36,7 +36,7 @@ public:
 
 protected:
     std::list<Node> nodes_;
-    std::list<Edge> edges_;
+    std::list<Triplet> edges_;
 
 };
 

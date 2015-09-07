@@ -5,7 +5,7 @@
 
 #include "TripletRelation.h"
 
-namespace triplet_graph_map
+namespace triplet_graph
 {
 
 struct Node;

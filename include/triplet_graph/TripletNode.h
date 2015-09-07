@@ -4,12 +4,12 @@
 #include <vector>
 #include "TripletEdge.h"
 
-namespace triplet_graph_map
+namespace triplet_graph
 {
 
-struct TripletNode
+struct Node
 {    
-    TripletNode(std::string id):id(id){}
+    Node(std::string id):id(id){}
 
     std::string id;
 

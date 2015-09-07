@@ -1,6 +1,6 @@
-#include "graph_map/Path.h"
+#include "triplet_graph/TripletPath.h"
 
-namespace graph_map
+namespace triplet_graph
 {
 
 std::string Path::toString()
@@ -16,7 +16,7 @@ std::string Path::toString()
 
         while (!path.empty())
         {
-            graph_map::Node* n_ptr = path.top();
+            triplet_graph::TripletNode* n_ptr = path.top();
             path.pop();
             str.append("\n"+n_ptr->id);
         }

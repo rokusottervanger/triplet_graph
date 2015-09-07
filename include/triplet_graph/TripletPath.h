@@ -4,12 +4,12 @@
 #include <stack>
 #include <string>
 
-#include "Node.h"
+#include "triplet_graph/TripletNode.h"
 
-namespace graph_map
+namespace triplet_graph
 {
 
-class Path: public std::stack<graph_map::Node*>
+class Path: public std::stack<triplet_graph::Node*>
 {
 public:
     std::string toString();
