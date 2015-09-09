@@ -10,16 +10,72 @@
 namespace triplet_graph
 {
 
-Node* TripletGraph::addNode(std::string id, Node *n_1, Node *n_2, double side13, double side23)
+int TripletGraph::addNode(const std::string& id)
 {
     Node node(id);
 
-    Triplet triplet(n_1, n_2, &node, side23, side13);
+    int i;
 
-    nodes_.push_back(node);
-    edges_.push_back(triplet);
+    if (deleted_nodes_.empty())
+    {
+        i = nodes_.size();
+        nodes_.push_back(node);
+    }
+    else
+    {
+        i = deleted_nodes_.back();
+        nodes_[i] = node;
+        deleted_nodes_.pop_back();
+    }
 
-    return &nodes_.back();
+    return i;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+int TripletGraph::addEdge(const int& node1, const int& node2, const int& node3, double& side23, double& side13)
+{
+    if (node1 == node2 || node2 == node3 || node3 == node1)
+    {
+        std::cout << "\033[31m" << "[GRAPH] ERROR! You're trying to add an edge between three nodes of which at least two are the same. Returning -1" << "\033[0m" << std::endl;
+        return -1;
+    }
+
+    Triplet trip(node1, node2, node3, side23, side13);
+
+    int i;
+
+    for (int j = 0; j <= nodes_[node3].parent_edges.size(); j++)
+    {
+        i = nodes_[node3].parent_edges[j];
+
+        if (    edges_[i].A_ == node1 && edges_[i].B_ == node2 ||
+                edges_[i].A_ == node2 && edges_[i].B_ == node1) // TODO: If node3 is a child of the other two nodes, this should also be triggered, right?
+        {
+            // Edge from this node with the same two parents already exists, so use this one
+            edges_[i] = trip; // TODO: Now it may switch mom and dad around. Not a problem for now, but maybe later?
+            return i;
+        }
+    }
+
+    // Edge does not yet exist, so add to graph's edges list
+    if (deleted_edges_.empty())
+    {
+        i = edges_.size();
+        edges_.push_back(trip);
+    }
+    else
+    {
+        i = deleted_edges_.back();
+        edges_[i] = trip;
+        deleted_nodes_.pop_back();
+    }
+
+    nodes_[node3].parent_edges.push_back(i); // TODO: also store deleted indices in nodes and edges
+    nodes_[node1].child_edges.push_back(i);
+    nodes_[node2].child_edges.push_back(i);
+
+    return i;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -197,17 +253,21 @@ Node* TripletGraph::addNode(std::string id, Node *n_1, Node *n_2, double side13,
 
 // -----------------------------------------------------------------------------------------------
 
-void TripletGraph::update(Measurements measurements)
+void TripletGraph::update(const Measurements& measurements)
 {
     std::cout << "[GRAPH] Updating graph" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
 
-Node* TripletGraph::findNodeByID(std::string id)
+int TripletGraph::findNodeByID(const std::string &id)
 {
-    std::list<Node>::iterator n_it = std::find_if(nodes_.begin(),nodes_.end(),boost::bind(&Node::id, _1) == id);
-    return &(*n_it);
+    // TODO: if you do this often (probably not), implement using map from ids to ints
+    for ( int i = 0; i <= nodes_.size(); i++)
+    {
+        if (nodes_[i].id == id)
+            return i;
+    }
 }
 
 // -----------------------------------------------------------------------------------------------

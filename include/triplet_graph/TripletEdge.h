@@ -15,18 +15,18 @@ struct Node;
 class Triplet
 {
 public:
-    Triplet(Node* n_1, Node* n_2, Node* n_3, double &a, double&b):
+    Triplet(const int& n_1, const int& n_2, const int& n_3, double& a, double& b):
         A_(n_1), B_(n_2), C_(n_3), a_(a), b_(b) {}
 
-    Triplet(Node* n_1, Node* n_2, Node* n_3, double &a, double &b, double &c):
+    Triplet(const int& n_1, const int& n_2, const int& n_3, double &a, double &b, double &c):
         A_(n_1), B_(n_2), C_(n_3), a_(a), b_(b), c_(c) {}
 
     // TODO: Equality operator
     // Two edges are equal if they connect the same nodes
 //    inline bool operator== (TripleEdge e) { return e.n1 == n1 && e.n2 == n2 || e.n1 == n2 && e.n2 == n1; }
 
-private:
-    Node *A_, *B_, *C_;
+
+    int A_, B_, C_;
     double a_, b_, c_;
 
     /*
@@ -45,7 +45,7 @@ private:
 
     // TODO: make incompleteness of pose relationship possible
 //    TripleRelation ir; // Triple, not done yet.
-
+private:
     double w; // Edge weight
 };
 

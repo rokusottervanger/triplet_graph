@@ -13,7 +13,8 @@ struct Node
 
     std::string id;
 
-    std::vector<Triplet*> triplets;
+    std::vector<int> parent_edges; // Edges to parent nodes
+    std::vector<int> child_edges; // Edges to child nodes
 };
 
 }

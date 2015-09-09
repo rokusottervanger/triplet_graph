@@ -16,7 +16,7 @@ std::string Path::toString()
 
         while (!path.empty())
         {
-            triplet_graph::TripletNode* n_ptr = path.top();
+            triplet_graph::Node* n_ptr = path.top();
             path.pop();
             str.append("\n"+n_ptr->id);
         }

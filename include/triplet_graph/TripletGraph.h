@@ -20,24 +20,25 @@ public:
 
     ~TripletGraph(){}
 
-//    TripletNode* addNode(std::string id);
+    int addNode(const std::string &id);
 
-//    TripletNode* addNode(const Node &node);
+    int addEdge(const int&, const int&, const int&, double &, double &);
 
-    Node* addNode(std::string id, Node* n_1, Node* n_2, double side13, double side23);
-
-    Path Dijkstra(Node *n1, Node *n2);
+    Path Dijkstra(const int& n1, const int& n2);
 
     bool configure(tue::Configuration &config);
 
-    Node* findNodeByID(std::string id);
+    int findNodeByID(const std::string& id);
 
-    void update(Measurements);
+    void update(const Measurements& measurements);
 
 protected:
-    std::list<Node> nodes_;
-    std::list<Triplet> edges_;
+    std::vector<Node> nodes_;
+    std::vector<Triplet> edges_;
 
+private:
+    std::vector<int> deleted_nodes_;
+    std::vector<int> deleted_edges_;
 };
 
 }
