@@ -1,16 +1,16 @@
 #include <stdio.h>
 #include <iostream>
 //#include <vector>
-#include <queue>
-#include <limits>
-#include <boost/bind.hpp>
+//#include <queue>
+//#include <limits>
+//#include <boost/bind.hpp>
 
-#include "triplet_graph/TripletGraph.h"
+#include "triplet_graph/Graph.h"
 
 namespace triplet_graph
 {
 
-int TripletGraph::addNode(const std::string& id)
+int Graph::addNode(const std::string& id)
 {
     Node node(id);
 
@@ -28,12 +28,37 @@ int TripletGraph::addNode(const std::string& id)
         deleted_nodes_.pop_back();
     }
 
+    std::cout << "[GRAPH] Added node with id: '" << id << "'" << std::endl;
+
     return i;
 }
 
 // -----------------------------------------------------------------------------------------------
 
-int TripletGraph::addEdge(const int& node1, const int& node2, const int& node3, double& side23, double& side13)
+int Graph::addEdge2(const int& node1, const int& node2, double& length)
+{
+    Edge2 edge2(node1, node2, length);
+
+    int i;
+
+    if (deleted_edges_.empty())
+    {
+        i = edges_.size();
+        edges_.push_back(edge2);
+    }
+    else
+    {
+        i = deleted_edges_.back();
+        edges_[i] = edge2;
+        deleted_edges_.pop_back();
+    }
+
+    return i;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
 {
     if (node1 == node2 || node2 == node3 || node3 == node1)
     {
@@ -41,132 +66,31 @@ int TripletGraph::addEdge(const int& node1, const int& node2, const int& node3, 
         return -1;
     }
 
-    Triplet trip(node1, node2, node3, side23, side13);
+    Edge3 trip(node1, node2, node3);
 
     int i;
 
-    for (int j = 0; j <= nodes_[node3].parent_edges.size(); j++)
-    {
-        i = nodes_[node3].parent_edges[j];
-
-        if (    edges_[i].A_ == node1 && edges_[i].B_ == node2 ||
-                edges_[i].A_ == node2 && edges_[i].B_ == node1) // TODO: If node3 is a child of the other two nodes, this should also be triggered, right?
-        {
-            // Edge from this node with the same two parents already exists, so use this one
-            edges_[i] = trip; // TODO: Now it may switch mom and dad around. Not a problem for now, but maybe later?
-            return i;
-        }
-    }
+    // TODO: Check if triplet exists or not
 
     // Edge does not yet exist, so add to graph's edges list
     if (deleted_edges_.empty())
     {
-        i = edges_.size();
-        edges_.push_back(trip);
+        i = triplets_.size();
+        triplets_.push_back(trip);
     }
     else
     {
-        i = deleted_edges_.back();
-        edges_[i] = trip;
-        deleted_nodes_.pop_back();
+        i = deleted_triplets_.back();
+        triplets_[i] = trip;
+        deleted_triplets_.pop_back();
     }
 
-    nodes_[node3].parent_edges.push_back(i); // TODO: also store deleted indices in nodes and edges
-    nodes_[node1].child_edges.push_back(i);
-    nodes_[node2].child_edges.push_back(i);
+    nodes_[node1].addTriplet(i);
+    nodes_[node2].addTriplet(i);
+    nodes_[node3].addTriplet(i);
 
     return i;
 }
-
-// -----------------------------------------------------------------------------------------------
-
-//Node* TripletGraph::addNode(std::string id)
-//{
-//    Node node(id);
-//    nodes_.push_back(node);
-
-//    std::cout << "[GRAPH] Added node with id: '" << id << "'" << std::endl;
-
-//    return &nodes_.back();
-//}
-
-// -----------------------------------------------------------------------------------------------
-
-//Node* TripletGraph::addNode(const Node &node)
-//{
-//    nodes_.push_back(node);
-
-//    std::cout << "[GRAPH] Added node with id: '" << node.id << "'" << std::endl;
-
-//    return &nodes_.back();
-//}
-
-// -----------------------------------------------------------------------------------------------
-
-//Triplet* TripletGraph::addEdge(Node* n1, Node* n2, geo::Pose3D &pose)
-//{
-//    // Create edge object
-//    Triplet edge(n1,n2,pose);
-
-//    // Calculate weight
-//    edge.w = edge.pose.t.length2(); // todo: better weight calculation
-
-//    std::list<Edge>::iterator edge_it = std::find(edges_.begin(),edges_.end(),edge);
-
-//    // Check if edge already exists (two edges are the same if they define relations between the same two nodes)
-//    // Todo: Decide whether or not an edge from 1 to the 2 is the same as from 2 to 1 (but inverse, of course)
-//    if ( edge_it == edges_.end()) // Edge does not yet exist
-//    {
-//        // Add edge to edges vector
-//        edges_.push_back(edge);
-
-//        // Add edge to edges vectors of respective nodes. Todo: invert edge before adding to second node?
-//        n1->edges.push_back(&edges_.back());
-//        n2->edges.push_back(&edges_.back());
-
-//        std::cout << "[GRAPH] Added edge from '" << n1->id << "' to '" << n2->id << "'" << std::endl;
-
-//        return &edges_.back();
-//    }
-//    else // Edge already exists
-//    {
-//        // todo: more advanced updating of edges?
-//        *edge_it = edge;
-//        return &(*edge_it);
-//    }
-//}
-
-// -----------------------------------------------------------------------------------------------
-
-//Triplet* TripletGraph::addEdge(Node* n1, Node* n2, double weight)
-//{
-//    // Create edge object
-//    Triplet edge(n1,n2,weight);
-
-//    std::list<Edge>::iterator edge_it = std::find(edges_.begin(),edges_.end(),edge);
-
-//    // Check if edge already exists (two edges are the same if they define relations between the same two nodes)
-//    // Todo: Decide whether or not an edge from 1 to the 2 is the same as from 2 to 1 (but inverse, of course)
-//    if ( edge_it == edges_.end()) // Edge does not yet exist
-//    {
-//        // Add edge to edges vector
-//        edges_.push_back(edge);
-
-//        // Add edge to edges vectors of respective nodes. Todo: invert edge before adding to second node?
-//        n1->edges.push_back(&edges_.back());
-//        n2->edges.push_back(&edges_.back());
-
-//        std::cout << "[GRAPH] Added edge from '" << n1->id << "' to '" << n2->id << "'" << std::endl;
-
-//        return &edges_.back();
-//    }
-//    else // Edge already exists
-//    {
-//        // todo: more advanced updating of edges?
-//        *edge_it = edge;
-//        return &(*edge_it);
-//    }
-//}
 
 // -----------------------------------------------------------------------------------------------
 
@@ -253,14 +177,14 @@ int TripletGraph::addEdge(const int& node1, const int& node2, const int& node3, 
 
 // -----------------------------------------------------------------------------------------------
 
-void TripletGraph::update(const Measurements& measurements)
+void Graph::update(const Measurements& measurements)
 {
-    std::cout << "[GRAPH] Updating graph" << std::endl;
+    std::cout << "[GRAPH] Updating graph (does nothing right now)" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
 
-int TripletGraph::findNodeByID(const std::string &id)
+int Graph::findNodeByID(const std::string &id)
 {
     // TODO: if you do this often (probably not), implement using map from ids to ints
     for ( int i = 0; i <= nodes_.size(); i++)
@@ -271,8 +195,6 @@ int TripletGraph::findNodeByID(const std::string &id)
 }
 
 // -----------------------------------------------------------------------------------------------
-
-// Todo: Maybe calculate shortest path tree when adding/updating edges/nodes with robot as root.
 
 //Path TripletGraph::Dijkstra(Node* source, Node* target)
 //{

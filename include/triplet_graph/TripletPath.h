@@ -4,7 +4,7 @@
 #include <stack>
 #include <string>
 
-#include "triplet_graph/TripletNode.h"
+#include "triplet_graph/Node.h"
 
 namespace triplet_graph
 {
