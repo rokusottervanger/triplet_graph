@@ -67,7 +67,7 @@ add_library(triplet_graph
     src/IncompleteRelation.cpp
     src/TripletPath.cpp
     src/Measurement.cpp
-    src/TripletGraph.cpp
+    src/Graph.cpp
     ${HEADER_FILES}
 )
 target_link_libraries(triplet_graph ${catkin_LIBRARIES})

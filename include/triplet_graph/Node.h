@@ -42,6 +42,9 @@ public:
         }
     }
 
+    // TODO: methods to remove edges and triplets from node
+    // When a node is removed, al edges to it must also be removed from peers
+
 private:
 
     std::vector<int> deleted_edges_;

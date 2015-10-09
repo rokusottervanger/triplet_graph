@@ -26,6 +26,12 @@ public:
 
     int addEdge3(const int&, const int&, const int&);
 
+    void deleteNode(const int& i);
+
+    void deleteNode(const std::string& id);
+
+    // TODO: methods to remove edges
+
 //    Path Dijkstra(const int& n1, const int& n2);
 
     bool configure(tue::Configuration &config);

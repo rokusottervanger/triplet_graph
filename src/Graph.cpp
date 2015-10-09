@@ -177,6 +177,23 @@ int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
 
 // -----------------------------------------------------------------------------------------------
 
+void Graph::deleteNode(const int& i)
+{
+//    nodes_[i].remove();
+    // TODO: make node clean itself and its edges up
+    deleted_nodes_.push_back(i);
+}
+
+// -----------------------------------------------------------------------------------------------
+
+void Graph::deleteNode(const std::string &id)
+{
+    int i = findNodeByID(id);
+    deleteNode(i);
+}
+
+// -----------------------------------------------------------------------------------------------
+
 void Graph::update(const Measurements& measurements)
 {
     std::cout << "[GRAPH] Updating graph (does nothing right now)" << std::endl;
