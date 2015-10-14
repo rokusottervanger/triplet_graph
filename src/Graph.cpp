@@ -53,6 +53,8 @@ int Graph::addEdge2(const int& node1, const int& node2, double& length)
         deleted_edges_.pop_back();
     }
 
+    std::cout << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << std::endl;
+
     return i;
 }
 
@@ -88,6 +90,8 @@ int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
     nodes_[node1].addTriplet(i);
     nodes_[node2].addTriplet(i);
     nodes_[node3].addTriplet(i);
+
+    std::cout << "[GRAPH] Added Edge3 between nodes " << node1 << ", " << node2 << " and " << node3 << std::endl;
 
     return i;
 }
@@ -182,6 +186,7 @@ void Graph::deleteNode(const int& i)
 //    nodes_[i].remove();
     // TODO: make node clean itself and its edges up
     deleted_nodes_.push_back(i);
+    std::cout << "Deleted node " << i << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -203,7 +208,7 @@ void Graph::update(const Measurements& measurements)
 
 int Graph::findNodeByID(const std::string &id)
 {
-    // TODO: if you do this often (probably not), implement using map from ids to ints
+    // TODO: if you do this often (probably not), implement using map from ids to indices
     for ( int i = 0; i <= nodes_.size(); i++)
     {
         if (nodes_[i].id == id)

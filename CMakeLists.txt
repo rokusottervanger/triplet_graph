@@ -41,7 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package(
  INCLUDE_DIRS include
-#  LIBRARIES bla
+ LIBRARIES triplet_graph
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
 )
@@ -64,9 +64,9 @@ file(GLOB_RECURSE HEADER_FILES include/*.h)
 # target_link_libraries(library_name ${catkin_LIBRARIES})
 
 add_library(triplet_graph
-    src/IncompleteRelation.cpp
-    src/TripletPath.cpp
-    src/Measurement.cpp
+#    src/IncompleteRelation.cpp
+#    src/TripletPath.cpp
+#    src/Measurement.cpp
     src/Graph.cpp
     ${HEADER_FILES}
 )
