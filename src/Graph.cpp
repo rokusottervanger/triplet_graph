@@ -185,6 +185,7 @@ void Graph::deleteNode(const int& i)
 {
 //    [i].remove();
     // TODO: make node clean itself and its edges up
+    // TODO: after running deleteNode, the node is still in the vector
     deleted_nodes_.push_back(i);
     std::cout << "Deleted node " << i << std::endl;
 }
