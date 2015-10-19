@@ -73,6 +73,20 @@ int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
     int i;
 
     // TODO: Check if triplet exists or not
+    // If a triplet exists between the three nodes, it is at least stored in node1, so check all triplets in node1
+    Node n1 = nodes_[node1];
+    for ( std::vector<int>::const_iterator it = n1.triplets.begin(); it != n1.triplets.end(); it++ )
+    {
+        if ( triplets_[*it].A == node2 )
+        {
+            // dingen
+        }
+        else if (triplets_[*it].A == node3 )
+        {
+            // meer dingen
+        }
+
+    }
 
     // Edge does not yet exist, so add to graph's edges list
     if (deleted_edges_.empty())
