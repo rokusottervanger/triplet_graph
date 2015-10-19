@@ -28,24 +28,21 @@ public:
 
     void deleteNode(const int& i);
 
-    void deleteNode(const std::string& id);
-
     // TODO: methods to remove edges
 
-//    Path Dijkstra(const int& n1, const int& n2);
-
-    bool configure(tue::Configuration &config);
-
-    int findNodeByID(const std::string& id);
+//    bool configure(tue::Configuration &config);
 
     void update(const Measurements& measurements);
 
-protected:
+    std::vector<Node> getNodes() const {return nodes_;}
+    std::vector<Edge2> getEdge2s() const {return edges_;}
+    std::vector<Edge3> getEdge3s() const {return triplets_;}
+
+private:
     std::vector<Node> nodes_;
     std::vector<Edge2> edges_;
     std::vector<Edge3> triplets_;
 
-private:
     std::vector<int> deleted_nodes_;
     std::vector<int> deleted_edges_;
     std::vector<int> deleted_triplets_;
