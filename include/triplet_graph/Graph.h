@@ -38,6 +38,43 @@ public:
     std::vector<Edge2> getEdge2s() const {return edges_;}
     std::vector<Edge3> getEdge3s() const {return triplets_;}
 
+    class NodeIterator : public std::iterator<std::forward_iterator_tag, Node>
+    {
+        public:
+
+            NodeIterator(const std::vector<Node>& v) : it_(v.begin()), it_end_(v.end())
+            {
+                // Skip possible deleted nodes at the beginning
+                while(it_ != it_end_ && it_->id != "")
+                    ++it_;
+            }
+
+            NodeIterator(const NodeIterator& it) : it_(it.it_) {}
+
+            NodeIterator(const std::vector<Node>::const_iterator& it) : it_(it) {}
+
+            NodeIterator& operator++()
+            {
+                // Increase iterator and skip possible zero-entities (deleted entities)
+                do { ++it_; if (it_ == it_end_) break; } while ( it_->id != "");
+                return *this;
+            }
+
+            NodeIterator operator++(int) { NodeIterator tmp(*this); operator++(); return tmp; }
+
+            bool operator==(const NodeIterator& rhs) { return it_ == rhs.it_; }
+
+            bool operator!=(const NodeIterator& rhs) { return it_ != rhs.it_; }
+
+            const Node& operator*() { return *it_; }
+
+        private:
+
+            std::vector<Node>::const_iterator it_;
+            std::vector<Node>::const_iterator it_end_;
+    };
+
+
 private:
     std::vector<Node> nodes_;
     std::vector<Edge2> edges_;
