@@ -102,21 +102,20 @@ int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
         n3 = node1;
     }
 
-    // Now loop through that node's list of triplets and check if there is one that refers to the other two nodes
+    // Now loop through that node's list of triplets and check if there is one that also refers to the other two nodes
     for ( std::vector<int>::const_iterator it = nodes_[n1].triplets.begin(); it != nodes_[n1].triplets.end(); it++ )
     {
-        std::cout << "Checking triplet " << *it << " containing nodes:" << std::endl;
         std::vector<int> v_indices;
         v_indices.push_back(triplets_[*it].A);
         v_indices.push_back(triplets_[*it].B);
         v_indices.push_back(triplets_[*it].C);
-        std::cout << triplets_[*it].A << ", " << triplets_[*it].B << ", " << triplets_[*it].C << std::endl;
 
         do
         {
             if ( v_indices[0] == node1 && v_indices[1] == node2 && v_indices[2] == node3 )
             {
                 std::cout << "Found the same triplet as the one we're trying to add! Only updating order!" << std::endl;
+                triplets_[*it] = trip;
             }
         } while  ( std::next_permutation(v_indices.begin(),v_indices.end()) );
     }
