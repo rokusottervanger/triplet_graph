@@ -11,6 +11,8 @@ namespace triplet_graph
 class Node
 {
 public:
+    Node(){}
+
     Node(std::string id):id(id){}
 
     std::string id;
