@@ -229,11 +229,65 @@ int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
 
 void Graph::deleteNode(const int& i)
 {
-//    [i].remove();
-    // TODO: make node clean itself and its edges up
-    // TODO: after running deleteNode, the node is still in the vector
+    Node node = nodes_[i];
+    nodes_[i].id = "";
+
+    for( std::vector<int>::reverse_iterator it = node.triplets.rbegin(); it!= node.triplets.rend(); it++)
+    {
+        deleteEdge3(*it);
+    }
+    for( std::vector<int>::reverse_iterator it = node.edges.rbegin(); it != node.edges.rend(); it++ )
+    {
+        deleteEdge2(*it);
+    }
+
+    nodes_[i] = Node("");
     deleted_nodes_.push_back(i);
     std::cout << "Deleted node " << i << std::endl;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+void Graph::deleteEdge2(const int& i)
+{
+    Edge2 edge = edges_[i];
+
+    if ( nodes_[edge.A].id != "" )
+    {
+        if ( nodes_[edge.B].edges.size() == 1 )
+        {
+            std::cout << "\033[31m" << "[GRAPH] WARNING! Leaving behind an unconnected node!" << "\033[0m" << std::endl;
+        }
+    }
+    else if ( nodes_[edge.B].id != "" )
+    {
+        if ( nodes_[edge.A].edges.size() == 1 )
+        {
+            std::cout << "\033[31m" << "[GRAPH] WARNING! Leaving behind an unconnected node!" << "\033[0m" << std::endl;
+        }
+    }
+
+    // For both nodes stored in this edge, find the index to this edge (i) in its list of edges and erase it from that list
+    nodes_[edge.A].edges.erase(std::find(nodes_[edge.A].edges.begin(),nodes_[edge.A].edges.end(),i));
+    nodes_[edge.B].edges.erase(std::find(nodes_[edge.B].edges.begin(),nodes_[edge.B].edges.end(),i));
+
+    edges_[i].deleted = true;
+    deleted_edges_.push_back(i);
+}
+
+// -----------------------------------------------------------------------------------------------
+
+void Graph::deleteEdge3(const int& i)
+{
+    Edge3 triplet = triplets_[i];
+
+    // For every node stored in this triplet, find the index to this triplet (i) in its list of triplets and erase it from that list
+    nodes_[triplet.A].triplets.erase(std::find(nodes_[triplet.A].triplets.begin(),nodes_[triplet.A].triplets.end(),i));
+    nodes_[triplet.B].triplets.erase(std::find(nodes_[triplet.B].triplets.begin(),nodes_[triplet.B].triplets.end(),i));
+    nodes_[triplet.C].triplets.erase(std::find(nodes_[triplet.C].triplets.begin(),nodes_[triplet.C].triplets.end(),i));
+
+    triplets_[i].deleted = true;
+    deleted_triplets_.push_back(i);
 }
 
 // -----------------------------------------------------------------------------------------------

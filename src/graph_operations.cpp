@@ -15,11 +15,10 @@ namespace triplet_graph
 
 int findNodeByID(const Graph g, const std::string &id)
 {
-    std::vector<Node> nodes = g.getNodes();
-    for ( int i = 0; i <= nodes.size(); i++)
+    for ( Graph::const_iterator it = g.begin(); it != g.end(); it++ )
     {
-        if (nodes[i].id == id)
-            return i;
+        if ((*it).id == id)
+            return (it - g.begin());
     }
 }
 

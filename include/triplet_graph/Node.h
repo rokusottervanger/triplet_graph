@@ -20,7 +20,7 @@ public:
     std::vector<int> edges; // Edges to parent nodes
     std::vector<int> triplets; // Edges to child nodes
 
-    void addTriplet(int triplet)
+    void addTriplet(const int triplet)
     {
         if (deleted_triplets_.empty())
             triplets.push_back(triplet);
@@ -32,7 +32,7 @@ public:
         }
     }
 
-    void addEdge(int edge)
+    void addEdge(const int edge)
     {
         if (deleted_edges_.empty())
             edges.push_back(edge);
@@ -43,9 +43,6 @@ public:
             deleted_triplets_.pop_back();
         }
     }
-
-    // TODO: methods to remove edges and triplets from node
-    // When a node is removed, al edges to it must also be removed from peers
 
 private:
 

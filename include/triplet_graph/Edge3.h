@@ -8,7 +8,7 @@ class Edge3
 {
 public:
     Edge3(const int& node_1, const int& node_2, const int& node_3):
-        A(node_1), B(node_2), C(node_3) {}
+        A(node_1), B(node_2), C(node_3), deleted(false) {}
 
     // Two triplets are equal if they connect the same nodes
     inline bool operator== (Edge3 e) { return
@@ -18,6 +18,8 @@ public:
 
     // Nodes in clockwise order
     int A, B, C;
+
+    bool deleted;
 };
 
 }

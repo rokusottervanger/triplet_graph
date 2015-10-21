@@ -15,6 +15,15 @@ namespace triplet_graph
 
 class Graph
 {
+private:
+    std::vector<Node> nodes_;
+    std::vector<Edge2> edges_;
+    std::vector<Edge3> triplets_;
+
+    std::vector<int> deleted_nodes_;
+    std::vector<int> deleted_edges_;
+    std::vector<int> deleted_triplets_;
+
 public:
     Graph(){}
 
@@ -28,7 +37,9 @@ public:
 
     void deleteNode(const int& i);
 
-    // TODO: methods to remove edges
+    void deleteEdge2(const int& i);
+
+    void deleteEdge3(const int& i);
 
 //    bool configure(tue::Configuration &config);
 
@@ -68,21 +79,20 @@ public:
 
             const Node& operator*() { return *it_; }
 
+            int operator-(const NodeIterator& rhs) { return it_ - rhs.it_; }
+
         private:
 
             std::vector<Node>::const_iterator it_;
             std::vector<Node>::const_iterator it_end_;
     };
 
+    typedef NodeIterator const_iterator;
 
-private:
-    std::vector<Node> nodes_;
-    std::vector<Edge2> edges_;
-    std::vector<Edge3> triplets_;
+    inline const_iterator begin() const { return const_iterator(nodes_); }
 
-    std::vector<int> deleted_nodes_;
-    std::vector<int> deleted_edges_;
-    std::vector<int> deleted_triplets_;
+    inline const_iterator end() const { return const_iterator(nodes_.end());}
+
 };
 
 }
