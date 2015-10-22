@@ -9,11 +9,27 @@
 namespace triplet_graph
 {
 
-class Path: public std::stack<triplet_graph::Node*>
+class Path: public std::stack<int>
 {
 public:
     std::string toString();
+
+    friend ostream& operator<<(ostream& os, const Date& dt);
 };
+
+ostream& operator<<(ostream& os, const Path& path)
+{
+    Path path_copy = path;
+    os << "[ ";
+    while ( !path_copy.empty() )
+    {
+        int top = path_copy.top();
+        os << top << ' ';
+        path_copy.pop();
+    }
+    os << "]";
+    return os;
+}
 
 }
 
