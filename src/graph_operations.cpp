@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <iostream>
 #include <vector>
-//#include <queue>
+#include <queue>
 //#include <limits>
 //#include <boost/bind.hpp>
 
 #include "triplet_graph/graph_operations.h"
 #include "triplet_graph/Graph.h"
+#include "triplet_graph/Path.h"
 
 namespace triplet_graph
 {
@@ -104,31 +105,33 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
     std::vector<int> common_triplets = getCommonTriplets(graph,source_node1,source_node2);
 //    std::vector<int> common_neighbors = getCommonNeighbors(graph,common_triplets)
 
-    int u;          // Cheapest node so far
+    int u;          // Cheapest pair of nodes so far
     int v;          // A node connected to node u
-    int w;          // Edge connecting u and v
     double c, w;    // Cost to get to node u, current edge weight
     Path path;      // Path of nodes from source to target;
-    std::vector<int> prev(nodes.size());
+    std::vector<int> prevs(nodes.size(),-1);
 
     std::priority_queue<CostEdge, std::vector<CostEdge>, std::greater<CostEdge> > Q;
 
-    std::vector<double> d(nodes.size(),inf);
-    std::vector<double> e(edges.size(),inf);
+    std::vector<double> ns(nodes.size(),inf);
+    std::vector<double> es(edges.size(),inf);
+    std::vector<double> ts(triplets.size(),inf);
     Q.push(CostEdge(0,source_edge));
-    e[source_edge] = 0;
-    d[source_node1] = 0;
-    d[source_node2] = 0;
+    es[source_edge] = 0;
+    ns[source_node1] = 0;
+    ns[source_node2] = 0;
+
+    int prev = source_node1;
 
     while(!Q.empty())
     {
         // Take the cheapest edge (cost is sum of node costs so far) from the queue
-        u = Q.top().second; // edge
+        u = Q.top().second; // current edge
         c = Q.top().first;  // cost so far
         Q.pop();
 
         // If pair of nodes already visited, continue
-        if ( e[u] == -1 )
+        if ( es[u] == -1 )
             continue;
 
         // When the target is reached, trace back path and return
@@ -136,9 +139,9 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
         {
             int n = edges[u].A;
             path.push(n);
-            while ( n != source )
+            while ( n != source_node1 || n!= source_node2 ) // Klopt dit?
             {
-                n = prev[n];
+                n = prevs[n];
                 path.push(n);
             }
             return path;
@@ -147,56 +150,47 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
         {
             int n = edges[u].B;
             path.push(n);
-            while ( n != source )
+            while ( n != source_node1 || n!= source_node2 ) // Klopt dit?
             {
-                n = prev[n];
+                n = prevs[n];
                 path.push(n);
             }
             return path;
         }
 
-        w = getConnectingEdge2(graph,u,n);
-        common_triplets = getCommonTriplets(graph,u,n);
+        common_triplets = getCommonTriplets(graph,edges[u].A,edges[u].B);
 
-        // Run through nodes connected to cheapest edge so far
+        // Run through common triplets of the current pair of nodes
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); t_it++ )
         {
-            Edge2 edge = edges_[*e_it];
-            v = getThirdNode(triplets[*t_it],u,n);
-            // Retrieve the right nodes from the edges.
-            if( edge.n1 == u )
-                v = edge.n2;
-            else if ( edge.n2 == u )
-                v = edge.n1;
-            else
-            {
-                std::cout << "\033[31m" << "[GRAPH] Warning! Edge does not connect two nodes." << "\033[0m" << std::endl;
+            // Retrieve the right node from the triplet.
+            v = getThirdNode(triplets[*t_it],edges[u].A,edges[u].B);
+
+            // If this triplet was already visited, continue
+            if ( ts[*t_it] == -1 )
                 continue;
-            }
+            ts[*t_it] = -1;// TODO: Is this the right place to mark triplet visited?
 
-            // If this node was already visited, continue
-            if ( edge[v] == -1 )
-                continue;
+            // TODO: Calculate weight using the two edges connecting the third node to the two base nodes
+            w = 1.0;
 
-            // Get weight from edge
-            w = edge.w;
-
-            /* If path to second node is cheaper than before,
-            update cost to that node, add it to priority queue
-            of potential nodes to visit and record from which
-            node this cost came.
-            */
-            double new_cost = d[u] + w;
-            if (d[v] > new_cost)
+            // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
+            // of potential nodes to visit and record what the previous node was.
+            double new_cost = ns[edges[u].A] + ns[edges[u].B] + w; // TODO: Now taking sum of node costs plus new cost, is this what I want?
+            if (ns[v] > new_cost)
             {
-                d[v] = new_cost;
-                Q.push(CostEdge(new_cost, v));
-                prev[v] = u;
+                ns[v] = new_cost;
+                if ( ns[edges[u].A] <= ns[edges[u].B] )
+                    Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].A)));
+                if ( ns[edges[u].B] <= ns[edges[u].A] )
+                    Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].B)));
+                prevs[v] = prev;
+                prev = v;
             }
         }
 
-        // After visiting node, remove it from map of nodes with weights.
-        d[u] = -1;
+        // After visiting edge, mark it visited using vector of edge weights
+        es[u] = -1;
     }
 }
 
