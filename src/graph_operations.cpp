@@ -102,32 +102,34 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
     std::vector<Edge3> triplets = graph.getEdge3s();
 
     int source_edge = getConnectingEdge2(graph,source_node1,source_node2);
-    std::vector<int> common_triplets = getCommonTriplets(graph,source_node1,source_node2);
-//    std::vector<int> common_neighbors = getCommonNeighbors(graph,common_triplets)
 
-    int u;          // Cheapest pair of nodes so far
-    int v;          // A node connected to node u
-    double c, w;    // Cost to get to node u, current edge weight
-    Path path;      // Path of nodes from source to target;
-    std::vector<int> prevs(nodes.size(),-1);
-
+    /* The priority queue holds couples of nodes (edges) to be handled, sorted by
+     * the sum of the cost to get to those nodes. The cost to get to the first
+     * pair of nodes is obviously zero.
+     */
     std::priority_queue<CostEdge, std::vector<CostEdge>, std::greater<CostEdge> > Q;
+    Q.push(CostEdge(0,source_edge));
+
 
     std::vector<double> ns(nodes.size(),inf);
     std::vector<double> es(edges.size(),inf);
     std::vector<double> ts(triplets.size(),inf);
-    Q.push(CostEdge(0,source_edge));
     es[source_edge] = 0;
     ns[source_node1] = 0;
     ns[source_node2] = 0;
 
+    /* The path is to contain the series of nodes to get from the source nodes to
+     * the target node. To construct this path, the prevs vector is maintained,
+     * holding for every visited node the previous node. The previous
+     */
+    Path path;      // Path of nodes from source to target;
+    std::vector<int> prevs(nodes.size(),-1);
     int prev = source_node1;
 
     while(!Q.empty())
     {
         // Take the cheapest edge (cost is sum of node costs so far) from the queue
-        u = Q.top().second; // current edge
-        c = Q.top().first;  // cost so far
+        int u = Q.top().second; // current edge, cheapest pair of nodes so far
         Q.pop();
 
         // If pair of nodes already visited, continue
@@ -158,13 +160,13 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
             return path;
         }
 
-        common_triplets = getCommonTriplets(graph,edges[u].A,edges[u].B);
+        std::vector<int> common_triplets = getCommonTriplets(graph,edges[u].A,edges[u].B);
 
         // Run through common triplets of the current pair of nodes
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); t_it++ )
         {
             // Retrieve the right node from the triplet.
-            v = getThirdNode(triplets[*t_it],edges[u].A,edges[u].B);
+            int v = getThirdNode(triplets[*t_it],edges[u].A,edges[u].B);
 
             // If this triplet was already visited, continue
             if ( ts[*t_it] == -1 )
@@ -172,7 +174,7 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
             ts[*t_it] = -1;// TODO: Is this the right place to mark triplet visited?
 
             // TODO: Calculate weight using the two edges connecting the third node to the two base nodes
-            w = 1.0;
+            double w = 1.0;
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
@@ -180,12 +182,14 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
             if (ns[v] > new_cost)
             {
                 ns[v] = new_cost;
-                if ( ns[edges[u].A] <= ns[edges[u].B] )
-                    Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].A)));
-                if ( ns[edges[u].B] <= ns[edges[u].A] )
-                    Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].B)));
-                prevs[v] = prev;
-                prev = v;
+                Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].A)));
+                Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].B)));
+
+                // The most expensive node of the current set of nodes must be the previous one, so pich that as the previous
+                if ( ns[edges[u].A] > ns[edges[u].B] )
+                    prevs[v] = ns[edges[u].A];
+                else if ( ns[edges[u].A] <= ns[edges[u].B] )
+                    prevs[v] = ns[edges[u].B];
             }
         }
 
