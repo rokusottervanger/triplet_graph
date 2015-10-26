@@ -2,8 +2,7 @@
 #define TRIPLET_GRAPH_NODE_H_
 
 #include <vector>
-#include "Edge2.h"
-#include "Edge3.h"
+#include <string>
 
 namespace triplet_graph
 {
@@ -17,32 +16,15 @@ public:
 
     std::string id;
 
-    std::vector<int> edges; // Edges to parent nodes
-    std::vector<int> triplets; // Edges to child nodes
+    std::vector<int> edges; // indices to vector of edge2s (edges_) in graph
+    std::vector<int> triplets; // indices to vector of edge3s (triplets_) in graph
 
-    void addTriplet(const int triplet)
-    {
-        if (deleted_triplets_.empty())
-            triplets.push_back(triplet);
-        else
-        {
-            int i = deleted_triplets_.back();
-            triplets[i] = triplet;
-            deleted_triplets_.pop_back();
-        }
-    }
+    void addTriplet(const int triplet);
+    void addEdge(const int edge);
 
-    void addEdge(const int edge)
-    {
-        if (deleted_edges_.empty())
-            edges.push_back(edge);
-        else
-        {
-            int i = deleted_triplets_.back();
-            triplets[i] = edge;
-            deleted_triplets_.pop_back();
-        }
-    }
+// TODO:
+//    void deleteTriplet(const int triplet);
+//    void deleteEdge(const int edge);
 
 private:
 

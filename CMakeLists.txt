@@ -67,6 +67,7 @@ add_library(triplet_graph
 #    src/IncompleteRelation.cpp
     src/Path.cpp
 #    src/Measurement.cpp
+    src/Node.cpp
     src/Graph.cpp
     src/graph_operations.cpp
     ${HEADER_FILES}
