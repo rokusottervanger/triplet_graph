@@ -4,7 +4,6 @@
 #include <list>
 #include <geolib/datatypes.h>
 #include <tue/config/configuration.h>
-#include <triplet_graph/Measurement.h>
 
 #include "Edge2.h"
 #include "Edge3.h"
@@ -31,20 +30,21 @@ public:
 
     int addNode(const std::string &id);
 
-    int addEdge2(const int&, const int&, double &);
+    int addEdge2(const int n1, const int n2, const double& length);
 
-    int addEdge3(const int&, const int&, const int&);
+    int addEdge3(const int, const int, const int);
 
-    void deleteNode(const int& i);
+    void deleteNode(const int i);
 
-    void deleteEdge2(const int& i);
+    void deleteEdge2(const int i);
 
-    void deleteEdge3(const int& i);
+    void deleteEdge3(const int i);
 
 //    bool configure(tue::Configuration &config);
 
-    void update(const Measurements& measurements);
+//    void update(const Measurements& measurements);
 
+    // TODO: This still contains the deleted nodes, edges and triplets!
     std::vector<Node> getNodes() const {return nodes_;}
     std::vector<Edge2> getEdge2s() const {return edges_;}
     std::vector<Edge3> getEdge3s() const {return triplets_;}

@@ -13,8 +13,6 @@ namespace triplet_graph
 class Path: public std::stack<int>
 {
 public:
-    std::string toString();
-
     friend std::ostream& operator<<(std::ostream& os, const Path& dt);
 };
 

@@ -21,6 +21,8 @@ int findNodeByID(const Graph g, const std::string &id)
         if ((*it).id == id)
             return (it - g.begin());
     }
+    // Node not found, return -1!
+    return -1;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -42,6 +44,18 @@ int getConnectingEdge2(const Graph graph, const int Node1, const int Node2)
     }
 
     return -1;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+int getSecondNode(const Edge2& edge, const int node)
+{
+    if ( edge.A == node )
+        return edge.B;
+    else if ( edge.B == node )
+        return edge.A;
+    else
+        return -1;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -83,11 +97,13 @@ int getThirdNode(const Edge3& triplet, const int node1, const int node2)
         return triplet.A;
     else if ( triplet.C == node2 && triplet.A == node1 )
         return triplet.B;
+    else
+        return -1;
 }
 
 // -----------------------------------------------------------------------------------------------
 
-// TODO: Find a node by its location w.r.t. other nodes?
+// TODO: Find a node by its location w.r.t. other nodes, for association?
 
 // -----------------------------------------------------------------------------------------------
 
@@ -182,13 +198,19 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
             if (ns[v] > new_cost)
             {
                 ns[v] = new_cost;
-                Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].A)));
-                Q.push(CostEdge(new_cost, getConnectingEdge2(graph,v,edges[u].B)));
+
+                // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
+                for ( std::vector<int>::iterator e_it = nodes[v].edges.begin(); e_it !=nodes[v].edges.end(); e_it++ )
+                {
+                    int neighbor = getSecondNode(edges[*e_it],v);
+                    if ( ns[neighbor] < inf )
+                        Q.push(CostEdge(new_cost, *e_it));
+                }
 
                 // The most expensive node of the current set of nodes must be the previous one, so pich that as the previous
                 if ( ns[edges[u].A] > ns[edges[u].B] )
                     prevs[v] = ns[edges[u].A];
-                else if ( ns[edges[u].A] <= ns[edges[u].B] )
+                else
                     prevs[v] = ns[edges[u].B];
             }
         }
@@ -196,6 +218,68 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
         // After visiting edge, mark it visited using vector of edge weights
         es[u] = -1;
     }
+}
+
+// -----------------------------------------------------------------------------------------------
+
+bool configure(Graph g, tue::Configuration &config)
+{
+    if (config.readArray("objects"))
+    {
+        while (config.nextArrayItem())
+        {
+            // Check for the 'enabled' field. If it exists and the value is 0, omit this object. This allows
+            // the user to easily enable and disable certain objects with one single flag.
+            int enabled;
+            if (config.value("enabled", enabled, tue::OPTIONAL) && !enabled)
+                continue;
+
+            std::string id;
+            if (!config.value("id", id))
+            {
+                std::cout << "\033[31m" << "[GRAPH] ERROR! Node config has no id" << "\033[0m" << std::endl;
+                continue;
+            }
+            else
+                g.addNode(id);
+        }
+        config.endArray();
+    }
+    else
+        return false;
+
+    if (config.readArray("relations"))
+    {
+        while(config.nextArrayItem())
+        {
+            std::string id1, id2;
+            if (!config.value("n1", id1) || !config.value("n2", id2))
+                continue;
+
+            int n1 = findNodeByID(g,id1);
+            int n2 = findNodeByID(g,id2);
+
+            if ( n1 == -1 || n2 == -1 )
+                std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
+            else
+            {
+                double length;
+                if (config.value("length", length, tue::REQUIRED))
+                {
+                    g.addEdge2(n1,n2,length);
+                }
+                else
+                {
+                    std::cout << "\033[31m" << "[GRAPH] WARNING Edge length not defined" << "\033[0m" << std::endl;
+                    continue;
+                }
+            }
+        }
+    }
+    else
+        return false;
+
+    return true;
 }
 
 }

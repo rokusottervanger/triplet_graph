@@ -3,13 +3,25 @@
 
 #include "graph_types.h"
 #include <string>
+#include <vector>
+#include <tue/config/configuration.h>
 
 namespace triplet_graph
 {
 
 int findNodeByID(const Graph g, const std::string& id);
 
-//Path Dijkstra(const Graph g, const int& n1, const int& n2);
+int getConnectingEdge2(const Graph graph, const int Node1, const int Node2);
+
+int getSecondNode(const Edge2& edge, const int node);
+
+std::vector<int> getCommonTriplets(const Graph graph, const int Node1, const int Node2);
+
+int getThirdNode(const Edge3& triplet, const int node1, const int node2);
+
+Path findPath(const Graph graph, const int source_node1, const int source_node2, const int target_node);
+
+bool configure(Graph g, tue::Configuration &config);
 
 }
 

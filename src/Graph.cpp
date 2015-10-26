@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <iostream>
-//#include <vector>
-//#include <queue>
-//#include <limits>
-//#include <boost/bind.hpp>
 
 #include "triplet_graph/Graph.h"
+#include "triplet_graph/Edge2.h"
+#include "triplet_graph/Edge3.h"
+#include "triplet_graph/Node.h"
 
 namespace triplet_graph
 {
@@ -35,7 +34,7 @@ int Graph::addNode(const std::string& id)
 
 // -----------------------------------------------------------------------------------------------
 
-int Graph::addEdge2(const int& node1, const int& node2, double& length)
+int Graph::addEdge2(const int node1, const int node2, const double& length)
 {
     Edge2 edge2(node1, node2, length);
 
@@ -60,7 +59,7 @@ int Graph::addEdge2(const int& node1, const int& node2, double& length)
 
 // -----------------------------------------------------------------------------------------------
 
-int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
+int Graph::addEdge3(const int node1, const int node2, const int node3)
 {
     if (node1 == node2 || node2 == node3 || node3 == node1)
     {
@@ -144,90 +143,7 @@ int Graph::addEdge3(const int& node1, const int& node2, const int& node3)
 
 // -----------------------------------------------------------------------------------------------
 
-//bool TripletGraph::configure(tue::Configuration &config)
-//{
-//    std::map<std::string,Node*> nodes;
-
-//    if (config.readArray("objects"))
-//    {
-//        while (config.nextArrayItem())
-//        {
-//            Node node;
-
-//            // Check for the 'enabled' field. If it exists and the value is 0, omit this object. This allows
-//            // the user to easily enable and disable certain objects with one single flag.
-//            int enabled;
-//            if (config.value("enabled", enabled, tue::OPTIONAL) && !enabled)
-//                continue;
-
-//            std::string id;
-//            if (!config.value("id", id))
-//            {
-//                std::cout << "\033[31m" << "[GRAPH] ERROR! Node config has no id" << "\033[0m" << std::endl;
-//                continue;
-//            }
-//            else
-//            {
-//                node.id = id;
-//                nodes[id] = addNode(node);
-//            }
-//        }
-//        std::cout << "1" << std::endl;
-//        config.endArray();
-//    }
-
-//    if (config.readArray("relations"))
-//    {
-//        while(config.nextArrayItem())
-//        {
-//            std::string id1, id2;
-//            if (!config.value("n1", id1) || !config.value("n2", id2))
-//                continue;
-
-//            std::map<std::string,Node*>::iterator n1_it = nodes.find(id1);
-//            std::map<std::string,Node*>::iterator n2_it = nodes.find(id2);
-
-//            if (n1_it != nodes.end())
-//            {
-//                Node* n1 = n1_it->second;
-//                Node* n2 = n2_it->second;
-
-//                geo::Pose3D pose = geo::Pose3D::identity();
-//                if (config.readGroup("pose", tue::REQUIRED))
-//                {
-//                    config.value("x", pose.t.x);
-//                    config.value("y", pose.t.y);
-//                    config.value("z", pose.t.z);
-
-//                    double roll = 0, pitch = 0, yaw = 0;
-//                    config.value("roll", roll, tue::OPTIONAL);
-//                    config.value("pitch", pitch, tue::OPTIONAL);
-//                    config.value("yaw", yaw, tue::OPTIONAL);
-//                    pose.R.setRPY(roll, pitch, yaw);
-
-//                    config.endGroup();
-//                }
-//                else
-//                {
-//                    std::cout << "Could not find pose group" << std::endl;
-//                    continue;
-//                }
-//                addEdge(n1,n2,pose);
-//            }
-//            else
-//            {
-//                std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
-//            }
-
-//            std::cout << "[GRAPH] Added edge from: '" << id1 << "' to '" << id2 << "'" << std::endl;
-//        }
-//    }
-//    return true;
-//}
-
-// -----------------------------------------------------------------------------------------------
-
-void Graph::deleteNode(const int& i)
+void Graph::deleteNode(const int i)
 {
     Node node = nodes_[i];
     nodes_[i].id = "";
@@ -248,7 +164,7 @@ void Graph::deleteNode(const int& i)
 
 // -----------------------------------------------------------------------------------------------
 
-void Graph::deleteEdge2(const int& i)
+void Graph::deleteEdge2(const int i)
 {
     Edge2 edge = edges_[i];
 
@@ -277,7 +193,7 @@ void Graph::deleteEdge2(const int& i)
 
 // -----------------------------------------------------------------------------------------------
 
-void Graph::deleteEdge3(const int& i)
+void Graph::deleteEdge3(const int i)
 {
     Edge3 triplet = triplets_[i];
 
@@ -292,9 +208,9 @@ void Graph::deleteEdge3(const int& i)
 
 // -----------------------------------------------------------------------------------------------
 
-void Graph::update(const Measurements& measurements)
-{
-    std::cout << "[GRAPH] Updating graph (does nothing right now)" << std::endl;
-}
+//void Graph::update(const Measurements& measurements)
+//{
+//    std::cout << "[GRAPH] Updating graph (does nothing right now)" << std::endl;
+//}
 
 }
