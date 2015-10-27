@@ -5,8 +5,6 @@
 #include <string>
 #include <iostream>
 
-#include "triplet_graph/Node.h"
-
 namespace triplet_graph
 {
 
