@@ -52,6 +52,9 @@ int Graph::addEdge2(const int node1, const int node2, const double& length)
         deleted_edges_.pop_back();
     }
 
+    nodes_[node1].edges.push_back(i);
+    nodes_[node2].edges.push_back(i);
+
     std::cout << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << std::endl;
 
     return i;
