@@ -56,7 +56,7 @@ public:
             NodeIterator(const std::vector<Node>& v) : it_(v.begin()), it_end_(v.end())
             {
                 // Skip possible deleted nodes at the beginning
-                while(it_ != it_end_ && it_->id != "")
+                while(it_ != it_end_ && it_->id == "")
                     ++it_;
             }
 
@@ -67,7 +67,7 @@ public:
             NodeIterator& operator++()
             {
                 // Increase iterator and skip possible zero-entities (deleted entities)
-                do { ++it_; if (it_ == it_end_) break; } while ( it_->id != "");
+                do { ++it_; if (it_ == it_end_) break; } while ( it_->id == "");
                 return *this;
             }
 
@@ -92,6 +92,8 @@ public:
     inline const_iterator begin() const { return const_iterator(nodes_); }
 
     inline const_iterator end() const { return const_iterator(nodes_.end());}
+
+    inline int size() const { return nodes_.size() - deleted_nodes_.size(); }
 
 };
 
