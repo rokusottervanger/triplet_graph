@@ -11,7 +11,7 @@ namespace triplet_graph
 class Path: public std::stack<int>
 {
 public:
-    friend std::ostream& operator<<(std::ostream& os, const Path& dt);
+    friend std::ostream& operator<<(std::ostream& os, Path dt);
 };
 
 }
