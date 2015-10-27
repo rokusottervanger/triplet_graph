@@ -9,19 +9,19 @@
 namespace triplet_graph
 {
 
-int findNodeByID(const Graph g, const std::string& id);
+int findNodeByID(const Graph& g, const std::string& id);
 
-int getConnectingEdge2(const Graph graph, const int Node1, const int Node2);
+int getConnectingEdge2(const Graph &graph, const int Node1, const int Node2);
 
 int getSecondNode(const Edge2& edge, const int node);
 
-std::vector<int> getCommonTriplets(const Graph graph, const int Node1, const int Node2);
+std::vector<int> getCommonTriplets(const Graph &graph, const int Node1, const int Node2);
 
 int getThirdNode(const Edge3& triplet, const int node1, const int node2);
 
-Path findPath(const Graph graph, const int source_node1, const int source_node2, const int target_node);
+Path findPath(const Graph &graph, const int source_node1, const int source_node2, const int target_node);
 
-bool configure(Graph g, tue::Configuration &config);
+bool configure(Graph &g, tue::Configuration &config);
 
 }
 

@@ -14,26 +14,26 @@ namespace triplet_graph
 
 // -----------------------------------------------------------------------------------------------
 
-int findNodeByID(const Graph g, const std::string &id)
+int findNodeByID(const Graph& g, const std::string &id)
 {
     for ( Graph::const_iterator it = g.begin(); it != g.end(); it++ )
     {
         if ((*it).id == id)
             return (it - g.begin());
     }
+
     // Node not found, return -1!
     return -1;
 }
 
 // -----------------------------------------------------------------------------------------------
 
-int getConnectingEdge2(const Graph graph, const int Node1, const int Node2)
+int getConnectingEdge2(const Graph& graph, const int Node1, const int Node2)
 {
     std::vector<Node> nodes = graph.getNodes();
     std::vector<Edge2> edges = graph.getEdge2s();
 
     Node n1 = nodes[Node1];
-    Node n2 = nodes[Node2];
 
     // TODO: Make this more efficient by giving nodes a map from node indices to edge indices?
     for( std::vector<int>::iterator it = n1.edges.begin(); it != n1.edges.end(); it++ )
@@ -60,13 +60,12 @@ int getSecondNode(const Edge2& edge, const int node)
 
 // -----------------------------------------------------------------------------------------------
 
-std::vector<int> getCommonTriplets(const Graph graph, const int Node1, const int Node2)
+std::vector<int> getCommonTriplets(const Graph& graph, const int Node1, const int Node2)
 {
     std::vector<Node> nodes = graph.getNodes();
     std::vector<Edge3> triplets = graph.getEdge3s();
 
     Node n1 = nodes[Node1];
-    Node n2 = nodes[Node2];
 
     // TODO: Make this more efficient by giving nodes a set of triplets?
     std::vector<int> common_triplets;
@@ -107,7 +106,7 @@ int getThirdNode(const Edge3& triplet, const int node1, const int node2)
 
 // -----------------------------------------------------------------------------------------------
 
-Path findPath(const Graph graph, const int source_node1, const int source_node2, const int target_node)
+Path findPath(const Graph& graph, const int source_node1, const int source_node2, const int target_node)
 {
     typedef std::pair< double, int > CostEdge; // First is the sum of the costs (so far) to get to the nodes connected by an edge, second is the respective edge index
     const double inf = 1e38;
@@ -126,10 +125,10 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
     std::priority_queue<CostEdge, std::vector<CostEdge>, std::greater<CostEdge> > Q;
     Q.push(CostEdge(0,source_edge));
 
-
     std::vector<double> ns(nodes.size(),inf);
     std::vector<double> es(edges.size(),inf);
     std::vector<double> ts(triplets.size(),inf);
+
     es[source_edge] = 0;
     ns[source_node1] = 0;
     ns[source_node2] = 0;
@@ -140,7 +139,6 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
      */
     Path path;      // Path of nodes from source to target;
     std::vector<int> prevs(nodes.size(),-1);
-    int prev = source_node1;
 
     while(!Q.empty())
     {
@@ -156,22 +154,20 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
         if ( edges[u].A == target_node )
         {
             int n = edges[u].A;
-            path.push(n);
-            while ( n != source_node1 || n!= source_node2 ) // Klopt dit?
+            while ( n != -1 )
             {
-                n = prevs[n];
                 path.push(n);
+                n = prevs[n];
             }
             return path;
         }
         else if ( edges[u].B == target_node )
         {
             int n = edges[u].B;
-            path.push(n);
-            while ( n != source_node1 || n!= source_node2 ) // Klopt dit?
+            while ( n != -1 )
             {
-                n = prevs[n];
                 path.push(n);
+                n = prevs[n];
             }
             return path;
         }
@@ -203,15 +199,17 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
                 for ( std::vector<int>::iterator e_it = nodes[v].edges.begin(); e_it !=nodes[v].edges.end(); e_it++ )
                 {
                     int neighbor = getSecondNode(edges[*e_it],v);
+
                     if ( ns[neighbor] < inf )
                         Q.push(CostEdge(new_cost, *e_it));
                 }
 
-                // The most expensive node of the current set of nodes must be the previous one, so pich that as the previous
+                // The most expensive node of the current set of nodes must be the previous one, so pich that as the previous.
+                // If cost of both nodes is equal, it does not matter which one we pick.
                 if ( ns[edges[u].A] > ns[edges[u].B] )
-                    prevs[v] = ns[edges[u].A];
+                    prevs[v] = edges[u].A;
                 else
-                    prevs[v] = ns[edges[u].B];
+                    prevs[v] = edges[u].B;
             }
         }
 
@@ -222,7 +220,7 @@ Path findPath(const Graph graph, const int source_node1, const int source_node2,
 
 // -----------------------------------------------------------------------------------------------
 
-bool configure(Graph g, tue::Configuration &config)
+bool configure(Graph& g, tue::Configuration &config)
 {
     if (config.readArray("objects"))
     {
@@ -248,7 +246,7 @@ bool configure(Graph g, tue::Configuration &config)
     else
         return false;
 
-    if (config.readArray("relations"))
+    if (config.readArray("edges"))
     {
         while(config.nextArrayItem())
         {
@@ -275,9 +273,37 @@ bool configure(Graph g, tue::Configuration &config)
                 }
             }
         }
+        config.endArray();
     }
     else
+    {
+        std::cout << "\033[31m" << "[GRAPH] ERROR! No edges defined in config" << "\033[0m" << std::endl;
         return false;
+    }
+
+    if (config.readArray("triplets"))
+    {
+        while(config.nextArrayItem())
+        {
+            std::string id1, id2, id3;
+            if (!config.value("n1", id1) || !config.value("n2", id2) || !config.value("n3", id3))
+                continue;
+
+            int n1 = findNodeByID(g,id1);
+            int n2 = findNodeByID(g,id2);
+            int n3 = findNodeByID(g,id3);
+
+            if ( n1 == -1 || n2 == -1 || n3 == -1 )
+                std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
+            else
+                g.addEdge3(n1,n2,n3);
+        }
+    }
+    else
+    {
+        std::cout << "\033[31m" << "[GRAPH] ERROR! No triplets defined in config" << "\033[0m" << std::endl;
+        return false;
+    }
 
     return true;
 }
