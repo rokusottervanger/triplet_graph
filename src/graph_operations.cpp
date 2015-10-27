@@ -106,7 +106,7 @@ int getThirdNode(const Edge3& triplet, const int node1, const int node2)
 
 // -----------------------------------------------------------------------------------------------
 
-Path findPath(const Graph& graph, const int source_node1, const int source_node2, const int target_node)
+double findPath(const Graph& graph, const int source_node1, const int source_node2, const int target_node, Path& path)
 {
     typedef std::pair< double, int > CostEdge; // First is the sum of the costs (so far) to get to the nodes connected by an edge, second is the respective edge index
     const double inf = 1e38;
@@ -135,9 +135,9 @@ Path findPath(const Graph& graph, const int source_node1, const int source_node2
 
     /* The path is to contain the series of nodes to get from the source nodes to
      * the target node. To construct this path, the prevs vector is maintained,
-     * holding for every visited node the previous node. The previous
+     * holding for every visited node the previous node and -1 for ever non-
+     * visited node.
      */
-    Path path;      // Path of nodes from source to target;
     std::vector<int> prevs(nodes.size(),-1);
 
     while(!Q.empty())
@@ -159,7 +159,7 @@ Path findPath(const Graph& graph, const int source_node1, const int source_node2
                 path.push(n);
                 n = prevs[n];
             }
-            return path;
+            return ns[target_node];
         }
         else if ( edges[u].B == target_node )
         {
@@ -169,7 +169,7 @@ Path findPath(const Graph& graph, const int source_node1, const int source_node2
                 path.push(n);
                 n = prevs[n];
             }
-            return path;
+            return ns[target_node];
         }
 
         std::vector<int> common_triplets = getCommonTriplets(graph,edges[u].A,edges[u].B);
