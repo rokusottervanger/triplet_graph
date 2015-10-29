@@ -9,6 +9,7 @@ class Node;
 struct Edge2;
 struct Edge3;
 class Path;
+class Measurement;
 
 }
 

@@ -19,7 +19,7 @@ private:
 
 };
 
-typedef std::vector<triplet_graph::Measurement> Measurements;
+//typedef std::vector<triplet_graph::Measurement> Measurements;
 
 } // end namespace graph_map
 
