@@ -106,7 +106,7 @@ int getThirdNode(const Edge3& triplet, const int node1, const int node2)
 
 // -----------------------------------------------------------------------------------------------
 
-double findPath(const Graph& graph, const int source_node1, const int source_node2, const int target_node, Path& path)
+double findPath(const Graph& graph, const std::vector<int> source_nodes, const int target_node, Path& path)
 {
     typedef std::pair< double, int > CostEdge; // First is the sum of the costs (so far) to get to the nodes connected by an edge, second is the respective edge index
     const double inf = 1e38;
@@ -116,22 +116,31 @@ double findPath(const Graph& graph, const int source_node1, const int source_nod
     std::vector<Edge2> edges    = graph.getEdge2s();
     std::vector<Edge3> triplets = graph.getEdge3s();
 
-    int source_edge = getConnectingEdge2(graph,source_node1,source_node2);
+    // Track visited edges and triplets and cost to nodes
+    std::vector<double> ns(nodes.size(),inf);
+    std::vector<double> es(edges.size(),inf);
+    std::vector<double> ts(triplets.size(),inf);
 
     /* The priority queue holds couples of nodes (edges) to be handled, sorted by
      * the sum of the cost to get to those nodes. The cost to get to the first
      * pair of nodes is obviously zero.
      */
     std::priority_queue<CostEdge, std::vector<CostEdge>, std::greater<CostEdge> > Q;
-    Q.push(CostEdge(0,source_edge));
 
-    std::vector<double> ns(nodes.size(),inf);
-    std::vector<double> es(edges.size(),inf);
-    std::vector<double> ts(triplets.size(),inf);
-
-    es[source_edge] = 0;
-    ns[source_node1] = 0;
-    ns[source_node2] = 0;
+    // Find all edges connecting the source nodes and add those edges to Q
+    for ( std::vector<int>::const_iterator it_1 = source_nodes.begin(); it_1 != source_nodes.end(); it_1++ )
+    {
+        for ( std::vector<int>::const_iterator it_2 = source_nodes.begin(); it_2 != it_1; it_2++ )
+        {
+            int edge = getConnectingEdge2(graph,*it_1,*it_2);
+            if ( edge != -1 )
+            {
+                Q.push(CostEdge(0,edge));
+                es[edge] = 0;
+            }
+        }
+        ns[*it_1] = 0;
+    }
 
     /* The path is to contain the series of nodes to get from the source nodes to
      * the target node. To construct this path, the prevs vector is maintained,
@@ -153,6 +162,12 @@ double findPath(const Graph& graph, const int source_node1, const int source_nod
         // When the target is reached, trace back path and return
         if ( edges[u].A == target_node )
         {
+            // TODO: path tracing (especially when loops occur) does not work well yet. (Try config file 2 with nodes 0,1,2 and 7 as starting set)
+            std::cout << "Prevs: [ ";
+            for (std::vector<int>::iterator it =prevs.begin(); it !=prevs.end(); it++ )
+                std::cout << *it << " ";
+            std::cout << "]" << std::endl;
+
             int n = edges[u].A;
             while ( n != -1 )
             {
@@ -163,6 +178,11 @@ double findPath(const Graph& graph, const int source_node1, const int source_nod
         }
         else if ( edges[u].B == target_node )
         {
+            std::cout << "Prevs: [ ";
+            for (std::vector<int>::iterator it =prevs.begin(); it !=prevs.end(); it++ )
+                std::cout << *it << " ";
+            std::cout << "]" << std::endl;
+
             int n = edges[u].B;
             while ( n != -1 )
             {
@@ -177,13 +197,13 @@ double findPath(const Graph& graph, const int source_node1, const int source_nod
         // Run through common triplets of the current pair of nodes
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); t_it++ )
         {
-            // Retrieve the right node from the triplet.
-            int v = getThirdNode(triplets[*t_it],edges[u].A,edges[u].B);
-
             // If this triplet was already visited, continue
             if ( ts[*t_it] == -1 )
                 continue;
-            ts[*t_it] = -1;// TODO: Is this the right place to mark triplet visited?
+            ts[*t_it] = -1; // TODO: Is this OK?
+
+            // Retrieve the right node from the triplet.
+            int v = getThirdNode(triplets[*t_it],edges[u].A,edges[u].B);
 
             // TODO: Calculate weight using the two edges connecting the third node to the two base nodes
             double w = 1.0;
