@@ -74,11 +74,10 @@ add_library(triplet_graph
 )
 target_link_libraries(triplet_graph ${catkin_LIBRARIES})
 
-
-#add_executable(rviz_publisher
-#    src/rviz_publisher.cpp
-#)
-#target_link_libraries(rviz_publisher ${catkin_LIBRARIES})
+add_executable(laser_processor
+    src/laser_processor.cpp
+)
+target_link_libraries(laser_processor ${catkin_LIBRARIES})
 
 
 
