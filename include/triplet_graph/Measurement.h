@@ -2,6 +2,7 @@
 #define TRIPLET_GRAPH_MEASUREMENT_H_
 
 #include <vector>
+#include <geolib/math_types.h>
 
 namespace triplet_graph
 {
@@ -11,9 +12,7 @@ class Measurement
 
 public:
 
-    Measurement();
-
-    ~Measurement();
+    std::vector<geo::Vec3d> points;
 
 private:
 

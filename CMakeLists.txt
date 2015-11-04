@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(triplet_graph)
 
 find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  tf
   geolib2
   tue_config
 )
@@ -72,12 +74,18 @@ add_library(triplet_graph
     src/graph_operations.cpp
     ${HEADER_FILES}
 )
-target_link_libraries(triplet_graph ${catkin_LIBRARIES})
+target_link_libraries(triplet_graph
+    ${catkin_LIBRARIES}
+)
 
 add_executable(laser_processor
     src/laser_processor.cpp
+    ${HEADER_FILES}
 )
-target_link_libraries(laser_processor ${catkin_LIBRARIES})
+target_link_libraries(laser_processor
+    triplet_graph
+    ${catkin_LIBRARIES}
+)
 
 
 
