@@ -102,22 +102,26 @@ void LaserPlugin::process(triplet_graph::Measurement& measurement)
         int corner_index;
 
         // For every intermediate point, check if distance to line segment ab is small enough. If too big, it's a corner!
-        for (int j = 1; j < step_size_; j++ )
+        for (int j = 1; j <= step_size_; j++ )
         {
             // If a jump occurs, move on to after jump
             if ( fabs(sensor_ranges[i+j] - sensor_ranges[i+j-1]) > jump_size_ )
             {
+                d_max = corner_threshold_;
                 i = i+j+1;
                 break;
             }
             c = lrf_model_.rangeToPoint(sensor_ranges[i+j],i+j);
             dc = c - A;
             double d = N.dot(dc);
-            if ( d > d_max || d < -d_max )
+            if ( d > corner_threshold_*sensor_ranges[i+j] )
             {
-                d_max = fabs(d);
-                c_corner = c;
-                corner_index = i+j;
+                if ( d > d_max || d < -d_max )
+                {
+                    d_max = fabs(d);
+                    c_corner = c;
+                    corner_index = i+j;
+                }
             }
         }
 
@@ -127,8 +131,6 @@ void LaserPlugin::process(triplet_graph::Measurement& measurement)
             added_point_indices.insert(corner_index);
         }
     }
-
-    std::cout << "I found " << measurement.points.size() << " corner points." << std::endl;
 
     scan_msg_.reset();
 }
@@ -210,7 +212,7 @@ int main(int argc, char** argv)
 
     laserPlugin.initialize(config);
 
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(15);
 
     triplet_graph::Visualizer vis;
     vis.configure(config);
