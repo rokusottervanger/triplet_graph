@@ -1,3 +1,6 @@
 laser_topic: "/amigo/base_laser/scan"
-corner_threshold: 0.1
-step_size: 10
+corner_threshold: 0.03
+step_size: 15
+frame_id: "/amigo/base_laser"
+jump_size: 0.1
+

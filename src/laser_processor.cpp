@@ -5,6 +5,7 @@
 #include <string>
 #include <ros/node_handle.h>
 #include <geolib/sensors/LaserRangeFinder.h>
+#include <visualization_msgs/Marker.h>
 
 
 namespace triplet_graph
@@ -16,6 +17,7 @@ void LaserPlugin::initialize(tue::Configuration &config)
     config.value("laser_topic", laser_topic);
     config.value("corner_threshold", corner_threshold_);
     config.value("step_size", step_size_);
+    config.value("jump_size", jump_size_);
 
     if (config.hasError())
         return;
@@ -102,12 +104,18 @@ void LaserPlugin::process(triplet_graph::Measurement& measurement)
         // For every intermediate point, check if distance to line segment ab is small enough. If too big, it's a corner!
         for (int j = 1; j < step_size_; j++ )
         {
+            // If a jump occurs, move on to after jump
+            if ( fabs(sensor_ranges[i+j] - sensor_ranges[i+j-1]) > jump_size_ )
+            {
+                i = i+j+1;
+                break;
+            }
             c = lrf_model_.rangeToPoint(sensor_ranges[i+j],i+j);
             dc = c - A;
             double d = N.dot(dc);
-            if ( d > d_max )
+            if ( d > d_max || d < -d_max )
             {
-                d_max = d;
+                d_max = fabs(d);
                 c_corner = c;
                 corner_index = i+j;
             }
@@ -124,6 +132,53 @@ void LaserPlugin::process(triplet_graph::Measurement& measurement)
 
     scan_msg_.reset();
 }
+
+class Visualizer
+{
+public:
+    visualization_msgs::Marker points;
+    ros::Publisher marker_pub;
+    std::string frame_id;
+    ros::NodeHandle nh;
+
+    Visualizer(): nh("~"){}
+
+    void configure(tue::Configuration config)
+    {
+        marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+        config.value("frame_id", frame_id);
+
+        points.header.frame_id = frame_id;
+        points.ns = "laser_processor";
+        points.pose.orientation.w = 1.0;
+
+        points.id = 0;
+        points.type = visualization_msgs::Marker::POINTS;
+        points.scale.x = 0.03;
+        points.scale.y = 0.03;
+
+        points.color.g = 1.0f;
+        points.color.a = 1.0;
+    }
+
+    void publish(Measurement measurement)
+    {
+        points.points.clear();
+
+        for ( std::vector<geo::Vec3d>::iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
+        {
+            geometry_msgs::Point p;
+            p.x = it->getX();
+            p.y = it->getY();
+            p.z = it->getZ();
+
+            points.points.push_back(p);
+        }
+
+        marker_pub.publish(points);
+
+    }
+};
 
 
 }
@@ -157,12 +212,16 @@ int main(int argc, char** argv)
 
     ros::Rate loop_rate(10);
 
+    triplet_graph::Visualizer vis;
+    vis.configure(config);
 
 
     while (ros::ok())
     {
         triplet_graph::Measurement measurement;
+
         laserPlugin.process(measurement);
+        vis.publish(measurement);
         ros::spinOnce();
         loop_rate.sleep();
     }

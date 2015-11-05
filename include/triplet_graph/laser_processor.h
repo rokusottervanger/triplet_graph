@@ -26,6 +26,7 @@ private:
 
     geo::LaserRangeFinder lrf_model_;
 
+    double jump_size_;
     int step_size_;
     float corner_threshold_;
 
