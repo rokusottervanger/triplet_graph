@@ -11,7 +11,7 @@
 namespace triplet_graph
 {
 
-void LaserPlugin::initialize(tue::Configuration &config)
+void LaserPlugin::configure(tue::Configuration &config)
 {
     std::string laser_topic;
     config.value("laser_topic", laser_topic);
@@ -102,6 +102,7 @@ void LaserPlugin::process(triplet_graph::Measurement& measurement)
         int corner_index;
 
         // For every intermediate point, check if distance to line segment ab is small enough. If too big, it's a corner!
+        // TODO: let step size depend on length of db
         for (int j = 1; j <= step_size_; j++ )
         {
             // If a jump occurs, move on to after jump
@@ -113,12 +114,12 @@ void LaserPlugin::process(triplet_graph::Measurement& measurement)
             }
             c = lrf_model_.rangeToPoint(sensor_ranges[i+j],i+j);
             dc = c - A;
-            double d = N.dot(dc);
+            double d = fabs(N.dot(dc));
             if ( d > corner_threshold_*sensor_ranges[i+j] )
             {
-                if ( d > d_max || d < -d_max )
+                if ( d > d_max )
                 {
-                    d_max = fabs(d);
+                    d_max = d;
                     c_corner = c;
                     corner_index = i+j;
                 }
@@ -128,7 +129,12 @@ void LaserPlugin::process(triplet_graph::Measurement& measurement)
         if ( d_max > corner_threshold_ && added_point_indices.find(corner_index) == added_point_indices.end() )
         {
             measurement.points.push_back(c_corner);
+
+            measurement.segments.push_back(A);
+            measurement.segments.push_back(B);
+
             added_point_indices.insert(corner_index);
+            i = corner_index;
         }
     }
 
@@ -139,6 +145,7 @@ class Visualizer
 {
 public:
     visualization_msgs::Marker points;
+    visualization_msgs::Marker lines;
     ros::Publisher marker_pub;
     std::string frame_id;
     ros::NodeHandle nh;
@@ -147,11 +154,12 @@ public:
 
     void configure(tue::Configuration config)
     {
+        // TODO: timestamp
         marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
         config.value("frame_id", frame_id);
 
         points.header.frame_id = frame_id;
-        points.ns = "laser_processor";
+        points.ns = "points";
         points.pose.orientation.w = 1.0;
 
         points.id = 0;
@@ -161,11 +169,24 @@ public:
 
         points.color.g = 1.0f;
         points.color.a = 1.0;
+
+        lines.header.frame_id = frame_id;
+        lines.ns = "lines";
+        lines.pose.orientation.w = 1.0;
+
+        lines.id = 0;
+        lines.type = visualization_msgs::Marker::LINE_LIST;
+        lines.scale.x = 0.002;
+        lines.scale.y = 0.002;
+
+        lines.color.b = 1.0f;
+        lines.color.a = 1.0;
     }
 
     void publish(Measurement measurement)
     {
         points.points.clear();
+        lines.points.clear();
 
         for ( std::vector<geo::Vec3d>::iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
         {
@@ -177,8 +198,18 @@ public:
             points.points.push_back(p);
         }
 
-        marker_pub.publish(points);
+        for ( std::vector<geo::Vec3d>::iterator it = measurement.segments.begin(); it != measurement.segments.end(); it++ )
+        {
+            geometry_msgs::Point p;
+            p.x = it->getX();
+            p.y = it->getY();
+            p.z = it->getZ();
 
+            lines.points.push_back(p);
+        }
+
+        marker_pub.publish(points);
+        marker_pub.publish(lines);
     }
 };
 
@@ -210,7 +241,7 @@ int main(int argc, char** argv)
 
     triplet_graph::LaserPlugin laserPlugin;
 
-    laserPlugin.initialize(config);
+    laserPlugin.configure(config);
 
     ros::Rate loop_rate(15);
 

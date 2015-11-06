@@ -14,7 +14,7 @@ namespace triplet_graph
 class LaserPlugin
 {
 public:
-    void initialize(tue::Configuration &config);
+    void configure(tue::Configuration &config);
     void process(Measurement &measurement);
 
 private:

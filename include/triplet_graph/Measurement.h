@@ -13,6 +13,7 @@ class Measurement
 public:
 
     std::vector<geo::Vec3d> points;
+    std::vector<geo::Vec3d> segments;
 
 private:
 
