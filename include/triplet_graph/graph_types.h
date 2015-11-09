@@ -4,12 +4,13 @@
 namespace triplet_graph
 {
 
-class Graph;
-class Node;
+class  Graph;
+class  Node;
 struct Edge2;
 struct Edge3;
-class Path;
-class Measurement;
+class  Path;
+struct Measurement;
+class  Visualizer;
 
 }
 

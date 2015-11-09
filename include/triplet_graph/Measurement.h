@@ -2,25 +2,26 @@
 #define TRIPLET_GRAPH_MEASUREMENT_H_
 
 #include <vector>
-#include <geolib/math_types.h>
+#include <string>
+
+#include <ros/time.h>
+
+#include <geolib/datatypes.h>
 
 namespace triplet_graph
 {
 
-class Measurement
+struct Measurement
 {
-
-public:
-
+    ros::Time time_stamp;
     std::vector<geo::Vec3d> points;
-    std::vector<geo::Vec3d> segments;
-
-private:
+    std::vector<geo::Vec3d> line_list;
+    std::string frame_id;
 
 };
 
-//typedef std::vector<triplet_graph::Measurement> Measurements;
 
-} // end namespace graph_map
+
+} // end namespace triplet_graph
 
 #endif

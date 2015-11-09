@@ -68,7 +68,8 @@ file(GLOB_RECURSE HEADER_FILES include/*.h)
 add_library(triplet_graph
 #    src/IncompleteRelation.cpp
     src/Path.cpp
-#    src/Measurement.cpp
+    #src/Measurement.cpp
+    src/Visualizer.cpp
     src/Node.cpp
     src/Graph.cpp
     src/graph_operations.cpp
@@ -79,6 +80,7 @@ target_link_libraries(triplet_graph
 )
 
 add_executable(laser_processor
+    src/CornerDetector.cpp
     src/laser_processor.cpp
     ${HEADER_FILES}
 )
