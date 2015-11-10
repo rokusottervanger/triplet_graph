@@ -102,11 +102,7 @@ int getThirdNode(const Edge3& triplet, const int node1, const int node2)
 
 // -----------------------------------------------------------------------------------------------
 
-// TODO: Find a node by its location w.r.t. other nodes, for association?
-
-// -----------------------------------------------------------------------------------------------
-
-double findPath(const Graph& graph, const std::vector<int> source_nodes, const int target_node, Path& path)
+double findPath(const Graph& graph, const std::vector<int>& source_nodes, const int target_node, Path& path)
 {
     typedef std::pair< double, int > CostEdge; // First is the sum of the costs (so far) to get to the nodes connected by an edge, second is the respective edge index
     const double inf = 1e38;
@@ -130,16 +126,26 @@ double findPath(const Graph& graph, const std::vector<int> source_nodes, const i
     // Find all edges connecting the source nodes and add those edges to Q
     for ( std::vector<int>::const_iterator it_1 = source_nodes.begin(); it_1 != source_nodes.end(); it_1++ )
     {
-        for ( std::vector<int>::const_iterator it_2 = source_nodes.begin(); it_2 != it_1; it_2++ )
+        if ( *it_1 == -1 )
+            std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
+        else
         {
-            int edge = getConnectingEdge2(graph,*it_1,*it_2);
-            if ( edge != -1 )
+            for ( std::vector<int>::const_iterator it_2 = source_nodes.begin(); it_2 != it_1; it_2++ )
             {
-                Q.push(CostEdge(0,edge));
-                es[edge] = 0;
+                if ( *it_2 == -1 )
+                    std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
+                else
+                {
+                    int edge = getConnectingEdge2(graph,*it_1,*it_2);
+                    if ( edge != -1 )
+                    {
+                        Q.push(CostEdge(0,edge));
+                        es[edge] = 0;
+                    }
+                }
             }
+            ns[*it_1] = 0;
         }
-        ns[*it_1] = 0;
     }
 
     /* The path is to contain the series of nodes to get from the source nodes to
@@ -148,6 +154,7 @@ double findPath(const Graph& graph, const std::vector<int> source_nodes, const i
      * visited node.
      */
     std::vector<int> prevs(nodes.size(),-1);
+    std::priority_queue<CostEdge, std::vector<CostEdge>, std::less<CostEdge> > trace;
 
     while(!Q.empty())
     {
@@ -168,11 +175,22 @@ double findPath(const Graph& graph, const std::vector<int> source_nodes, const i
                 std::cout << *it << " ";
             std::cout << "]" << std::endl;
 
-            int n = edges[u].A;
-            while ( n != -1 )
+            trace.push(CostEdge(ns[edges[u].A],edges[u].A));
+            int n = trace.top().second;
+            int e = 0;
+            while ( e!=-1 )
             {
+                trace.pop();
+                std::cout << "n = " << n << std::endl;
                 path.push(n);
-                n = prevs[n];
+                e = prevs[n];
+                int na = edges[e].A;
+                int nb = edges[e].B;
+                if ( trace.top().second != na && na != -1 )
+                    trace.push(CostEdge(ns[na],na));
+                if ( trace.top().second != nb && nb != -1 )
+                    trace.push(CostEdge(ns[nb],nb));
+                n = trace.top().second;
             }
             return ns[target_node];
         }
@@ -183,11 +201,23 @@ double findPath(const Graph& graph, const std::vector<int> source_nodes, const i
                 std::cout << *it << " ";
             std::cout << "]" << std::endl;
 
-            int n = edges[u].B;
-            while ( n != -1 )
+            trace.push(CostEdge(ns[edges[u].B],edges[u].B));
+            int n = trace.top().second;
+            int e = 0;
+            while ( e!=-1 )
             {
+                trace.pop();
+                std::cout << "n = " << n << std::endl;
                 path.push(n);
-                n = prevs[n];
+                e = prevs[n];
+//                std::cout << "e = " << e << std::endl;
+                int na = edges[e].A;
+                int nb = edges[e].B;
+                if ( trace.top().second != na && na != -1 )
+                    trace.push(CostEdge(ns[na],na));
+                if ( trace.top().second != nb && nb != -1 )
+                    trace.push(CostEdge(ns[nb],nb));
+                n = trace.top().second;
             }
             return ns[target_node];
         }
@@ -224,12 +254,8 @@ double findPath(const Graph& graph, const std::vector<int> source_nodes, const i
                         Q.push(CostEdge(new_cost, *e_it));
                 }
 
-                // The most expensive node of the current set of nodes must be the previous one, so pich that as the previous.
-                // If cost of both nodes is equal, it does not matter which one we pick.
-                if ( ns[edges[u].A] > ns[edges[u].B] )
-                    prevs[v] = edges[u].A;
-                else
-                    prevs[v] = edges[u].B;
+                // Store edge that lead to this node
+                prevs[v] = u;
             }
         }
 

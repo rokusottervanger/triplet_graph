@@ -19,7 +19,7 @@ std::vector<int> getCommonTriplets(const Graph &graph, const int Node1, const in
 
 int getThirdNode(const Edge3& triplet, const int node1, const int node2);
 
-double findPath(const Graph &graph, const std::vector<int> source_nodes, const int target_node, Path &path);
+double findPath(const Graph &graph, const std::vector<int>& source_nodes, const int target_node, Path &path);
 
 bool configure(Graph &g, tue::Configuration &config);
 
