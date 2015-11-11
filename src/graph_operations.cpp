@@ -370,3 +370,5 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
     }
 
 }
+
+}
