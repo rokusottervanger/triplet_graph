@@ -3,9 +3,12 @@
 #include <vector>
 #include <queue>
 
+#include <geolib/datatypes.h>
+
 #include "triplet_graph/graph_operations.h"
 #include "triplet_graph/Graph.h"
 #include "triplet_graph/Path.h"
+#include "triplet_graph/Measurement.h"
 
 namespace triplet_graph
 {
@@ -187,7 +190,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
                 // If edge not yet visited and pushed to path, push both node A and node B of this edge to trace and push current node to path
                 if ( e != -1 )
                 {
-                    // Don't add root nodes (cost == 0) to trace
+                    // Don't add source nodes (cost == 0) to trace
                     int na = edges[e].A;
                     if ( ns[na] != 0 )
                         trace.push(CostInt(ns[na],na));
@@ -196,11 +199,14 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
                     if ( ns[nb] != 0 )
                         trace.push(CostInt(ns[nb],nb));
 
-                    path.push(n);
+                    path.push_back(n);
 
                     prevs[n] = -1;
                 }
             }
+
+            // Finally, add source nodes to path
+            path.insert(path.end(), source_nodes.begin(), source_nodes.end());
 
             // When finished, return cost to target node
             return ns[target_node];
@@ -337,5 +343,30 @@ bool configure(Graph& g, tue::Configuration &config)
 
     return true;
 }
+
+// -----------------------------------------------------------------------------------------------
+
+struct AssociatedMeasurement
+{
+    Measurement measurement;
+    std::vector<int> nodes;
+};
+
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Pose3D &delta, const int goal_node)
+{
+    Path path;
+    if ( associations.nodes.size() > 2 )
+        double cost = findPath(graph,associations.nodes,goal_node,path);
+    else
+    {
+        std::cout << "\033[31m" << "[GRAPH] ERROR! No initial associations given" << "\033[0m" << std::endl;
+        return;
+    }
+
+    // Now try to associate path nodes using measurement
+    for ( Graph::const_iterator it = graph.begin(); it != graph.end(); it++ )
+    {
+        // Calculate what the new pose of the
+    }
 
 }

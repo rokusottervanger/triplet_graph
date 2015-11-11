@@ -3,15 +3,11 @@
 namespace triplet_graph
 {
 
-std::ostream& operator<<(std::ostream& os, Path path)
+std::ostream& operator<<(std::ostream& os, const Path& path)
 {
     os << "[ ";
-    while ( !path.empty() )
-    {
-        int top = path.top();
-        os << top << ' ';
-        path.pop();
-    }
+    for ( Path::const_iterator it = path.begin(); it != path.end(); it++ )
+        os << *it << ' ';
     os << "]";
     return os;
 }
