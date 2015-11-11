@@ -163,6 +163,7 @@ void Graph::deleteNode(const int i)
     nodes_[i] = Node("");
     deleted_nodes_.push_back(i);
     std::cout << "Deleted node " << i << std::endl;
+    std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting nodes is not completely implemented yet!!!" << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -192,6 +193,7 @@ void Graph::deleteEdge2(const int i)
 
     edges_[i].deleted = true;
     deleted_edges_.push_back(i);
+    std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting edges is not completely implemented yet!!!" << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -207,6 +209,7 @@ void Graph::deleteEdge3(const int i)
 
     triplets_[i].deleted = true;
     deleted_triplets_.push_back(i);
+    std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting triplets is not completely implemented yet!!!" << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------

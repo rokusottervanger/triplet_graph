@@ -1,13 +1,12 @@
 #ifndef TRIPLET_GRAPH_GRAPH_H_
 #define TRIPLET_GRAPH_GRAPH_H_
 
-#include <list>
-#include <geolib/datatypes.h>
-#include <tue/config/configuration.h>
+#include <vector>
+#include <algorithm>
 
+#include "Node.h"
 #include "Edge2.h"
 #include "Edge3.h"
-#include "Node.h"
 
 namespace triplet_graph
 {
@@ -40,8 +39,6 @@ public:
 
     void deleteEdge3(const int i);
 
-//    bool configure(tue::Configuration &config);
-
 //    void update(const Measurements& measurements);
 
     // TODO: This still contains the deleted nodes, edges and triplets!
@@ -49,6 +46,8 @@ public:
     std::vector<Edge2> getEdge2s() const {return edges_;}
     std::vector<Edge3> getEdge3s() const {return triplets_;}
 
+
+    // TODO: implement iterators for edges and triplets
     class NodeIterator : public std::iterator<std::forward_iterator_tag, Node>
     {
         public:
@@ -80,6 +79,13 @@ public:
             const Node& operator*() { return *it_; }
 
             int operator-(const NodeIterator& rhs) { return it_ - rhs.it_; }
+
+            NodeIterator operator+=(const int offset) {
+                it_ += offset;
+                return it_;
+            }
+
+            friend NodeIterator operator+(NodeIterator it, const int offset) { return it+=offset; }
 
         private:
 

@@ -2,8 +2,6 @@
 #include <iostream>
 #include <vector>
 #include <queue>
-//#include <limits>
-//#include <boost/bind.hpp>
 
 #include "triplet_graph/graph_operations.h"
 #include "triplet_graph/Graph.h"
@@ -30,10 +28,9 @@ int findNodeByID(const Graph& g, const std::string &id)
 
 int getConnectingEdge2(const Graph& graph, const int Node1, const int Node2)
 {
-    std::vector<Node> nodes = graph.getNodes();
     std::vector<Edge2> edges = graph.getEdge2s();
 
-    Node n1 = nodes[Node1];
+    Node n1 = *(graph.begin() + Node1);
 
     // TODO: Make this more efficient by giving nodes a map from node indices to edge indices?
     for( std::vector<int>::iterator it = n1.edges.begin(); it != n1.edges.end(); it++ )
@@ -62,12 +59,11 @@ int getSecondNode(const Edge2& edge, const int node)
 
 std::vector<int> getCommonTriplets(const Graph& graph, const int Node1, const int Node2)
 {
-    std::vector<Node> nodes = graph.getNodes();
     std::vector<Edge3> triplets = graph.getEdge3s();
 
-    Node n1 = nodes[Node1];
+    Node n1 = *(graph.begin() + Node1);
 
-    // TODO: Make this more efficient by giving nodes a set of triplets?
+    // TODO: Make this more efficient by giving nodes a map from node indices to triplet indices?
     std::vector<int> common_triplets;
 
     for( std::vector<int>::iterator it = n1.triplets.begin(); it != n1.triplets.end(); it++ )
@@ -104,7 +100,10 @@ int getThirdNode(const Edge3& triplet, const int node1, const int node2)
 
 double findPath(const Graph& graph, const std::vector<int>& source_nodes, const int target_node, Path& path)
 {
-    typedef std::pair< double, int > CostEdge; // First is the sum of the costs (so far) to get to the nodes connected by an edge, second is the respective edge index
+    typedef std::pair< double, int > CostInt; // First is a cost, second is an edge or a node index
+    // In the initial graph search: first is the sum of the costs (so far) to get to the nodes connected by an edge, second is the respective edge index
+    // In the path trace search:
+
     const double inf = 1e38;
 
     // get a copy of the nodes, edges and triplets in the graph
@@ -113,7 +112,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
     std::vector<Edge3> triplets = graph.getEdge3s();
 
     // Track visited edges and triplets and cost to nodes
-    std::vector<double> ns(nodes.size(),inf);
+    std::vector<double> ns(graph.size(),inf);
     std::vector<double> es(edges.size(),inf);
     std::vector<double> ts(triplets.size(),inf);
 
@@ -121,7 +120,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
      * the sum of the cost to get to those nodes. The cost to get to the first
      * pair of nodes is obviously zero.
      */
-    std::priority_queue<CostEdge, std::vector<CostEdge>, std::greater<CostEdge> > Q;
+    std::priority_queue<CostInt, std::vector<CostInt>, std::greater<CostInt> > Q;
 
     // Find all edges connecting the source nodes and add those edges to Q
     for ( std::vector<int>::const_iterator it_1 = source_nodes.begin(); it_1 != source_nodes.end(); it_1++ )
@@ -139,7 +138,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
                     int edge = getConnectingEdge2(graph,*it_1,*it_2);
                     if ( edge != -1 )
                     {
-                        Q.push(CostEdge(0,edge));
+                        Q.push(CostInt(0,edge));
                         es[edge] = 0;
                     }
                 }
@@ -154,7 +153,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
      * visited node.
      */
     std::vector<int> prevs(nodes.size(),-1);
-    std::priority_queue<CostEdge, std::vector<CostEdge>, std::less<CostEdge> > trace;
+
 
     while(!Q.empty())
     {
@@ -166,59 +165,44 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
         if ( es[u] == -1 )
             continue;
 
-        // When the target is reached, trace back path and return
-        if ( edges[u].A == target_node )
+        // When the target is reached in current edge's A or B node, trace back path
+        if ( edges[u].A == target_node || edges[u].B == target_node)
         {
-            // TODO: path tracing (especially when loops occur) does not work well yet. (Try config file 2 with nodes 0,1,2 and 7 as starting set)
-            std::cout << "Prevs: [ ";
-            for (std::vector<int>::iterator it =prevs.begin(); it !=prevs.end(); it++ )
-                std::cout << *it << " ";
-            std::cout << "]" << std::endl;
+            std::priority_queue<CostInt, std::vector<CostInt>, std::less<CostInt> > trace;
 
-            trace.push(CostEdge(ns[edges[u].A],edges[u].A));
-            int n = trace.top().second;
-            int e = 0;
-            while ( e!=-1 )
-            {
-                trace.pop();
-                std::cout << "n = " << n << std::endl;
-                path.push(n);
-                e = prevs[n];
-                int na = edges[e].A;
-                int nb = edges[e].B;
-                if ( trace.top().second != na && na != -1 )
-                    trace.push(CostEdge(ns[na],na));
-                if ( trace.top().second != nb && nb != -1 )
-                    trace.push(CostEdge(ns[nb],nb));
-                n = trace.top().second;
-            }
-            return ns[target_node];
-        }
-        else if ( edges[u].B == target_node )
-        {
-            std::cout << "Prevs: [ ";
-            for (std::vector<int>::iterator it =prevs.begin(); it !=prevs.end(); it++ )
-                std::cout << *it << " ";
-            std::cout << "]" << std::endl;
+            // Push target node into trace
+            trace.push(CostInt(ns[target_node],target_node));
+            int n, e;
 
-            trace.push(CostEdge(ns[edges[u].B],edges[u].B));
-            int n = trace.top().second;
-            int e = 0;
-            while ( e!=-1 )
+            while ( !trace.empty() )
             {
-                trace.pop();
-                std::cout << "n = " << n << std::endl;
-                path.push(n);
-                e = prevs[n];
-//                std::cout << "e = " << e << std::endl;
-                int na = edges[e].A;
-                int nb = edges[e].B;
-                if ( trace.top().second != na && na != -1 )
-                    trace.push(CostEdge(ns[na],na));
-                if ( trace.top().second != nb && nb != -1 )
-                    trace.push(CostEdge(ns[nb],nb));
                 n = trace.top().second;
+                trace.pop();
+
+                std::cout << "n = " << n << std::endl;
+
+                // The current node refers to its originating edge using prevs
+                e = prevs[n];
+
+                // If edge not yet visited and pushed to path, push both node A and node B of this edge to trace and push current node to path
+                if ( e != -1 )
+                {
+                    // Don't add root nodes (cost == 0) to trace
+                    int na = edges[e].A;
+                    if ( ns[na] != 0 )
+                        trace.push(CostInt(ns[na],na));
+
+                    int nb = edges[e].B;
+                    if ( ns[nb] != 0 )
+                        trace.push(CostInt(ns[nb],nb));
+
+                    path.push(n);
+
+                    prevs[n] = -1;
+                }
             }
+
+            // When finished, return cost to target node
             return ns[target_node];
         }
 
@@ -251,7 +235,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
                     int neighbor = getSecondNode(edges[*e_it],v);
 
                     if ( ns[neighbor] < inf )
-                        Q.push(CostEdge(new_cost, *e_it));
+                        Q.push(CostInt(new_cost, *e_it));
                 }
 
                 // Store edge that lead to this node

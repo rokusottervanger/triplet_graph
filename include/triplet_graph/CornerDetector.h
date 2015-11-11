@@ -3,11 +3,13 @@
 
 #include <ros/subscriber.h>
 #include <tf/transform_listener.h>
-#include <tue/config/configuration.h>
 #include <sensor_msgs/LaserScan.h>
+
+#include <tue/config/configuration.h>
+#include <geolib/sensors/LaserRangeFinder.h>
+
 #include "triplet_graph/graph_types.h"
 #include "triplet_graph/Visualizer.h"
-#include <geolib/sensors/LaserRangeFinder.h>
 
 namespace triplet_graph
 {

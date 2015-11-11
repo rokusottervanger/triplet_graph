@@ -7,7 +7,8 @@ namespace triplet_graph
 Visualizer::Visualizer():
     nh("~"),
     points_name("points"),
-    lines_name("lines")
+    lines_name("lines"),
+    is_configured(false)
 {}
 
 // ----------------------------------------------------------------------------------------------------

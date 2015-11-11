@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include <ros/datatypes.h>
 #include <ros/node_handle.h>
 #include <ros/publisher.h>
 #include <visualization_msgs/Marker.h>
