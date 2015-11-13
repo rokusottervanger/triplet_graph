@@ -12,6 +12,8 @@ class Path: public std::vector<int>
 {
 public:
     friend std::ostream& operator<<(std::ostream& os, const Path& path);
+
+    std::vector< std::pair< int, int > > parent_tree;
 };
 
 }

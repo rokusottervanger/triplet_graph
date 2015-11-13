@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 namespace triplet_graph
 {
@@ -18,6 +19,9 @@ public:
 
     std::vector<int> edges; // indices to vector of edge2s (edges_) in graph
     std::vector<int> triplets; // indices to vector of edge3s (triplets_) in graph
+
+    std::map<int,int> peer_by_edge; // map from edges to the node indices of the peer
+    std::map<int,int> edge_by_peer; // map from connected node indices to respective edges
 
     void addTriplet(const int triplet);
     void addEdge(const int edge);

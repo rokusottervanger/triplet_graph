@@ -1,6 +1,8 @@
 #ifndef TRIPLET_GRAPH_EDGE2_H_
 #define TRIPLET_GRAPH_EDGE2_H_
 
+#include <map>
+
 namespace triplet_graph
 {
 
@@ -15,6 +17,8 @@ public:
 
     int A, B; // node indices
     double l; // length
+
+    std::map< int, int> triplet_by_node; // map from node indices the shared triplet of the three nodes
 
     bool deleted;
 

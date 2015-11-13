@@ -200,6 +200,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
                         trace.push(CostInt(ns[nb],nb));
 
                     path.push_back(n);
+                    path.parent_tree.push_back(std::make_pair(na,nb));
 
                     prevs[n] = -1;
                 }
@@ -207,6 +208,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
 
             // Finally, add source nodes to path
             path.insert(path.end(), source_nodes.begin(), source_nodes.end());
+            path.parent_tree.resize(path.size(),std::make_pair(-1,-1));
 
             // When finished, return cost to target node
             return ns[target_node];
@@ -355,18 +357,21 @@ struct AssociatedMeasurement
 void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Pose3D &delta, const int goal_node)
 {
     Path path;
-    if ( associations.nodes.size() > 2 )
+    if ( associations.nodes.size() > 1 )
         double cost = findPath(graph,associations.nodes,goal_node,path);
     else
     {
-        std::cout << "\033[31m" << "[GRAPH] ERROR! No initial associations given" << "\033[0m" << std::endl;
+        std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
         return;
     }
 
-    // Now try to associate path nodes using measurement
-    for ( Graph::const_iterator it = graph.begin(); it != graph.end(); it++ )
+    // TODO: add delta to poses
+    // Calculate positions of nodes on path in sensor frame
+    std::vector<geo::Vec3d> positions(path.size());
+
+    for ( int i = 0; i < path.size(); i++ )
     {
-        // Calculate what the new pose of the
+
     }
 
 }

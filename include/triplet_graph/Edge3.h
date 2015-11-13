@@ -16,7 +16,7 @@ public:
                 e.A == B && e.B == C && e.C == A ||
                 e.A == C && e.B == A && e.C == B; }
 
-    // Nodes in clockwise order
+    // Nodes in counter-clockwise order
     int A, B, C;
 
     bool deleted;
