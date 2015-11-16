@@ -87,6 +87,8 @@ public:
 
             friend NodeIterator operator+(NodeIterator it, const int offset) { return it+=offset; }
 
+            const Node* operator->() const { return &*it_; }
+
         private:
 
             std::vector<Node>::const_iterator it_;

@@ -350,15 +350,24 @@ bool configure(Graph& g, tue::Configuration &config)
 
 struct AssociatedMeasurement
 {
+    // A measurement containing all associated points
     Measurement measurement;
+
+    // A vector of node indices to which the measurement is associated (index of point in measurement is the same as index of node number in nodes)
     std::vector<int> nodes;
 };
 
-void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Pose3D &delta, const int goal_node)
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Pose3D &delta, const int goal_node_i)
 {
+    double max_distance = 0.1; // TODO: magic number, parameterize!
+    double max_distance_sq = max_distance*max_distance;
+
+    std::vector<Edge2> edges = graph.getEdge2s();
+    std::vector<Edge3> triplets = graph.getEdge3s();
+
     Path path;
     if ( associations.nodes.size() > 1 )
-        double cost = findPath(graph,associations.nodes,goal_node,path);
+        double cost = findPath(graph,associations.nodes,goal_node_i,path);
     else
     {
         std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
@@ -367,10 +376,112 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
 
     // TODO: add delta to poses
     // Calculate positions of nodes on path in sensor frame
-    std::vector<geo::Vec3d> positions(path.size());
+    std::vector<geo::Vec3d> positions(graph.size());
 
-    for ( int i = 0; i < path.size(); i++ )
+    // Add prior associations to positions vector to
+    for ( int i = 0; i < associations.nodes.size(); i++ )
+        positions[associations.nodes[i]] = associations.measurement.points[i];
+
+    // TODO: Use position calculation for visualisation of graph?
+    for ( int i = 1; i <= path.size(); i++ )
     {
+        // Calculate index in path
+        int index = path.size()-i;
+
+        // Get node index and its parent nodes' indices
+        int node_i = path[index];
+        int parent1_i = path.parent_tree[node_i].first;
+        int parent2_i = path.parent_tree[node_i].second;
+
+        // Get edge that connects parent nodes
+        int parents_edge_i;
+        std::map<int,int>::const_iterator e_it = (graph.begin() + parent1_i)->edge_by_peer.find(parent2_i);
+        if ( e_it != (graph.begin() + parent1_i)->edge_by_peer.end() )
+            parents_edge_i = e_it->second;
+        else
+            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! No edge connects the parents. This is never supposed to happen!" << "\033[0m" << std::endl;
+
+        // Get triplet that connects parents' edge with new node
+        int triplet_i;
+        std::map<int,int>::const_iterator t_it = edges[parents_edge_i].triplet_by_node.find(node_i);
+        if ( t_it != edges[parents_edge_i].triplet_by_node.end() )
+            triplet_i = t_it->second;
+        else
+            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! No triplet connects node with its parents. This is never supposed to happen!" << "\033[0m" << std::endl;
+
+        // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
+        // If clockwise (wrong direction) swap parent nodes.
+        Edge3 trip = triplets[triplet_i];
+        if ( parent1_i == trip.B && parent2_i == trip.A || parent1_i == trip.A && parent2_i == trip.C || parent1_i == trip.C && parent2_i == trip.B )
+        {
+            int tmp = parent1_i;
+            parent1_i = parent2_i;
+            parent2_i = tmp;
+        }
+
+//        int edge_1_i = (graph.begin() + parent1_i)->edge_by_peer[node_i]; // You can only do this if you're completely sure it exists
+        int edge_1_i;
+        e_it = (graph.begin() + parent1_i)->edge_by_peer.find(node_i);
+        if ( e_it != (graph.begin() + parent1_i)->edge_by_peer.end() )
+            edge_1_i = e_it->second;
+        else
+            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
+
+//        int edge_2_i = (graph.begin() + parent2_i)->edge_by_peer(node_i);
+        int edge_2_i;
+        e_it = (graph.begin() + parent2_i)->edge_by_peer.find(node_i);
+        if ( e_it != (graph.begin() + parent1_i)->edge_by_peer.end() )
+            edge_2_i = e_it->second;
+        else
+            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
+
+        Edge2 edge_1 = edges[edge_1_i];
+        Edge2 edge_2 = edges[edge_2_i];
+        Edge2 parents_edge = edges[parents_edge_i];
+
+        // In notes, names of l1 and l2 were swapped, so:
+        double l1 = edge_2.l;
+        double l2 = edge_1.l;
+        double l3 = parents_edge.l;
+
+        // I'm gonna need the squares of those lengths
+        double l1_sq = l1*l1;
+        double l2_sq = l2*l2;
+        double l3_sq = l3*l3;
+
+        // Now calculate k and s, which are the coordinates of the new node in the triangle frame
+        double k_sq = ( l2_sq + l1_sq - l3_sq )/2.0;
+        double k = sqrt(k_sq);
+        double s = sqrt(l2_sq - k_sq);
+
+        // Define the triangle frame and espress the position of the new node in the sensor frame
+        geo::Vec3d base_x = (positions[parent2_i] - positions[parent1_i])/edges[parents_edge_i].l;
+        geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
+        positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
+
+        // For this graph node, go through the points in the measurement and associate the closest point within a bound with this node.
+        // TODO: other way around?
+        // TODO: make sure that a measured point is never associated with two different nodes
+        // TODO: first try to associate farthest point in path, if that doesn't work, proceed with closer points.
+        double best_dist_sq = 1.0e9;
+        geo::Vec3d best_guess;
+        for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
+        {
+            double dx_sq = (positions[node_i] - *it).length2();
+            if ( dx_sq < max_distance_sq )
+            {
+                if ( dx_sq < best_dist_sq )
+                {
+                    best_dist_sq = dx_sq;
+                    best_guess = *it;
+                }
+            }
+        }
+        if ( best_dist_sq < 1.0e9 )
+        {
+            associations.nodes.push_back(node_i);
+            associations.measurement.points.push_back(best_guess);
+        }
 
     }
 
