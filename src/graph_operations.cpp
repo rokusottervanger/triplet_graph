@@ -374,7 +374,60 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         return;
     }
 
-    // TODO: add delta to poses
+    // TODO: add delta to poses:
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // -     Calculate delta movement based on odom (fetched from TF)
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+//    if (!tf_listener_->waitForTransform(odom_frame_id_, base_link_frame_id_, laser_msg_->header.stamp, ros::Duration(1.0)))
+//    {
+//        ROS_WARN_STREAM("[ED LOCALIZATION] Cannot get transform from '" << odom_frame_id_ << "' to '" << base_link_frame_id_ << "'.");
+//        return;
+//    }
+
+//    geo::Pose3D odom_to_base_link;
+//    Transform movement;
+
+//    try
+//    {
+//        tf::StampedTransform odom_to_base_link_tf;
+
+//        tf_listener_->lookupTransform(odom_frame_id_, base_link_frame_id_, laser_msg_->header.stamp, odom_to_base_link_tf);
+
+//        geo::convert(odom_to_base_link_tf, odom_to_base_link);
+
+//        if (have_previous_pose_)
+//        {
+//            geo::Pose3D delta = previous_pose_.inverse() * odom_to_base_link;
+
+//            // Convert to 2D transformation
+//            geo::Transform2 delta_2d(geo::Mat2(delta.R.xx, delta.R.xy,
+//                                               delta.R.yx, delta.R.yy),
+//                                     geo::Vec2(delta.t.x, delta.t.y));
+
+//            movement.set(delta_2d);
+//        }
+//        else
+//        {
+//            movement.set(geo::Transform2::identity());
+//        }
+
+//        previous_pose_ = odom_to_base_link;
+//        have_previous_pose_ = true;
+//    }
+//    catch (tf::TransformException e)
+//    {
+//        std::cout << "[ED LOCALIZATION] " << e.what() << std::endl;
+
+//        if (!have_previous_pose_)
+//            return;
+
+//        odom_to_base_link = previous_pose_;
+
+//        movement.set(geo::Transform2::identity());
+//    }
+
+
     // Calculate positions of nodes on path in sensor frame
     std::vector<geo::Vec3d> positions(graph.size());
 
@@ -419,7 +472,6 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
             parent2_i = tmp;
         }
 
-//        int edge_1_i = (graph.begin() + parent1_i)->edge_by_peer[node_i]; // You can only do this if you're completely sure it exists
         int edge_1_i;
         e_it = (graph.begin() + parent1_i)->edge_by_peer.find(node_i);
         if ( e_it != (graph.begin() + parent1_i)->edge_by_peer.end() )
@@ -427,7 +479,6 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         else
             std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
 
-//        int edge_2_i = (graph.begin() + parent2_i)->edge_by_peer(node_i);
         int edge_2_i;
         e_it = (graph.begin() + parent2_i)->edge_by_peer.find(node_i);
         if ( e_it != (graph.begin() + parent1_i)->edge_by_peer.end() )
@@ -460,7 +511,7 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
 
         // For this graph node, go through the points in the measurement and associate the closest point within a bound with this node.
-        // TODO: other way around?
+        // TODO: match a node to each measurement point instead of trying to match a measurement point to each node?
         // TODO: make sure that a measured point is never associated with two different nodes
         // TODO: first try to associate farthest point in path, if that doesn't work, proceed with closer points.
         double best_dist_sq = 1.0e9;
