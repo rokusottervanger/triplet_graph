@@ -39,6 +39,8 @@ public:
 
     void deleteEdge3(const int i);
 
+    void setEdgeLength(const int i, const double l);
+
 //    void update(const Measurements& measurements);
 
     // TODO: This still contains the deleted nodes, edges and triplets!

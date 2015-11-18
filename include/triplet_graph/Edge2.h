@@ -18,11 +18,16 @@ public:
     int A, B; // node indices
     double l; // length
 
-    std::map< int, int> triplet_by_node; // map from node indices the shared triplet of the three nodes
-
     bool deleted;
 
+    int tripletByNode(int n);
+
     // TODO: Uncertainty
+
+private:
+
+    // TODO: Implement filling of this map!!!
+    std::map< int, int> triplet_by_node_; // map from node indices the shared triplet of the three nodes
 };
 
 }

@@ -71,6 +71,7 @@ add_library(triplet_graph
     #src/Measurement.cpp
     src/Visualizer.cpp
     src/Node.cpp
+    src/Edge2.cpp
     src/Graph.cpp
     src/graph_operations.cpp
     ${HEADER_FILES}

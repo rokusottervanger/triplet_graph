@@ -20,8 +20,7 @@ public:
     std::vector<int> edges; // indices to vector of edge2s (edges_) in graph
     std::vector<int> triplets; // indices to vector of edge3s (triplets_) in graph
 
-    std::map<int,int> peer_by_edge; // map from edges to the node indices of the peer
-    std::map<int,int> edge_by_peer; // map from connected node indices to respective edges
+    int edgeByPeer(const int peer) const;
 
     void addTriplet(const int triplet);
     void addEdge(const int edge);
@@ -31,6 +30,10 @@ public:
 //    void deleteEdge(const int edge);
 
 private:
+
+    // TODO: implement filling these maps!!!
+    std::map<int,int> peer_by_edge_; // map from edges to the node indices of the peer
+    std::map<int,int> edge_by_peer_; // map from connected node indices to respective edges
 
     std::vector<int> deleted_edges_;
     std::vector<int> deleted_triplets_;

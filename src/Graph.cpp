@@ -214,6 +214,13 @@ void Graph::deleteEdge3(const int i)
 
 // -----------------------------------------------------------------------------------------------
 
+void Graph::setEdgeLength(const int i, const double l)
+{
+    edges_[i].l = l;
+}
+
+// -----------------------------------------------------------------------------------------------
+
 //void Graph::update(const Measurements& measurements)
 //{
 //    std::cout << "[GRAPH] Updating graph (does nothing right now)" << std::endl;

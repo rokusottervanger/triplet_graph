@@ -1,4 +1,5 @@
 #include "triplet_graph/Node.h"
+#include <iostream>
 
 namespace triplet_graph
 {
@@ -25,6 +26,17 @@ void Node::addEdge(const int edge)
         triplets[i] = edge;
         deleted_triplets_.pop_back();
     }
+}
+
+int Node::edgeByPeer(const int peer) const
+{
+    std::map<int,int>::const_iterator it = edge_by_peer_.find(peer);
+    if ( it != edge_by_peer_.end() )
+    {
+        return it->second;
+    }
+    std::cout << "[NODE] edgeByPeer: peer not found, returning -1" << std::endl;
+    return -1;
 }
 
 // TODO:
