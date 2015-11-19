@@ -11,9 +11,9 @@ namespace triplet_graph
 class Node
 {
 public:
-    Node(){}
+    Node(std::string id = generateId() ):id(id){}
 
-    Node(std::string id):id(id){}
+    static std::string generateId();
 
     std::string id;
 
@@ -32,7 +32,7 @@ public:
 private:
 
     // TODO: implement filling these maps!!!
-    std::map<int,int> peer_by_edge_; // map from edges to the node indices of the peer
+//    std::map<int,int> peer_by_edge_; // map from edges to the node indices of the peer
     std::map<int,int> edge_by_peer_; // map from connected node indices to respective edges
 
     std::vector<int> deleted_edges_;

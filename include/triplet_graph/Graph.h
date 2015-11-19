@@ -41,6 +41,8 @@ public:
 
     void setEdgeLength(const int i, const double l);
 
+    void flipTriplet(const int i);
+
 //    void update(const Measurements& measurements);
 
     // TODO: This still contains the deleted nodes, edges and triplets!

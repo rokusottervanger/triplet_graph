@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <tue/config/configuration.h>
+#include <geolib/datatypes.h>
 
 namespace triplet_graph
 {
@@ -23,11 +24,13 @@ double findPath(const Graph &graph, const std::vector<int>& source_nodes, const 
 
 bool configure(Graph &g, tue::Configuration &config);
 
-// TODO: implement methods to associate measurement with existing graph
-void associate(Graph &g, Measurement& measurement);
+class AssociatedMeasurement;
 
-// TODO: implement method to extend graph using new measurement
-void extendGraph(Graph &g, Measurement& measurement);
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i);
+
+void updateGraph(Graph &graph, const AssociatedMeasurement &associations);
+
+void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations);
 
 }
 

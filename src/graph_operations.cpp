@@ -357,7 +357,9 @@ struct AssociatedMeasurement
     std::vector<int> nodes;
 };
 
-void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Pose3D &delta, const int goal_node_i)
+// -----------------------------------------------------------------------------------------------
+
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i)
 {
     double max_distance = 0.1; // TODO: magic number, parameterize!
     double max_distance_sq = max_distance*max_distance;
@@ -374,68 +376,19 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         return;
     }
 
-    // TODO: add delta to poses:
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // -     Calculate delta movement based on odom (fetched from TF)
+    // -     Calculate positions of nodes on path in sensor frame
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-//    if (!tf_listener_->waitForTransform(odom_frame_id_, base_link_frame_id_, laser_msg_->header.stamp, ros::Duration(1.0)))
-//    {
-//        ROS_WARN_STREAM("[ED LOCALIZATION] Cannot get transform from '" << odom_frame_id_ << "' to '" << base_link_frame_id_ << "'.");
-//        return;
-//    }
-
-//    geo::Pose3D odom_to_base_link;
-//    Transform movement;
-
-//    try
-//    {
-//        tf::StampedTransform odom_to_base_link_tf;
-
-//        tf_listener_->lookupTransform(odom_frame_id_, base_link_frame_id_, laser_msg_->header.stamp, odom_to_base_link_tf);
-
-//        geo::convert(odom_to_base_link_tf, odom_to_base_link);
-
-//        if (have_previous_pose_)
-//        {
-//            geo::Pose3D delta = previous_pose_.inverse() * odom_to_base_link;
-
-//            // Convert to 2D transformation
-//            geo::Transform2 delta_2d(geo::Mat2(delta.R.xx, delta.R.xy,
-//                                               delta.R.yx, delta.R.yy),
-//                                     geo::Vec2(delta.t.x, delta.t.y));
-
-//            movement.set(delta_2d);
-//        }
-//        else
-//        {
-//            movement.set(geo::Transform2::identity());
-//        }
-
-//        previous_pose_ = odom_to_base_link;
-//        have_previous_pose_ = true;
-//    }
-//    catch (tf::TransformException e)
-//    {
-//        std::cout << "[ED LOCALIZATION] " << e.what() << std::endl;
-
-//        if (!have_previous_pose_)
-//            return;
-
-//        odom_to_base_link = previous_pose_;
-
-//        movement.set(geo::Transform2::identity());
-//    }
-
-
-    // Calculate positions of nodes on path in sensor frame
     std::vector<geo::Vec3d> positions(graph.size());
 
     // Add prior associations to positions vector to
     for ( int i = 0; i < associations.nodes.size(); ++i )
-        positions[associations.nodes[i]] = associations.measurement.points[i];
+        positions[associations.nodes[i]] = delta.inverse() * associations.measurement.points[i];
+    associations.measurement.points.clear();
+    associations.nodes.clear();
 
-    // TODO: Use position calculation for visualisation of graph?
+    // TODO: Split up position calculation of nodes to use also for visualisation of graph?
     for ( int i = 1; i <= path.size(); ++i )
     {
         // Calculate index in path
@@ -465,7 +418,9 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
         // If clockwise (wrong direction) swap parent nodes.
         Edge3 trip = triplets[triplet_i];
-        if ( parent1_i == trip.B && parent2_i == trip.A || parent1_i == trip.A && parent2_i == trip.C || parent1_i == trip.C && parent2_i == trip.B )
+        if ( parent1_i == trip.B && parent2_i == trip.A ||
+             parent1_i == trip.A && parent2_i == trip.C ||
+             parent1_i == trip.C && parent2_i == trip.B ) // TODO: make this nicer?
         {
             int tmp = parent1_i;
             parent1_i = parent2_i;
@@ -532,10 +487,9 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         {
             associations.nodes.push_back(node_i);
             associations.measurement.points.push_back(best_guess);
+            // TODO: make sure that one measurement without (associated) points does not let the robot get lost
         }
-
     }
-
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -552,28 +506,32 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
     int i = 0;
     for ( std::vector<int>::const_iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
     {
-        Node node1 = *(graph.begin() + *it_1);
+        int n1 = *it_1;
+        Node node1 = *(graph.begin() + n1);
 
         int j = i+1;
         for ( std::vector<int>::const_iterator it_2 = it_1+1; it_2 != associations.nodes.end(); ++it_2 )
         {
-            Node node2 = *(graph.begin() + *it_2);
-            int e = node1.edgeByPeer(*it_2);
+            int n2 = *it_2;
+            int e = node1.edgeByPeer(n2);
 
             // Calculate vector between measured points
-            geo::Vec3d diff = associations.measurement.points[i]-associations.measurement.points[j];
+            geo::Vec3d pt1 = associations.measurement.points[i];
+            geo::Vec3d pt2 = associations.measurement.points[j];
+            geo::Vec3d d21 = pt2 - pt1;
 
-            // if edge exists...
+            // If edge exists...
             if ( e > -1 )
             {
-                // update edge
-                graph.setEdgeLength(e, diff.length());
+                // update edge;
+                graph.setEdgeLength(e, d21.length());
             }
-            // if it didn't
+
+            // and if it didn't
             else
             {
                 // add it to the graph
-                e = graph.addEdge2(*it_1, *it_2, diff.length() );
+                e = graph.addEdge2(n1, n2, d21.length() );
             }
 
             Edge2 edge1 = edges[e];
@@ -581,36 +539,125 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
             int k = j+1;
             for ( std::vector<int>::const_iterator it_3 = it_2+1; it_3 != associations.nodes.end(); ++it_3 )
             {
-                Node node3 = *(graph.begin() + *it_3);
-                int t = edge1.tripletByNode(*it_3);
+                int n3 = *it_3;
+                int t = edge1.tripletByNode(n3);
 
-                // Check what the counter-clockwise order of nodes is
-                geo::Vec3d pt1 = associations.measurement.points[i];
-                geo::Vec3d pt2 = associations.measurement.points[j];
+                // Get the third measurement point
                 geo::Vec3d pt3 = associations.measurement.points[k];
 
+                // Calculate the vector from node 1 to node 3 (the one from 1 to 2 was already calculated in the enclosing loop)
                 geo::Vec3d d31 = pt3 - pt1;
-                geo::Vec3d d21 = pt2 - pt1;
 
+                // Calculate if the angle between the two is positive (counter-clockwise) or negative
                 double sign = d21.cross(d31).z;
 
-//                // If counter-clockwise:
-//                if ( sign > 0 )
-//                {
+                // If triplet exists...
+                if ( t > -1 )
+                {
+                    // get a copy of the triplet.
+                    Edge3 triplet = triplets[t];
 
-//                }
+                    // If order of nodes n1, n2 and n2 is the same as in triplet...
+                    if ( n1 == triplet.A && n2 == triplet.B && n3 == triplet.C ||
+                         n1 == triplet.B && n2 == triplet.C && n3 == triplet.A ||
+                         n1 == triplet.C && n2 == triplet.A && n3 == triplet.B ) // TODO: make this nicer?
+                    {
+                        // check if that order is clockwise, and if it is...
+                        if ( sign < 0 )
+                        {
+                            // flip it.
+                            graph.flipTriplet(t);
+                        }
+                    }
 
-                k++;
+                    // If it is not the same order, it is the only other...
+                    else
+                    {
+                        // check if that order is clockwise, and if it is...
+                        if ( sign > 0 )
+                        {
+                            // flip it.
+                            graph.flipTriplet(t);
+                        }
+                    }
+                }
+
+                // If the triplet did not exist yet...
+                else
+                {
+                    // add it to the graph
+                    graph.addEdge3(n1,n2,n3);
+                }
+                ++k;
             }
-            associations.measurement.points[i];
-            j++;
+            ++j;
         }
-        i++;
+        ++i;
     }
+}
 
+void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations)
+/* Function to extend an existing graph using a measurement and the
+ * associated measurement derived from that. The associated measurement
+ * must be a subset of the measurement. Only adds the unassociated points,
+ * does not update the existing relations in the graph.
+ */
+{
+    // Add unassociated nodes
+    int i = 0; // Index in vector of associations
+    for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); ++it )
+    {
+        // If point is already associated, continue. (Assumes that order of points in associated measurement is equal to order in measurement)
+        if ( i < associations.measurement.points.size() && *it == associations.measurement.points[i] ) // TODO: Make sure i does not run out of this vector
+        {
+            ++i;
+            continue;
+        }
 
+        int n1 = graph.addNode(Node::generateId());
+        geo::Vec3d pt1 = *it;
 
+        // Add edges and triplets between all other points in the measurement
+        int j = 0;
+        for ( std::vector<int>::const_iterator it_2 = associations.nodes.begin(); it_2 != associations.nodes.end(); ++it_2 )
+        {
+            int n2 = *it_2;
+            geo::Vec3d pt2 = associations.measurement.points[j];
 
+            // Calculate vector between current new point and current associated point
+            geo::Vec3d d21 = pt2 - pt1;
+
+            // Add edge to graph with length of diff vector
+            graph.addEdge2(n1, n2, d21.length() );
+
+            int k = j+1;
+            for ( std::vector<int>::const_iterator it_3 = it_2+1; it_3 != associations.nodes.end(); ++it_3 )
+            {
+                int n3 = *it_3;
+                geo::Vec3d pt3 = measurement.points[k];
+
+                // Calculate the vectors from node 1 to the other two
+                geo::Vec3d d31 = pt3 - pt1;
+
+                // Calculate if the angle between the two is positive (counter-clockwise) or negative
+                double sign = d21.cross(d31).z;
+
+                // add it to the graph in the correct order
+                if ( sign > 0 )
+                    graph.addEdge3(n1,n2,n3);
+                else
+                    graph.addEdge3(n1,n3,n2);
+                ++k;
+            }
+            ++j;
+        }
+
+        // Add newly found point to associations
+        associations.nodes.push_back(n1);
+        associations.measurement.points.push_back(pt1);
+
+        ++i;
+    }
 }
 
 void saveGraph(const Graph &graph, const std::string &filename)

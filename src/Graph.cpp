@@ -221,6 +221,15 @@ void Graph::setEdgeLength(const int i, const double l)
 
 // -----------------------------------------------------------------------------------------------
 
+void Graph::flipTriplet(const int i)
+{
+    int tmp = triplets_[i].B;
+    triplets_[i].B = triplets_[i].C;
+    triplets_[i].C = tmp;
+}
+
+// -----------------------------------------------------------------------------------------------
+
 //void Graph::update(const Measurements& measurements)
 //{
 //    std::cout << "[GRAPH] Updating graph (does nothing right now)" << std::endl;

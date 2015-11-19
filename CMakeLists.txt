@@ -82,6 +82,7 @@ target_link_libraries(triplet_graph
 
 add_executable(laser_processor
     src/CornerDetector.cpp
+    src/OdomTracker.cpp
     src/laser_processor.cpp
     ${HEADER_FILES}
 )

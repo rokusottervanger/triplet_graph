@@ -1,4 +1,7 @@
 #include "triplet_graph/CornerDetector.h"
+#include "triplet_graph/Graph.h"
+#include "triplet_graph/graph_operations.h"
+#include "triplet_graph/OdomTracker.h"
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/Visualizer.h"
 
@@ -24,9 +27,12 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    triplet_graph::Graph graph;
     triplet_graph::CornerDetector cornerDetector;
+    triplet_graph::OdomTracker odomTracker;
 
     cornerDetector.configure(config);
+    odomTracker.configure(config);
 
     ros::Rate loop_rate(15);
 
@@ -35,7 +41,12 @@ int main(int argc, char** argv)
         triplet_graph::Measurement measurement;
 
         cornerDetector.process(measurement);
+
+//        triplet_graph::associate( graph, measurement, associations, delta, target_node );
+
         ros::spinOnce();
         loop_rate.sleep();
     }
 }
+
+
