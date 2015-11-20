@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <fstream>
 
 #include <geolib/datatypes.h>
 
@@ -25,58 +26,6 @@ int findNodeByID(const Graph& g, const std::string &id)
 
     // Node not found, return -1!
     return -1;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-int getConnectingEdge2(const Graph& graph, const int Node1, const int Node2)
-{
-    std::vector<Edge2> edges = graph.getEdge2s();
-
-    Node n1 = *(graph.begin() + Node1);
-
-    // TODO: Make this more efficient by giving nodes a map from node indices to edge indices?
-    for( std::vector<int>::iterator it = n1.edges.begin(); it != n1.edges.end(); ++it )
-    {
-        Edge2 edge = edges[*it];
-        if ( edge.A == Node2 || edge.B == Node2 )
-            return *it;
-    }
-
-    return -1;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-int getSecondNode(const Edge2& edge, const int node)
-{
-    if ( edge.A == node )
-        return edge.B;
-    else if ( edge.B == node )
-        return edge.A;
-    else
-        return -1;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-std::vector<int> getCommonTriplets(const Graph& graph, const int Node1, const int Node2)
-{
-    std::vector<Edge3> triplets = graph.getEdge3s();
-
-    Node n1 = *(graph.begin() + Node1);
-
-    // TODO: Make this more efficient by giving nodes a map from node indices to triplet indices?
-    std::vector<int> common_triplets;
-
-    for( std::vector<int>::iterator it = n1.triplets.begin(); it != n1.triplets.end(); ++it )
-    {
-        Edge3 triplet = triplets[*it];
-        if ( triplet.A == Node2 || triplet.B == Node2 || triplet.C == Node2 )
-            common_triplets.push_back(*it);
-    }
-
-    return common_triplets;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -138,7 +87,8 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
                     std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
                 else
                 {
-                    int edge = getConnectingEdge2(graph,*it_1,*it_2);
+                    int edge = nodes[*it_1].edgeByPeer(*it_2);
+//                    int edge = getConnectingEdge2(graph,*it_1,*it_2);
                     if ( edge != -1 )
                     {
                         Q.push(CostInt(0,edge));
@@ -214,7 +164,8 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
             return ns[target_node];
         }
 
-        std::vector<int> common_triplets = getCommonTriplets(graph,edges[u].A,edges[u].B);
+        std::vector<int> common_triplets = nodes[edges[u].A].tripletsByPeer(edges[u].B);
+//        std::vector<int> common_triplets = getCommonTriplets(graph,edges[u].A,edges[u].B);
 
         // Run through common triplets of the current pair of nodes
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
@@ -240,7 +191,9 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
                 // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
                 for ( std::vector<int>::iterator e_it = nodes[v].edges.begin(); e_it !=nodes[v].edges.end(); ++e_it )
                 {
-                    int neighbor = getSecondNode(edges[*e_it],v);
+//                    int neighbor = getSecondNode(edges[*e_it],v);
+//                    int neighbor = nodes[v].peerByEdge(*e_it);
+                    int neighbor = edges[*e_it].getOtherNode(v);
 
                     if ( ns[neighbor] < inf )
                         Q.push(CostInt(new_cost, *e_it));
@@ -288,12 +241,15 @@ bool configure(Graph& g, tue::Configuration &config)
     {
         while(config.nextArrayItem())
         {
+            int n1, n2;
             std::string id1, id2;
-            if (!config.value("n1", id1) || !config.value("n2", id2))
+            if ( config.value("n1", id1) && config.value("n2", id2))
+            {
+                n1 = findNodeByID(g,id1);
+                n2 = findNodeByID(g,id2);
+            }
+            else if (!config.value("n1", n1) || !config.value("n2", n2))
                 continue;
-
-            int n1 = findNodeByID(g,id1);
-            int n2 = findNodeByID(g,id2);
 
             if ( n1 == -1 || n2 == -1 )
                 std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
@@ -323,13 +279,16 @@ bool configure(Graph& g, tue::Configuration &config)
     {
         while(config.nextArrayItem())
         {
+            int n1, n2, n3;
             std::string id1, id2, id3;
-            if (!config.value("n1", id1) || !config.value("n2", id2) || !config.value("n3", id3))
+            if ( config.value("n1", id1) && config.value("n2", id2) && config.value("n3", id3))
+            {
+                n1 = findNodeByID(g,id1);
+                n2 = findNodeByID(g,id2);
+                n3 = findNodeByID(g,id3);
+            }
+            else if (!config.value("n1", n1) || !config.value("n2", n2) || !config.value("n3", n3))
                 continue;
-
-            int n1 = findNodeByID(g,id1);
-            int n2 = findNodeByID(g,id2);
-            int n3 = findNodeByID(g,id3);
 
             if ( n1 == -1 || n2 == -1 || n3 == -1 )
                 std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
@@ -348,17 +307,6 @@ bool configure(Graph& g, tue::Configuration &config)
 
 // -----------------------------------------------------------------------------------------------
 
-struct AssociatedMeasurement
-{
-    // A measurement containing all associated points
-    Measurement measurement;
-
-    // A vector of node indices to which the measurement is associated (index of point in measurement is the same as index of node number in nodes)
-    std::vector<int> nodes;
-};
-
-// -----------------------------------------------------------------------------------------------
-
 void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i)
 {
     double max_distance = 0.1; // TODO: magic number, parameterize!
@@ -369,7 +317,19 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
 
     Path path;
     if ( associations.nodes.size() > 1 )
-        double cost = findPath(graph,associations.nodes,goal_node_i,path);
+    {
+        if ( goal_node_i == -1 )
+        {
+            for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
+            {
+                path.push_back(it - graph.begin());
+            }
+        }
+        else
+        {
+            findPath(graph,associations.nodes,goal_node_i,path);
+        }
+    }
     else
     {
         std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
@@ -608,7 +568,7 @@ void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasure
     for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); ++it )
     {
         // If point is already associated, continue. (Assumes that order of points in associated measurement is equal to order in measurement)
-        if ( i < associations.measurement.points.size() && *it == associations.measurement.points[i] ) // TODO: Make sure i does not run out of this vector
+        if ( i < associations.measurement.points.size() && *it == associations.measurement.points[i] ) // TODO: Make sure i does not run out of this vector?
         {
             ++i;
             continue;
@@ -660,9 +620,49 @@ void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasure
     }
 }
 
-void saveGraph(const Graph &graph, const std::string &filename)
+void save(const Graph &graph, const std::string &filename)
 {
+    // Instantiate a new config and write graph configuration to it
+    tue::Configuration config;
+    config.writeArray("nodes");
+    for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
+    {
+        config.setValue("id",it->id);
+        config.endArrayItem();
+    }
+    config.endArray();
 
+    std::vector<Edge2> edges = graph.getEdge2s();
+    config.writeArray("edges");
+    for ( std::vector<Edge2>::const_iterator it = edges.begin(); it != edges.end(); ++it )
+    {
+        config.setValue("n1",it->A);
+        config.setValue("n2",it->B);
+        config.setValue("length",it->l);
+        config.endArrayItem();
+    }
+    config.endArray();
+
+    std::vector<Edge3> triplets = graph.getEdge3s();
+    config.writeArray("triplets");
+    for ( std::vector<Edge3>::const_iterator it = triplets.begin(); it != triplets.end(); ++it )
+    {
+        config.setValue("n1",it->A);
+        config.setValue("n2",it->B);
+        config.setValue("n3",it->C);
+        config.endArrayItem();
+    }
+    config.endArray();
+
+    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " to " << filename << std::cout;
+
+    // Convert config to yaml string and write to file.
+    std::ofstream file;
+    file.open (filename.c_str());
+    file << config.toYAMLString();
+    file.close();
+
+    std::cout << "Done!" << std::endl;
 }
 
 }

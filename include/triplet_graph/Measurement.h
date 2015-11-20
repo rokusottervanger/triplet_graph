@@ -20,6 +20,17 @@ struct Measurement
 
 };
 
+// -----------------------------------------------------------------------------------------------
+
+struct AssociatedMeasurement
+{
+    // A measurement containing all associated points
+    Measurement measurement;
+
+    // A vector of node indices to which the measurement is associated (index of point in measurement is the same as index of node number in nodes)
+    std::vector<int> nodes;
+};
+
 
 
 } // end namespace triplet_graph

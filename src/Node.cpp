@@ -56,6 +56,28 @@ int Node::edgeByPeer(const int peer) const
     return -1;
 }
 
+int Node::peerByEdge(const int edge) const
+{
+    std::map<int,int>::const_iterator it = peer_by_edge_.find(edge);
+    if ( it != peer_by_edge_.end() )
+    {
+        return it->second;
+    }
+    std::cout << "[NODE] peerByEdge: peer not found, returning -1" << std::endl;
+    return -1;
+}
+
+std::vector<int> Node::tripletsByPeer(const int peer) const
+{
+    std::map<int, std::vector<int> >::const_iterator it = triplets_by_peer_.find(peer);
+    if ( it != triplets_by_peer_.end() )
+    {
+        return it->second;
+    }
+    std::cout << "[NODE] commonTripletsByPeer: peer not found, returning empty vector" << std::endl;
+    return std::vector<int>();
+}
+
 // TODO:
 //    void deleteTriplet(const int triplet);
 //    void deleteEdge(const int edge);

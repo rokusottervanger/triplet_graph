@@ -10,6 +10,7 @@ struct Edge2;
 struct Edge3;
 class  Path;
 struct Measurement;
+struct AssociatedMeasurement;
 class  Visualizer;
 
 }

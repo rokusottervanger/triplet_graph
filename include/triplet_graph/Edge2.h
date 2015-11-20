@@ -20,7 +20,8 @@ public:
 
     bool deleted;
 
-    int tripletByNode(int n);
+    int getOtherNode(const int n) const;
+    int tripletByNode(const int n) const;
 
     // TODO: Uncertainty
 

@@ -19,7 +19,9 @@ int main(int argc, char** argv)
     }
 
     std::string config_filename = argv[1];
+    std::string graph_filename;
     config.loadFromYAMLFile(config_filename);
+    config.value("graph_filename",graph_filename);
 
     if (config.hasError())
     {
@@ -31,22 +33,37 @@ int main(int argc, char** argv)
     triplet_graph::CornerDetector cornerDetector;
     triplet_graph::OdomTracker odomTracker;
 
+    triplet_graph::AssociatedMeasurement associations;
+
+    // TODO: add config for odomtracker to config file
     cornerDetector.configure(config);
     odomTracker.configure(config);
 
     ros::Rate loop_rate(15);
 
+    int target_node = -1;
+
     while (ros::ok())
     {
         triplet_graph::Measurement measurement;
+        geo::Transform delta;
 
         cornerDetector.process(measurement);
 
-//        triplet_graph::associate( graph, measurement, associations, delta, target_node );
+        odomTracker.getDelta(delta,measurement.time_stamp);
+
+        triplet_graph::associate( graph, measurement, associations, delta, target_node ); // TODO: There is no target node when exploring, right?
+
+        triplet_graph::updateGraph( graph, associations );
+
+        triplet_graph::extendGraph( graph, measurement, associations );
 
         ros::spinOnce();
         loop_rate.sleep();
     }
+    std::cout << "Writing graph config to disk..." << std::endl;
+    triplet_graph::save(graph, graph_filename);
+    std::cout << "Saved!" << std::endl;
 }
 
 
