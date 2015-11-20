@@ -213,7 +213,7 @@ double findPath(const Graph& graph, const std::vector<int>& source_nodes, const 
 
 bool configure(Graph& g, tue::Configuration &config)
 {
-    if (config.readArray("objects"))
+    if (config.readArray("nodes"))
     {
         while (config.nextArrayItem())
         {
@@ -627,7 +627,9 @@ void save(const Graph &graph, const std::string &filename)
     config.writeArray("nodes");
     for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
     {
-        config.setValue("id",it->id);
+        config.addArrayItem();
+        std::string s("'");
+        config.setValue("id",s.append(it->id).append("'"));
         config.endArrayItem();
     }
     config.endArray();
@@ -636,6 +638,7 @@ void save(const Graph &graph, const std::string &filename)
     config.writeArray("edges");
     for ( std::vector<Edge2>::const_iterator it = edges.begin(); it != edges.end(); ++it )
     {
+        config.addArrayItem();
         config.setValue("n1",it->A);
         config.setValue("n2",it->B);
         config.setValue("length",it->l);
@@ -647,6 +650,7 @@ void save(const Graph &graph, const std::string &filename)
     config.writeArray("triplets");
     for ( std::vector<Edge3>::const_iterator it = triplets.begin(); it != triplets.end(); ++it )
     {
+        config.addArrayItem();
         config.setValue("n1",it->A);
         config.setValue("n2",it->B);
         config.setValue("n3",it->C);
