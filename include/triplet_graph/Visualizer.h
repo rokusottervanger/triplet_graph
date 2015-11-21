@@ -16,7 +16,6 @@ namespace triplet_graph
 
 class Visualizer
 {
-public:
     visualization_msgs::Marker points;
     visualization_msgs::Marker lines;
     ros::Publisher marker_pub;
@@ -25,9 +24,11 @@ public:
 
     std::string points_name, lines_name;
 
+public:
     Visualizer();
     void configure(tue::Configuration &config);
     void publish(Measurement &measurement);
+    bool isConfigured(){return is_configured;}
 };
 
 } // end namespace triplet_graph

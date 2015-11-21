@@ -48,14 +48,15 @@ void Visualizer::configure(tue::Configuration& config)
 
 void Visualizer::publish(Measurement& measurement)
 {
+    // TODO: If no lines, don't publish lines; if no points, don't publish points.
+
+    // - - - - - - - - - - - - - - - - - - - - - - - -
+    // Publish points
+
     points.points.clear();
-    lines.points.clear();
 
     points.header.stamp = measurement.time_stamp;
     points.header.frame_id = measurement.frame_id;
-
-    lines.header.stamp = measurement.time_stamp;
-    lines.header.frame_id = measurement.frame_id;
 
     for ( std::vector<geo::Vec3d>::iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
     {
@@ -67,6 +68,16 @@ void Visualizer::publish(Measurement& measurement)
         points.points.push_back(p);
     }
 
+    marker_pub.publish(points);
+
+    // - - - - - - - - - - - - - - - - - - - - - - - -
+    // Publish lines
+
+    lines.points.clear();
+
+    lines.header.stamp = measurement.time_stamp;
+    lines.header.frame_id = measurement.frame_id;
+
     for ( std::vector<geo::Vec3d>::iterator it = measurement.line_list.begin(); it != measurement.line_list.end(); it++ )
     {
         geometry_msgs::Point p;
@@ -77,7 +88,6 @@ void Visualizer::publish(Measurement& measurement)
         lines.points.push_back(p);
     }
 
-    marker_pub.publish(points);
     marker_pub.publish(lines);
 }
 
