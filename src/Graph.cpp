@@ -53,7 +53,12 @@ int Graph::addEdge2(const int node1, const int node2, const double& length)
     }
 
     nodes_[node1].edges.push_back(i);
+    nodes_[node1].edge_by_peer_[node2] = i;
+    nodes_[node1].peer_by_edge_[i] = node2;
+
     nodes_[node2].edges.push_back(i);
+    nodes_[node2].edge_by_peer_[node1] = i;
+    nodes_[node2].peer_by_edge_[i] = node1;
 
     std::cout << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << std::endl;
 
@@ -136,8 +141,20 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
     }
 
     nodes_[node1].addTriplet(i);
+    nodes_[node1].triplets_by_peer_[node2].push_back(i);
+    nodes_[node1].triplets_by_peer_[node3].push_back(i);
+    edges_[nodes_[node1].edgeByPeer(node2)].triplet_by_node_[node3] = i;
+
     nodes_[node2].addTriplet(i);
+    nodes_[node2].triplets_by_peer_[node1].push_back(i);
+    nodes_[node2].triplets_by_peer_[node3].push_back(i);
+    edges_[nodes_[node2].edgeByPeer(node3)].triplet_by_node_[node1] = i;
+
     nodes_[node3].addTriplet(i);
+    nodes_[node3].triplets_by_peer_[node1].push_back(i);
+    nodes_[node3].triplets_by_peer_[node2].push_back(i);
+    edges_[nodes_[node3].edgeByPeer(node1)].triplet_by_node_[node2] = i;
+
 
     std::cout << "[GRAPH] Added Edge3 between nodes " << node1 << ", " << node2 << " and " << node3 << std::endl;
 
@@ -149,12 +166,13 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
 void Graph::deleteNode(const int i)
 {
     Node node = nodes_[i];
-    nodes_[i].id = "";
 
+    // Dissolve any connected triplets
     for( std::vector<int>::reverse_iterator it = node.triplets.rbegin(); it!= node.triplets.rend(); it++)
     {
         deleteEdge3(*it);
     }
+    // Dissolve any connected edges
     for( std::vector<int>::reverse_iterator it = node.edges.rbegin(); it != node.edges.rend(); it++ )
     {
         deleteEdge2(*it);
@@ -191,9 +209,23 @@ void Graph::deleteEdge2(const int i)
     nodes_[edge.A].edges.erase(std::find(nodes_[edge.A].edges.begin(),nodes_[edge.A].edges.end(),i));
     nodes_[edge.B].edges.erase(std::find(nodes_[edge.B].edges.begin(),nodes_[edge.B].edges.end(),i));
 
+    // For both nodes stored in this edge, remove map item from peer to this edge
+    std::map<int,int>::iterator it = nodes_[edge.A].edge_by_peer_.find(edge.B);
+    nodes_[edge.A].edge_by_peer_.erase(it);
+
+    it = nodes_[edge.B].edge_by_peer_.find(edge.A);
+    nodes_[edge.B].edge_by_peer_.erase(it);
+
+    it = nodes_[edge.A].peer_by_edge_.find(i);
+    nodes_[edge.A].peer_by_edge_.erase(it);
+
+    it = nodes_[edge.B].peer_by_edge_.find(i);
+    nodes_[edge.B].peer_by_edge_.erase(it);
+
     edges_[i].deleted = true;
     deleted_edges_.push_back(i);
     std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting edges is not completely implemented yet!!!" << "\033[0m" << std::endl;
+    // TODO: make sure that edge cannot be found in graph anymore after deletion (using edge iterator?)
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -207,9 +239,59 @@ void Graph::deleteEdge3(const int i)
     nodes_[triplet.B].triplets.erase(std::find(nodes_[triplet.B].triplets.begin(),nodes_[triplet.B].triplets.end(),i));
     nodes_[triplet.C].triplets.erase(std::find(nodes_[triplet.C].triplets.begin(),nodes_[triplet.C].triplets.end(),i));
 
+    // For every edge part of this triplet, remove the triplet from its map from (third) nodes to triplets
+    {
+        int e1 = nodes_[triplet.A].edgeByPeer(triplet.B);
+        int e2 = nodes_[triplet.B].edgeByPeer(triplet.C);
+        int e3 = nodes_[triplet.C].edgeByPeer(triplet.A);
+
+        std::map<int,int>::iterator it;
+        it = edges_[e1].triplet_by_node_.find(triplet.C);
+        edges_[e1].triplet_by_node_.erase(it);
+        it = edges_[e2].triplet_by_node_.find(triplet.A);
+        edges_[e2].triplet_by_node_.erase(it);
+        it = edges_[e3].triplet_by_node_.find(triplet.B);
+        edges_[e3].triplet_by_node_.erase(it);
+    }
+
+    // For every node part of this triplet, remove the triplet from its map from (second) nodes to shared triplets
+    {
+        std::vector<int>::iterator it;
+        std::vector<int> vector;
+
+        // node A
+        vector = nodes_[triplet.A].triplets_by_peer_[triplet.B];
+        it = std::find(vector.begin(),vector.end(),i);
+        nodes_[triplet.A].triplets_by_peer_[triplet.B].erase(it);
+
+        vector = nodes_[triplet.A].triplets_by_peer_[triplet.C];
+        it = std::find(vector.begin(),vector.end(),i);
+        nodes_[triplet.A].triplets_by_peer_[triplet.C].erase(it);
+
+        // node B
+        vector = nodes_[triplet.B].triplets_by_peer_[triplet.A];
+        it = std::find(vector.begin(),vector.end(),i);
+        nodes_[triplet.B].triplets_by_peer_[triplet.A].erase(it);
+
+        vector = nodes_[triplet.B].triplets_by_peer_[triplet.C];
+        it = std::find(vector.begin(),vector.end(),i);
+        nodes_[triplet.B].triplets_by_peer_[triplet.C].erase(it);
+
+        // node C
+        vector = nodes_[triplet.C].triplets_by_peer_[triplet.A];
+        it = std::find(vector.begin(),vector.end(),i);
+        nodes_[triplet.C].triplets_by_peer_[triplet.A].erase(it);
+
+        vector = nodes_[triplet.C].triplets_by_peer_[triplet.B];
+        it = std::find(vector.begin(),vector.end(),i);
+        nodes_[triplet.C].triplets_by_peer_[triplet.B].erase(it);
+    }
+
     triplets_[i].deleted = true;
     deleted_triplets_.push_back(i);
     std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting triplets is not completely implemented yet!!!" << "\033[0m" << std::endl;
+    // TODO: make sure that triplet cannot be found in graph anymore after deletion (using triplet iterator?)
+    // TODO: Why would you want to do this? And does that mean that you want to remove the involved edges as well?
 }
 
 // -----------------------------------------------------------------------------------------------

@@ -10,6 +10,7 @@ namespace triplet_graph
 
 class Node
 {
+    friend class Graph;
 public:
     Node(std::string id = generateId() ):id(id){}
 

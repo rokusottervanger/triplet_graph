@@ -8,6 +8,7 @@ namespace triplet_graph
 
 struct Edge2
 {
+    friend class Graph;
 public:
     Edge2(const int& node1, const int& node2, const double& length):
         A(node1), B(node2), l(length), deleted(false){}
