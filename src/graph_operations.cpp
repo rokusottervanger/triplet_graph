@@ -235,7 +235,10 @@ bool configure(Graph& g, tue::Configuration &config)
         config.endArray();
     }
     else
+    {
+        std::cout << "[GRAPH] ERROR! Array 'nodes' not found" << std::endl;
         return false;
+    }
 
     if (config.readArray("edges"))
     {
@@ -631,11 +634,11 @@ void save(const Graph &graph, const std::string &filename)
     // Instantiate a new config and write graph configuration to it
     tue::Configuration config;
     config.writeArray("nodes");
+    std::string s("'");
     for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
     {
         config.addArrayItem();
-        std::string s("'");
-        config.setValue("id",s.append(it->id).append("'"));
+        config.setValue("id",s+ it->id +s);
         config.endArrayItem();
     }
     config.endArray();
@@ -645,8 +648,8 @@ void save(const Graph &graph, const std::string &filename)
     for ( std::vector<Edge2>::const_iterator it = edges.begin(); it != edges.end(); ++it )
     {
         config.addArrayItem();
-        config.setValue("n1",(graph.begin() + it->A)->id);
-        config.setValue("n2",(graph.begin() + it->B)->id);
+        config.setValue("n1",s+(graph.begin() + it->A)->id+s);
+        config.setValue("n2",s+(graph.begin() + it->B)->id+s);
         config.setValue("length",it->l);
         config.endArrayItem();
     }
@@ -657,9 +660,9 @@ void save(const Graph &graph, const std::string &filename)
     for ( std::vector<Edge3>::const_iterator it = triplets.begin(); it != triplets.end(); ++it )
     {
         config.addArrayItem();
-        config.setValue("n1",(graph.begin() + it->A)->id);
-        config.setValue("n2",(graph.begin() + it->B)->id);
-        config.setValue("n3",(graph.begin() + it->C)->id);
+        config.setValue("n1",s+(graph.begin() + it->A)->id+s);
+        config.setValue("n2",s+(graph.begin() + it->B)->id+s);
+        config.setValue("n3",s+(graph.begin() + it->C)->id+s);
         config.endArrayItem();
     }
     config.endArray();
