@@ -324,6 +324,8 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
     std::vector<Edge2> edges = graph.getEdge2s();
     std::vector<Edge3> triplets = graph.getEdge3s();
 
+    std::cout << 1 << std::endl;
+
     Path path;
     if ( associations.nodes.size() > 1 )
     {
@@ -332,7 +334,11 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
             for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
             {
                 path.push_back(it - graph.begin());
+
             }
+            path.parent_tree.push_back(std::make_pair(-1,-1));
+            path.parent_tree.push_back(std::make_pair(-1,-1));
+            path.parent_tree.push_back(std::make_pair(0,1));
         }
         else
         {
@@ -344,6 +350,7 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
         return;
     }
+    std::cout << "Nodes to be associated (path): " << path << std::endl;
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     // -     Calculate positions of nodes on path in sensor frame
@@ -357,16 +364,38 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
     associations.measurement.points.clear();
     associations.nodes.clear();
 
+    for ( int i = 0; i < positions.size(); ++i )
+    {
+        associations.nodes.push_back(i);
+        associations.measurement.points.push_back(positions[i]);
+    }
+
+    std::cout << 3 << std::endl;
+
     // TODO: Split up position calculation of nodes to use also for visualisation of graph?
     for ( int i = 1; i <= path.size(); ++i )
     {
+        std::cout << "path.size() " << path.size() << std::endl;
         // Calculate index in path
         int index = path.size()-i;
+
+        std::cout << "index " << index << std::endl;
 
         // Get node index and its parent nodes' indices
         int node_i = path[index];
         int parent1_i = path.parent_tree[node_i].first;
         int parent2_i = path.parent_tree[node_i].second;
+
+        if ( parent1_i == -1 || parent2_i == -1 )
+        {
+            if ( parent1_i != -1 || parent2_i != -1 )
+            {
+                std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Node " << node_i << " has one parent. This is never supposed to happen!" << "\033[0m" << std::endl;
+            }
+            continue;
+        }
+
+        std::cout << 5 << std::endl;
 
         // Get edge that connects parent nodes
         int parents_edge_i = (graph.begin() + parent1_i)->edgeByPeer(parent2_i);
@@ -384,6 +413,8 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
             return;
         }
 
+        std::cout << 6 << std::endl;
+
         // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
         // If clockwise (wrong direction) swap parent nodes.
         Edge3 trip = triplets[triplet_i];
@@ -395,6 +426,8 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
             parent1_i = parent2_i;
             parent2_i = tmp;
         }
+
+        std::cout << 7 << std::endl;
 
         int edge_1_i = (graph.begin() + parent1_i)->edgeByPeer(node_i);
         if ( edge_1_i == -1 )
@@ -410,9 +443,13 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
             return;
         }
 
+        std::cout << 8 << std::endl;
+
         Edge2 edge_1 = edges[edge_1_i];
         Edge2 edge_2 = edges[edge_2_i];
         Edge2 parents_edge = edges[parents_edge_i];
+
+        std::cout << 9 << std::endl;
 
         // In notes, names of l1 and l2 were swapped, so:
         double l1 = edge_2.l;
@@ -429,10 +466,14 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         double k = sqrt(k_sq);
         double s = sqrt(l2_sq - k_sq);
 
+        std::cout << 10 << std::endl;
+
         // Define the triangle frame and espress the position of the new node in the sensor frame
         geo::Vec3d base_x = (positions[parent2_i] - positions[parent1_i])/edges[parents_edge_i].l;
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
+
+        std::cout << 11 << std::endl;
 
         // For this graph node, go through the points in the measurement and associate the closest point within a bound with this node.
         // TODO: match a node to each measurement point instead of trying to match a measurement point to each node?
@@ -452,12 +493,17 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
                 }
             }
         }
+
+        std::cout << 12 << std::endl;
+
         if ( best_dist_sq < 1.0e9 )
         {
             associations.nodes.push_back(node_i);
             associations.measurement.points.push_back(best_guess);
+            std::cout << 13 << std::endl;
             // TODO: make sure that one measurement without (associated) points does not let the robot get lost
         }
+        std::cout << 14 << std::endl;
     }
 }
 
