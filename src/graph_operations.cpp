@@ -248,8 +248,11 @@ bool configure(Graph& g, tue::Configuration &config)
                 n1 = findNodeByID(g,id1);
                 n2 = findNodeByID(g,id2);
             }
-            else if (!config.value("n1", n1) || !config.value("n2", n2))
+            else
+            {
+                std::cout << "\033[31m" << "[GRAPH] WARNING! No node ids found in edge" << "\033[0m" << std::endl;
                 continue;
+            }
 
             if ( n1 == -1 || n2 == -1 )
                 std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
@@ -287,8 +290,11 @@ bool configure(Graph& g, tue::Configuration &config)
                 n2 = findNodeByID(g,id2);
                 n3 = findNodeByID(g,id3);
             }
-            else if (!config.value("n1", n1) || !config.value("n2", n2) || !config.value("n3", n3))
+            else
+            {
+                std::cout << "\033[31m" << "[GRAPH] WARNING! No node ids found in triplet" << "\033[0m" << std::endl;
                 continue;
+            }
 
             if ( n1 == -1 || n2 == -1 || n3 == -1 )
                 std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
@@ -639,8 +645,8 @@ void save(const Graph &graph, const std::string &filename)
     for ( std::vector<Edge2>::const_iterator it = edges.begin(); it != edges.end(); ++it )
     {
         config.addArrayItem();
-        config.setValue("n1",it->A);
-        config.setValue("n2",it->B);
+        config.setValue("n1",(graph.begin() + it->A)->id);
+        config.setValue("n2",(graph.begin() + it->B)->id);
         config.setValue("length",it->l);
         config.endArrayItem();
     }
@@ -651,9 +657,9 @@ void save(const Graph &graph, const std::string &filename)
     for ( std::vector<Edge3>::const_iterator it = triplets.begin(); it != triplets.end(); ++it )
     {
         config.addArrayItem();
-        config.setValue("n1",it->A);
-        config.setValue("n2",it->B);
-        config.setValue("n3",it->C);
+        config.setValue("n1",(graph.begin() + it->A)->id);
+        config.setValue("n2",(graph.begin() + it->B)->id);
+        config.setValue("n3",(graph.begin() + it->C)->id);
         config.endArrayItem();
     }
     config.endArray();
