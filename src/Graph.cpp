@@ -79,7 +79,7 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
 
     int i;
 
-    // TODO: Check if triplet exists or not
+    // TODO: make checking for existance more efficient using quick lookup maps
     // If a triplet exists between the three nodes, it is at least stored in the node that is part of the least triplets, so get node with the least triplets
     int n1, n2, n3;
 
@@ -123,12 +123,13 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
             {
                 std::cout << "Found the same triplet as the one we're trying to add! Only updating order!" << std::endl;
                 triplets_[*it] = trip;
+                return *it;
             }
         } while  ( std::next_permutation(v_indices.begin(),v_indices.end()) );
     }
 
-    // Edge does not yet exist, so add to graph's edges list
-    if (deleted_edges_.empty())
+    // triplet does not yet exist, so add to graph's triplets list
+    if (deleted_triplets_.empty())
     {
         i = triplets_.size();
         triplets_.push_back(trip);
@@ -140,6 +141,7 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
         deleted_triplets_.pop_back();
     }
 
+    // Add triplet to all nodes and edges that are part of this triplet:
     nodes_[node1].addTriplet(i);
     nodes_[node1].triplets_by_peer_[node2].push_back(i);
     nodes_[node1].triplets_by_peer_[node3].push_back(i);
