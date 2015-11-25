@@ -4,6 +4,8 @@
 #include "triplet_graph/OdomTracker.h"
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/Visualizer.h"
+#include "triplet_graph/Path.h"
+#include <tue/profiling/timer.h>
 
 int main(int argc, char** argv)
 {
@@ -45,6 +47,9 @@ int main(int argc, char** argv)
 
     while (ros::ok())
     {
+        tue::Timer timer;
+        timer.start();
+
         triplet_graph::Measurement measurement;
         geo::Transform delta;
 
@@ -59,6 +64,9 @@ int main(int argc, char** argv)
         triplet_graph::extendGraph( graph, measurement, associations );
 
         ros::spinOnce();
+
+        std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << std::endl;
+
         loop_rate.sleep();
     }
     std::cout << "Writing graph config to disk..." << std::endl;
