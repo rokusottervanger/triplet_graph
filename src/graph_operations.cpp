@@ -475,7 +475,7 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
                 if ( dx_sq < best_dist_sq )
                 {
                     best_dist_sq = dx_sq;
-                    best_pos = positions[i];
+                    best_pos = *it_m;
                     best_guess = i;
                 }
             }
