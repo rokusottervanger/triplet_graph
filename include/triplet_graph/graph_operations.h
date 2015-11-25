@@ -16,7 +16,11 @@ double findPath(const Graph &graph, const std::vector<int>& source_nodes, const 
 
 bool configure(Graph &g, tue::Configuration &config);
 
-void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i);
+void calculatePositions(const Graph& graph, std::vector<geo::Vec3d>& positions, const Path& path);
+
+void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i);
+
+void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i, Path &path);
 
 void updateGraph(Graph &graph, const AssociatedMeasurement &associations);
 
