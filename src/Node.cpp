@@ -63,7 +63,7 @@ int Node::peerByEdge(const int edge) const
     {
         return it->second;
     }
-    std::cout << "[NODE] peerByEdge: peer not found, returning -1" << std::endl;
+    std::cout << "[NODE] peerByEdge: edge not found, returning -1" << std::endl;
     return -1;
 }
 
