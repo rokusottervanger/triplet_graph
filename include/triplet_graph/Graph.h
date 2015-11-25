@@ -7,6 +7,7 @@
 #include "Node.h"
 #include "Edge2.h"
 #include "Edge3.h"
+#include "Measurement.h"
 
 namespace triplet_graph
 {
@@ -17,6 +18,8 @@ private:
     std::vector<Node> nodes_;
     std::vector<Edge2> edges_;
     std::vector<Edge3> triplets_;
+
+    AssociatedMeasurement last_associations_;
 
     std::vector<int> deleted_nodes_;
     std::vector<int> deleted_edges_;
@@ -43,7 +46,9 @@ public:
 
     void flipTriplet(const int i);
 
-//    void update(const Measurements& measurements);
+    void setAssociations(const AssociatedMeasurement& associations) { last_associations_ = associations; }
+
+    AssociatedMeasurement getAssociations() const { return last_associations_; }
 
     // TODO: This still contains the deleted nodes, edges and triplets!
     std::vector<Node> getNodes() const {return nodes_;}
