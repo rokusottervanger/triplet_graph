@@ -316,50 +316,10 @@ bool configure(Graph& g, tue::Configuration &config)
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i)
+void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, const Path& path)
 {
-    double max_distance = 0.1; // TODO: magic number, parameterize!
-    double max_distance_sq = max_distance*max_distance;
-
     std::vector<Edge2> edges = graph.getEdge2s();
     std::vector<Edge3> triplets = graph.getEdge3s();
-
-    Path path;
-    if ( associations.nodes.size() > 1 )
-    {
-        if ( goal_node_i == -1 )
-        {
-            for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
-            {
-                path.push_back(it - graph.begin());
-
-            }
-            path.parent_tree.push_back(std::make_pair(-1,-1));
-            path.parent_tree.push_back(std::make_pair(-1,-1));
-            path.parent_tree.push_back(std::make_pair(0,1));
-        }
-        else
-        {
-            findPath(graph,associations.nodes,goal_node_i,path);
-        }
-    }
-    else
-    {
-        std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
-        return;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // -     Calculate positions of nodes on path in sensor frame
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    std::vector<geo::Vec3d> positions(graph.size());
-
-    // Add prior associations to positions vector to
-    for ( int i = 0; i < associations.nodes.size(); ++i )
-        positions[associations.nodes[i]] = delta.inverse() * associations.measurement.points[i];
-    associations.measurement.points.clear();
-    associations.nodes.clear();
 
     // Calculate positions of nodes that are to be associated
     for ( int i = 1; i <= path.size(); ++i )
@@ -456,8 +416,66 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
     }
+}
 
-    // Nearest neighbor association
+// -----------------------------------------------------------------------------------------------
+
+void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i)
+{
+    Path path;
+    associate(graph, measurement, associations, delta, goal_node_i, path);
+}
+
+// -----------------------------------------------------------------------------------------------
+
+void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i, Path& path)
+{
+    double max_distance = 0.1; // TODO: magic number, parameterize!
+    double max_distance_sq = max_distance*max_distance;
+
+    if ( associations.nodes.size() > 1 )
+    {
+        if ( goal_node_i == -1 )
+        {
+            for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
+            {
+                path.push_back(it - graph.begin());
+
+            }
+            path.parent_tree.push_back(std::make_pair(-1,-1));
+            path.parent_tree.push_back(std::make_pair(-1,-1));
+            path.parent_tree.push_back(std::make_pair(0,1));
+        }
+        else
+        {
+            findPath(graph,associations.nodes,goal_node_i,path);
+        }
+    }
+    else
+    {
+        std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
+        return;
+    }
+
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // -     Calculate positions of nodes on path in sensor frame
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    std::vector<geo::Vec3d> positions(graph.size());
+
+    // Add prior associations to positions vector to
+    for ( int i = 0; i < associations.nodes.size(); ++i )
+        positions[associations.nodes[i]] = delta.inverse() * associations.measurement.points[i];
+    associations.measurement.points.clear();
+    associations.nodes.clear();
+
+    calculatePositions(graph,positions,path);
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // -     Nearest neighbor association
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     // TODO: Check if association goes well (in case of false positives, false negatives, etc.)
     for ( std::vector<geo::Vec3d>::const_iterator it_m = measurement.points.begin(); it_m != measurement.points.end(); ++it_m )
     {
@@ -595,6 +613,8 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
     }
 }
 
+// -----------------------------------------------------------------------------------------------
+
 void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations)
 /* Function to extend an existing graph using a measurement and the
  * associated measurement derived from that. The associated measurement
@@ -606,7 +626,7 @@ void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasure
     int i = 0; // Index in vector of associations
     for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); ++it )
     {
-        // If point is already associated, continue. (Assumes that order of points in associated measurement is equal to order in measurement)
+        // If point is associated, it was already in the measurement continue. (Assumes that order of points in associated measurement is equal to order in measurement)
         if ( i < associations.measurement.points.size() && *it == associations.measurement.points[i] ) // TODO: Make sure i does not run out of this vector?
         {
             ++i;
@@ -630,7 +650,7 @@ void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasure
             graph.addEdge2(n1, n2, d21.length() );
 
             int k = j+1;
-            for ( std::vector<int>::const_iterator it_3 = it_2+1; it_3 != associations.nodes.end(); ++it_3 )
+            for ( std::vector<int>::const_iterator it_3 = associations.nodes.begin(); it_3 != it_2; ++it_3 )
             {
                 int n3 = *it_3;
                 geo::Vec3d pt3 = measurement.points[k];
@@ -648,6 +668,7 @@ void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasure
                     graph.addEdge3(n1,n3,n2);
                 ++k;
             }
+            std::cout << "Added triplets" << std::endl;
             ++j;
         }
 
@@ -658,6 +679,8 @@ void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasure
         ++i;
     }
 }
+
+// -----------------------------------------------------------------------------------------------
 
 void save(const Graph &graph, const std::string &filename)
 {
