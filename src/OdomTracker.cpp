@@ -7,6 +7,8 @@
 namespace triplet_graph
 {
 
+OdomTracker::OdomTracker(): tf_listener_() {}
+
 void OdomTracker::configure(tue::Configuration &config)
 {
     if (config.readGroup("odom_tracker", tue::REQUIRED))
@@ -17,16 +19,24 @@ void OdomTracker::configure(tue::Configuration &config)
 
         config.endGroup();
     }
+    else
+    {
+        std::cout << "\033[31m" << "[ODOM TRACKER] Configure: No configuration for odom tracker found!" << "\033[0m" << std::endl;
+    }
 
     if (config.hasError())
         return;
+
+    delete tf_listener_;
+    tf_listener_ = new tf::TransformListener;
+
+    return;
 }
 
 // -----------------------------------------------------------------------------------------------
 
 void OdomTracker::getDelta(geo::Transform& movement, const ros::Time& time)
 {
-
     if (!tf_listener_->waitForTransform(odom_frame_id_, base_link_frame_id_, time, ros::Duration(1.0)))
     {
         ROS_WARN_STREAM("[ODOM TRACKER] Cannot get transform from '" << odom_frame_id_ << "' to '" << base_link_frame_id_ << "'.");

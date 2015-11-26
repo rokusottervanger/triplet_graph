@@ -13,6 +13,7 @@ namespace triplet_graph
 class OdomTracker
 {
 public:
+    OdomTracker();
     void configure(tue::Configuration &config);
     void getDelta(geo::Transform &movement, const ros::Time &time);
 

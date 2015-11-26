@@ -11,4 +11,8 @@ corner_detector:
         lines:
             name: "corner_lines"
             color: {r: 0, g: 0, b: 1}
+odom_tracker:
+    map_frame: "map"
+    odom_frame: "amigo/odom"
+    base_link_frame: "amigo/base_link"
 graph_filename: "robotics_testlab_B.yaml"
