@@ -5,5 +5,10 @@ corner_detector:
     frame_id: "/amigo/base_laser"
     jump_size: 0.05
     visualization:
-        points_name: "corners"
-        lines_name: "line_segments"
+        points:
+            name: "corners"
+            color: {r: 0, g: 1, b: 0}
+        lines:
+            name: "corner_lines"
+            color: {r: 0, g: 0, b: 1}
+graph_filename: "robotics_testlab_B.yaml"

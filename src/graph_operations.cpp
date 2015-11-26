@@ -720,7 +720,7 @@ void save(const Graph &graph, const std::string &filename)
     }
     config.endArray();
 
-    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " to " << filename << std::cout;
+    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " to " << filename.c_str() << std::cout;
 
     // Convert config to yaml string and write to file.
     std::ofstream file;
