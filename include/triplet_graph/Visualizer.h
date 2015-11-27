@@ -16,19 +16,19 @@ namespace triplet_graph
 
 class Visualizer
 {
-    visualization_msgs::Marker points;
-    visualization_msgs::Marker lines;
-    ros::Publisher marker_pub;
-    ros::NodeHandle nh;
-    bool is_configured;
+    visualization_msgs::Marker points_;
+    visualization_msgs::Marker lines_;
+    ros::Publisher marker_pub_;
+    ros::NodeHandle nh_;
+    bool is_configured_;
 
-    std::string points_name, lines_name;
+    std::string points_name_, lines_name_;
 
 public:
     Visualizer();
     void configure(tue::Configuration &config);
-    void publish(Measurement &measurement);
-    bool isConfigured(){return is_configured;}
+    void publish(const Measurement &measurement);
+    bool isConfigured(){return is_configured_;}
 };
 
 } // end namespace triplet_graph

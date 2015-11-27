@@ -5,59 +5,58 @@ namespace triplet_graph
 {
 
 Visualizer::Visualizer():
-    nh("~"),
-    points_name(""),
-    lines_name(""),
-    is_configured(false)
+    nh_("~"),
+    is_configured_(false)
 {}
 
 // ----------------------------------------------------------------------------------------------------
 
 void Visualizer::configure(tue::Configuration& config)
 {
-    marker_pub = nh.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+    marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 10);
     if ( config.readGroup("points") )
     {
-        config.value("name", points_name, tue::REQUIRED);
+        config.value("name", points_name_, tue::REQUIRED);
 
-        points.ns = points_name;
-        points.pose.orientation.w = 1.0;
+        points_.ns = points_name_;
+        points_.pose.orientation.w = 1.0;
 
-        points.id = 0;
-        points.type = visualization_msgs::Marker::POINTS;
-        points.scale.x = 0.03;
-        points.scale.y = 0.03;
+        points_.id = 0;
+        points_.type = visualization_msgs::Marker::POINTS;
+        points_.scale.x = 0.03;
+        points_.scale.y = 0.03;
 
         float r = 0, g = 0, b = 0;
         if ( config.readGroup("color") )
         {
-            if (!config.value("r",r,tue::OPTIONAL) && !config.value("g",g,tue::OPTIONAL) && !config.value("b",b,tue::OPTIONAL))
-                r = g = b = 1.0;
+            config.value("r",r);
+            config.value("g",g);
+            config.value("b",b);
             config.endGroup();
         }
         else
             r = g = b = 1.0;
 
-        points.color.r = r;
-        points.color.g = g;
-        points.color.b = b;
-        points.color.a = 1;
+        points_.color.r = r;
+        points_.color.g = g;
+        points_.color.b = b;
+        points_.color.a = 1;
 
         config.endGroup();
-        is_configured = true;
+        is_configured_ = true;
     }
 
     if ( config.readGroup("lines") )
     {
-        config.value("name", lines_name, tue::REQUIRED);
+        config.value("name", lines_name_, tue::REQUIRED);
 
-        lines.ns = lines_name;
-        lines.pose.orientation.w = 1.0;
+        lines_.ns = lines_name_;
+        lines_.pose.orientation.w = 1.0;
 
-        lines.id = 0;
-        lines.type = visualization_msgs::Marker::LINE_LIST;
-        lines.scale.x = 0.002;
-        lines.scale.y = 0.002;
+        lines_.id = 0;
+        lines_.type = visualization_msgs::Marker::LINE_LIST;
+        lines_.scale.x = 0.002;
+        lines_.scale.y = 0.002;
 
         float r = 0, g = 0, b = 0;
         if ( config.readGroup("color") )
@@ -69,61 +68,67 @@ void Visualizer::configure(tue::Configuration& config)
         else
             r = g = b = 1.0;
 
-        points.color.r = r;
-        points.color.g = g;
-        points.color.b = b;
-        points.color.a = 1;
+        lines_.color.r = r;
+        lines_.color.g = g;
+        lines_.color.b = b;
+        lines_.color.a = 1;
 
         config.endGroup();
-        is_configured = true;
+        is_configured_ = true;
     }
 }
 
 // ----------------------------------------------------------------------------------------------------
 
-void Visualizer::publish(Measurement& measurement)
+void Visualizer::publish(const Measurement& measurement)
 {
-    // TODO: If no lines, don't publish lines; if no points, don't publish points.
+    // TODO: If no lines, don't publish lines; if no points, don't publish points_.
 
     // - - - - - - - - - - - - - - - - - - - - - - - -
     // Publish points
 
-    points.points.clear();
-
-    points.header.stamp = measurement.time_stamp;
-    points.header.frame_id = measurement.frame_id;
-
-    for ( std::vector<geo::Vec3d>::iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
+    if ( measurement.points.size() )
     {
-        geometry_msgs::Point p;
-        p.x = it->getX();
-        p.y = it->getY();
-        p.z = it->getZ();
+        points_.points.clear();
 
-        points.points.push_back(p);
+        points_.header.stamp = measurement.time_stamp;
+        points_.header.frame_id = measurement.frame_id;
+
+        for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
+        {
+            geometry_msgs::Point p;
+            p.x = it->getX();
+            p.y = it->getY();
+            p.z = it->getZ();
+
+            points_.points.push_back(p);
+        }
+
+        marker_pub_.publish(points_);
     }
-
-    marker_pub.publish(points);
 
     // - - - - - - - - - - - - - - - - - - - - - - - -
     // Publish lines
 
-    lines.points.clear();
-
-    lines.header.stamp = measurement.time_stamp;
-    lines.header.frame_id = measurement.frame_id;
-
-    for ( std::vector<geo::Vec3d>::iterator it = measurement.line_list.begin(); it != measurement.line_list.end(); it++ )
+    if ( measurement.line_list.size() )
     {
-        geometry_msgs::Point p;
-        p.x = it->getX();
-        p.y = it->getY();
-        p.z = it->getZ();
+        lines_.points.clear();
 
-        lines.points.push_back(p);
+        lines_.header.stamp = measurement.time_stamp;
+        lines_.header.frame_id = measurement.frame_id;
+
+        for ( std::vector<geo::Vec3d>::const_iterator it = measurement.line_list.begin(); it != measurement.line_list.end(); it++ )
+        {
+            geometry_msgs::Point p;
+            p.x = it->getX();
+            p.y = it->getY();
+            p.z = it->getZ();
+
+            lines_.points.push_back(p);
+        }
+
+        marker_pub_.publish(lines_);
     }
-
-    marker_pub.publish(lines);
 }
 
 } // end namespace triplet_graph
