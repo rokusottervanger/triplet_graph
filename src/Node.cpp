@@ -52,7 +52,7 @@ int Node::edgeByPeer(const int peer) const
     {
         return it->second;
     }
-    std::cout << "[NODE] edgeByPeer: peer not found, returning -1" << std::endl;
+//    std::cout << "[NODE] edgeByPeer: peer not found, returning -1" << std::endl;
     return -1;
 }
 
@@ -63,7 +63,7 @@ int Node::peerByEdge(const int edge) const
     {
         return it->second;
     }
-    std::cout << "[NODE] peerByEdge: edge not found, returning -1" << std::endl;
+//    std::cout << "[NODE] peerByEdge: edge not found, returning -1" << std::endl;
     return -1;
 }
 
@@ -74,7 +74,7 @@ std::vector<int> Node::tripletsByPeer(const int peer) const
     {
         return it->second;
     }
-    std::cout << "[NODE] commonTripletsByPeer: peer not found, returning empty vector" << std::endl;
+//    std::cout << "[NODE] commonTripletsByPeer: peer not found, returning empty vector" << std::endl;
     return std::vector<int>();
 }
 

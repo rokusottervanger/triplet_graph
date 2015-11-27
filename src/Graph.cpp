@@ -27,7 +27,7 @@ int Graph::addNode(const std::string& id)
         deleted_nodes_.pop_back();
     }
 
-    std::cout << "[GRAPH] Added node with id: '" << id << "'" << std::endl;
+//    std::cout << "[GRAPH] Added node with id: '" << id << "'" << std::endl;
 
     return i;
 }
@@ -60,7 +60,7 @@ int Graph::addEdge2(const int node1, const int node2, const double& length)
     nodes_[node2].edge_by_peer_[node1] = i;
     nodes_[node2].peer_by_edge_[i] = node1;
 
-    std::cout << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << std::endl;
+//    std::cout << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << std::endl;
 
     return i;
 }
@@ -121,7 +121,7 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
         {
             if ( v_indices[0] == node1 && v_indices[1] == node2 && v_indices[2] == node3 )
             {
-                std::cout << "Found the same triplet as the one we're trying to add! Only updating order!" << std::endl;
+                std::cout << "[GRAPH] AddEdge3: Found the same triplet as the one we're trying to add! Only updating order!" << std::endl;
                 triplets_[*it] = trip;
                 return *it;
             }
@@ -145,20 +145,20 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
     nodes_[node1].addTriplet(i);
     nodes_[node1].triplets_by_peer_[node2].push_back(i);
     nodes_[node1].triplets_by_peer_[node3].push_back(i);
-    edges_[nodes_[node1].edgeByPeer(node2)].triplet_by_node_[node3] = i;
+    edges_[nodes_[node1].edgeByPeer(node2)].triplet_by_node_[node3] = i; // Assumes that edge between node1 and node2 already exists
 
     nodes_[node2].addTriplet(i);
     nodes_[node2].triplets_by_peer_[node1].push_back(i);
     nodes_[node2].triplets_by_peer_[node3].push_back(i);
-    edges_[nodes_[node2].edgeByPeer(node3)].triplet_by_node_[node1] = i;
+    edges_[nodes_[node2].edgeByPeer(node3)].triplet_by_node_[node1] = i; // Assumes that edge between node2 and node3 already exists
 
     nodes_[node3].addTriplet(i);
     nodes_[node3].triplets_by_peer_[node1].push_back(i);
     nodes_[node3].triplets_by_peer_[node2].push_back(i);
-    edges_[nodes_[node3].edgeByPeer(node1)].triplet_by_node_[node2] = i;
+    edges_[nodes_[node3].edgeByPeer(node1)].triplet_by_node_[node2] = i; // Assumes that edge between node1 and node3 already exists
 
 
-    std::cout << "[GRAPH] Added Edge3 between nodes " << node1 << ", " << node2 << " and " << node3 << std::endl;
+//    std::cout << "[GRAPH] Added Edge3 between nodes " << node1 << ", " << node2 << " and " << node3 << std::endl;
 
     return i;
 }
@@ -183,7 +183,7 @@ void Graph::deleteNode(const int i)
     nodes_[i] = Node("");
     deleted_nodes_.push_back(i);
     std::cout << "Deleted node " << i << std::endl;
-    std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting nodes is not completely implemented yet!!!" << "\033[0m" << std::endl;
+    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted nodes is not completely implemented yet!" << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ void Graph::deleteEdge2(const int i)
 
     edges_[i].deleted = true;
     deleted_edges_.push_back(i);
-    std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting edges is not completely implemented yet!!!" << "\033[0m" << std::endl;
+    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted edges is not completely implemented yet!" << "\033[0m" << std::endl;
     // TODO: make sure that edge cannot be found in graph anymore after deletion (using edge iterator?)
 }
 
@@ -291,7 +291,7 @@ void Graph::deleteEdge3(const int i)
 
     triplets_[i].deleted = true;
     deleted_triplets_.push_back(i);
-    std::cout << "\033[31m" << "[GRAPH] WARNING! Deleting triplets is not completely implemented yet!!!" << "\033[0m" << std::endl;
+    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted triplets is not completely implemented yet!" << "\033[0m" << std::endl;
     // TODO: make sure that triplet cannot be found in graph anymore after deletion (using triplet iterator?)
     // TODO: Why would you want to do this? And does that mean that you want to remove the involved edges as well?
 }
@@ -311,12 +311,5 @@ void Graph::flipTriplet(const int i)
     triplets_[i].B = triplets_[i].C;
     triplets_[i].C = tmp;
 }
-
-// -----------------------------------------------------------------------------------------------
-
-//void Graph::update(const Measurements& measurements)
-//{
-//    std::cout << "[GRAPH] Updating graph (does nothing right now)" << std::endl;
-//}
 
 }
