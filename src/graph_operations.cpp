@@ -267,7 +267,7 @@ void associate(const Graph &graph, const Measurement &measurement, AssociatedMea
     else
     {
         associations = graph.getAssociations();
-        std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
+        std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough initial associations given" << "\033[0m" << std::endl;
         return;
     }
 
