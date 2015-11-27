@@ -34,6 +34,7 @@ int main(int argc, char** argv)
     triplet_graph::Graph graph;
     triplet_graph::CornerDetector cornerDetector;
     triplet_graph::OdomTracker odomTracker;
+    triplet_graph::Visualizer visualizer;
 
     triplet_graph::AssociatedMeasurement associations;
 
@@ -45,6 +46,12 @@ int main(int argc, char** argv)
 
     std::cout << "Configuring odom tracker..." << std::endl;
     odomTracker.configure(config);
+    std::cout << "Done!" << std::endl << std::endl;
+
+    std::cout << "Configuring visualizer..." << std::endl;
+    config.readGroup("visualization");
+    visualizer.configure(config);
+    config.endGroup();
     std::cout << "Done!" << std::endl << std::endl;
 
     ros::Rate loop_rate(15);
@@ -60,6 +67,7 @@ int main(int argc, char** argv)
 
         triplet_graph::Measurement measurement;
         geo::Transform delta;
+        triplet_graph::Path path;
 
         std::cout << "Detecting corners" << std::endl;
         cornerDetector.process(measurement);
@@ -70,8 +78,12 @@ int main(int argc, char** argv)
         std::cout << "Got odom data: " << delta << std::endl << std::endl;
 
         std::cout << "Trying to associate..." << std::endl;
-        triplet_graph::associate( graph, measurement, associations, delta, target_node );
+        triplet_graph::associate( graph, measurement, associations, delta, target_node, path );
         std::cout << "Associated " << associations.nodes.size() << " nodes" << std::endl << std::endl;
+        if ( associations.nodes.size() > 1 )
+        {
+            graph.setAssociations(associations);
+        }
 
         std::cout << "Updating graph..." << std::endl;
         triplet_graph::updateGraph( graph, associations );
@@ -81,9 +93,23 @@ int main(int argc, char** argv)
         triplet_graph::extendGraph( graph, measurement, associations );
         std::cout << "Done!" << std::endl;
 
+        // Calculate positions again to visualize them in rviz:
+        std::vector<geo::Vec3d> positions(graph.size());
+        for ( int i = 0; i < associations.nodes.size(); ++i )
+            positions[associations.nodes[i]] = associations.measurement.points[i];
+
+        calculatePositions(graph, positions, path);
+        triplet_graph::Measurement vis_graph;
+        vis_graph.points = positions;
+        vis_graph.frame_id = measurement.frame_id;
+        vis_graph.time_stamp = measurement.time_stamp;
+        visualizer.publish(vis_graph);
+
         ros::spinOnce();
 
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << std::endl;
+
+        std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
         loop_rate.sleep();
     }
