@@ -26,7 +26,7 @@ private:
     std::vector<int> deleted_triplets_;
 
 public:
-    Graph(){}
+    Graph():last_associations_() {}
 
     ~Graph(){}
 

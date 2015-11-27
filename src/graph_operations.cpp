@@ -10,6 +10,7 @@
 #include "triplet_graph/Graph.h"
 #include "triplet_graph/Path.h"
 #include "triplet_graph/Measurement.h"
+#include "triplet_graph/PathFinder.h"
 
 namespace triplet_graph
 {
@@ -26,209 +27,6 @@ int findNodeByID(const Graph& g, const std::string &id)
 
     // Node not found, return -1!
     return -1;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-int getThirdNode(const Edge3& triplet, const int node1, const int node2)
-{
-    if ( triplet.A == node1 && triplet.B == node2 )
-        return triplet.C;
-    else if ( triplet.B == node1 && triplet.C == node2 )
-        return triplet.A;
-    else if ( triplet.C == node1 && triplet.A == node2 )
-        return triplet.B;
-    else if ( triplet.A == node2 && triplet.B == node1 )
-        return triplet.C;
-    else if ( triplet.B == node2 && triplet.C == node1 )
-        return triplet.A;
-    else if ( triplet.C == node2 && triplet.A == node1 )
-        return triplet.B;
-    else
-        return -1;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-class PathFinder
-{
-    Graph graph_;
-    std::vector<int> prevs_;
-
-public:
-    PathFinder(Graph& graph): graph_(graph){ prevs_ = std::vector<int>(graph.size(),-1); }
-    double findPath(const Graph &graph, const std::vector<int> &source_nodes, Path &path) { findPath(graph, source_nodes, -1, path); }
-    double findPath(const Graph &graph, const std::vector<int> &source_nodes, const int target_node, Path &path);
-};
-
-double PathFinder::findPath(const Graph& graph, const std::vector<int>& source_nodes, const int target_node, Path& path)
-{
-    typedef std::pair< double, int > CostInt; // First is a cost, second is an edge or a node index
-    // In the initial graph search: first is the sum of the costs (so far) to get to the nodes connected by an edge, second is the respective edge index
-    // In the path trace search:
-
-    const double inf = 1e38;
-
-    // get a copy of the nodes, edges and triplets in the graph
-    std::vector<Node>  nodes    = graph.getNodes();
-    std::vector<Edge2> edges    = graph.getEdge2s();
-    std::vector<Edge3> triplets = graph.getEdge3s();
-
-    // Track visited edges and triplets and cost to nodes
-    std::vector<double> ns(graph.size(),inf);
-    std::vector<double> es(edges.size(),inf);
-    std::vector<double> ts(triplets.size(),inf);
-
-    /* The priority queue holds couples of nodes (edges) to be handled, sorted by
-     * the sum of the cost to get to those nodes. The cost to get to the first
-     * pair of nodes is obviously zero.
-     */
-    std::priority_queue<CostInt, std::vector<CostInt>, std::greater<CostInt> > Q;
-
-    // Find all edges connecting the source nodes and add those edges to Q
-    for ( std::vector<int>::const_iterator it_1 = source_nodes.begin(); it_1 != source_nodes.end(); ++it_1 )
-    {
-        if ( *it_1 == -1 )
-            std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
-        else
-        {
-            for ( std::vector<int>::const_iterator it_2 = source_nodes.begin(); it_2 != it_1; ++it_2 )
-            {
-                if ( *it_2 == -1 )
-                    std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
-                else
-                {
-                    int edge = nodes[*it_1].edgeByPeer(*it_2);
-                    if ( edge != -1 )
-                    {
-                        Q.push(CostInt(0,edge));
-                        es[edge] = 0;
-                    }
-                }
-            }
-            ns[*it_1] = 0;
-        }
-    }
-
-    /* The path is to contain the series of nodes to get from the source nodes to
-     * the target node. To construct this path, the prevs vector is maintained,
-     * holding for every visited node the previous node and -1 for ever non-
-     * visited node.
-     */
-
-
-
-    while(!Q.empty())
-    {
-        // Take the cheapest edge (cost is sum of node costs so far) from the queue
-        int u = Q.top().second; // current edge, cheapest pair of nodes so far
-        Q.pop();
-
-        // If pair of nodes already visited, continue
-        if ( es[u] == -1 )
-            continue;
-
-        // When the target is reached in current edge's A or B node, trace back path
-        if ( target_node != -1 && (edges[u].A == target_node || edges[u].B == target_node))
-        {
-            std::priority_queue<CostInt, std::vector<CostInt>, std::less<CostInt> > trace;
-
-            // Push target node into trace
-            trace.push(CostInt(ns[target_node],target_node));
-            int n, e;
-
-            while ( !trace.empty() )
-            {
-                n = trace.top().second;
-                trace.pop();
-
-                std::cout << "n = " << n << std::endl;
-
-                // The current node refers to its originating edge using prevs
-                e = prevs_[n];
-
-                // If edge not yet visited and pushed to path, push both node A and node B of this edge to trace and push current node to path
-                if ( e != -1 )
-                {
-                    // Don't add source nodes (cost == 0) to trace
-                    int na = edges[e].A;
-                    if ( ns[na] != 0 )
-                        trace.push(CostInt(ns[na],na));
-
-                    int nb = edges[e].B;
-                    if ( ns[nb] != 0 )
-                        trace.push(CostInt(ns[nb],nb));
-
-                    path.push_back(n);
-                    path.parent_tree.push_back(std::make_pair(na,nb));
-
-                    prevs_[n] = -1;
-                }
-            }
-
-            // Finally, add source nodes to path
-            path.insert(path.end(), source_nodes.begin(), source_nodes.end());
-            path.parent_tree.resize(path.size(),std::make_pair(-1,-1));
-
-            // When finished, return cost to target node
-            return ns[target_node];
-        }
-
-        std::vector<int> common_triplets = nodes[edges[u].A].tripletsByPeer(edges[u].B);
-
-        // Run through common triplets of the current pair of nodes
-        for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
-        {
-            // If this triplet was already visited, continue
-            if ( ts[*t_it] == -1 )
-                continue;
-            ts[*t_it] = -1; // TODO: Is this OK?
-
-            // Retrieve the right node from the triplet.
-            int v = getThirdNode(triplets[*t_it],edges[u].A,edges[u].B);
-
-            // TODO: Calculate weight using the two edges connecting the third node to the two base nodes
-            double w = 1.0;
-
-            // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
-            // of potential nodes to visit and record what the previous node was.
-            double new_cost = ns[edges[u].A] + ns[edges[u].B] + w; // TODO: Now taking sum of node costs plus new cost, is this what I want?
-            if (ns[v] > new_cost)
-            {
-                ns[v] = new_cost;
-
-                // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
-                for ( std::vector<int>::iterator e_it = nodes[v].edges.begin(); e_it !=nodes[v].edges.end(); ++e_it )
-                {
-                    int neighbor = edges[*e_it].getOtherNode(v);
-
-                    if ( ns[neighbor] < inf )
-                        Q.push(CostInt(new_cost, *e_it));
-                }
-
-                // Store edge that lead to this node
-                prevs_[v] = u;
-            }
-        }
-
-        // After visiting edge, mark it visited using vector of edge weights
-        es[u] = -1;
-    }
-
-    // If there is no target node (target_node == -1), the program will get here after calculating paths to ever node in the graph.
-    // Now push all nodes in the graph into the path.
-    // TODO: If the order is important, fix that.
-    for ( int i = 0; i < nodes.size(); ++i )
-    {
-        if ( prevs_[i] > -1 )
-        {
-            path.push_back(i);
-            Edge2 parent_edge = edges[prevs_[i]];
-            path.parent_tree.push_back(std::make_pair(parent_edge.A,parent_edge.B));
-        }
-    }
-
-    return 0;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -343,23 +141,16 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
     std::vector<Edge2> edges = graph.getEdge2s();
     std::vector<Edge3> triplets = graph.getEdge3s();
 
-    std::cout << 1 << std::endl;
-
     // Calculate positions of nodes that are to be associated
     for ( int i = 1; i <= path.size(); ++i )
     {
         // Calculate index in path
         int index = path.size()-i;
 
-        std::cout << "Index = " << index << std::endl;
-
         // Get node index and its parent nodes' indices
         int node_i = path[index];
         int parent1_i = path.parent_tree[node_i].first;
         int parent2_i = path.parent_tree[node_i].second;
-
-        std::cout << "parent1_i = " << parent1_i << std::endl;
-        std::cout << "parent2_i = " << parent2_i << std::endl;
 
         if ( parent1_i == -1 || parent2_i == -1 )
         {
@@ -378,8 +169,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             return;
         }
 
-        std::cout << "parents_edge_i = " << parents_edge_i << std::endl;
-
         // Get triplet that connects parents' edge with new node
         int triplet_i = edges[parents_edge_i].tripletByNode(node_i);
         if ( triplet_i == -1 )
@@ -387,8 +176,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! No triplet connects node " << node_i << " with its parents " << parent1_i << " and " << parent2_i << ". This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
-
-        std::cout << "triplet_i = " << triplet_i << std::endl;
 
         // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
         // If clockwise (wrong direction) swap parent nodes.
@@ -402,16 +189,12 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             parent2_i = tmp;
         }
 
-        std::cout << "Here" << std::endl;
-
         int edge_1_i = (graph.begin() + parent1_i)->edgeByPeer(node_i);
         if ( edge_1_i == -1 )
         {
             std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
-
-        std::cout << "edge_1_i = " << edge_1_i << std::endl;
 
         int edge_2_i = (graph.begin() + parent2_i)->edgeByPeer(node_i);
         if ( edge_2_i == -1 )
@@ -420,13 +203,9 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             return;
         }
 
-        std::cout << "edge_2_i = " << edge_2_i << std::endl;
-
         Edge2 edge_1 = edges[edge_1_i];
         Edge2 edge_2 = edges[edge_2_i];
         Edge2 parents_edge = edges[parents_edge_i];
-
-        std::cout << "Found edges in edges vector" << std::endl;
 
         // In notes, names of l1 and l2 were swapped, so:
         double l1 = edge_2.l;
@@ -456,11 +235,8 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         geo::Vec3d base_x = (positions[parent2_i] - positions[parent1_i])/edges[parents_edge_i].l;
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
 
-        std::cout << "Calculated all parameters for position, pushing to positions vector... ";
-
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
 
-        std::cout << "Done!" << std::endl;
     }
 }
 
@@ -476,36 +252,21 @@ void associate(const Graph &graph, const Measurement &measurement, AssociatedMea
 
 void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i, Path& path)
 {
+    // If no points to associate, just return without doing anything
+    if (measurement.points.size() == 0)
+        return;
+
     double max_distance = 0.1; // TODO: magic number, parameterize!
     double max_distance_sq = max_distance*max_distance;
 
     if ( associations.nodes.size() > 1 )
     {
-        if ( goal_node_i == -1 )
-        {
-            for ( Graph::const_iterator it = graph.begin(); it != graph.end(); ++it )
-            {
-                path.push_back(it - graph.begin());
-                // TODO: nicely add parents to path nodes...
-//                path.parent_tree.push_back(std::make_pair);
-            }
-            // if goal node is not defined, all nodes are goal nodes! So make instance of pathfinder which caches paths and generate path to all nodes in graph! :D
-
-            // TODO: VERY DIRTY HACK TO GET TEST WITH ONLY THREE NODES TO WORK!!!
-            path.parent_tree.push_back(std::make_pair(-1,-1));
-            path.parent_tree.push_back(std::make_pair(-1,-1));
-            path.parent_tree.push_back(std::make_pair(0,1));
-            // UP TO HERE
-
-            std::cout << path << std::endl;
-        }
-        else
-        {
-            findPath(graph,associations.nodes,goal_node_i,path);
-        }
+        PathFinder pathFinder(graph, associations.nodes);
+        pathFinder.findPath(goal_node_i, path);
     }
     else
     {
+        associations = graph.getAssociations();
         std::cout << "\033[31m" << "[GRAPH] ERROR! Not enough initial associations given" << "\033[0m" << std::endl;
         return;
     }
@@ -580,8 +341,8 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
         int n1 = *it_1;
         Node node1 = *(graph.begin() + n1);
 
-        int j = i+1;
-        for ( std::vector<int>::const_iterator it_2 = it_1+1; it_2 != associations.nodes.end(); ++it_2 )
+        int j = 0;
+        for ( std::vector<int>::const_iterator it_2 = associations.nodes.begin(); it_2 != it_1; ++it_2 )
         {
             int n2 = *it_2;
             int e = node1.edgeByPeer(n2);
@@ -605,10 +366,11 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
                 e = graph.addEdge2(n1, n2, d21.length() );
             }
 
+            edges = graph.getEdge2s();
             Edge2 edge1 = edges[e];
 
-            int k = j+1;
-            for ( std::vector<int>::const_iterator it_3 = it_2+1; it_3 != associations.nodes.end(); ++it_3 )
+            int k = 0;
+            for ( std::vector<int>::const_iterator it_3 = associations.nodes.begin(); it_3 != it_2; ++it_3 )
             {
                 int n3 = *it_3;
                 int t = edge1.tripletByNode(n3);
@@ -773,15 +535,13 @@ void save(const Graph &graph, const std::string &filename)
     }
     config.endArray();
 
-    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " to " << filename.c_str() << std::cout;
+    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " to " << filename.c_str() << std::endl;
 
     // Convert config to yaml string and write to file.
     std::ofstream file;
     file.open (filename.c_str());
     file << config.toYAMLString();
     file.close();
-
-    std::cout << "Done!" << std::endl;
 }
 
 }

@@ -73,6 +73,7 @@ add_library(triplet_graph
     src/Node.cpp
     src/Edge2.cpp
     src/Graph.cpp
+    src/PathFinder.cpp
     src/graph_operations.cpp
     ${HEADER_FILES}
 )

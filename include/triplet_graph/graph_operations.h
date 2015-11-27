@@ -12,8 +12,6 @@ namespace triplet_graph
 
 int findNodeByID(const Graph& g, const std::string& id);
 
-double findPath(const Graph &graph, const std::vector<int>& source_nodes, const int target_node, Path &path);
-
 bool configure(Graph &g, tue::Configuration &config);
 
 void calculatePositions(const Graph& graph, std::vector<geo::Vec3d>& positions, const Path& path);
