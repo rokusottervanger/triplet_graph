@@ -16,3 +16,7 @@ odom_tracker:
     odom_frame: "amigo/odom"
     base_link_frame: "amigo/base_link"
 graph_filename: "robotics_testlab_B.yaml"
+visualization:
+    points:
+        name: "graph_nodes"
+        color: {r: 1, g: 0, b: 0}
