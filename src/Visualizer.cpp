@@ -82,8 +82,6 @@ void Visualizer::configure(tue::Configuration& config)
 
 void Visualizer::publish(const Measurement& measurement)
 {
-    // TODO: If no lines, don't publish lines; if no points, don't publish points_.
-
     // - - - - - - - - - - - - - - - - - - - - - - - -
     // Publish points
 
