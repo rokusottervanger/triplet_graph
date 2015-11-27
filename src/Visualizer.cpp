@@ -82,6 +82,8 @@ void Visualizer::configure(tue::Configuration& config)
 
 void Visualizer::publish(const Measurement& measurement)
 {
+    if ( !is_configured_ )
+        return;
     // - - - - - - - - - - - - - - - - - - - - - - - -
     // Publish points
 
