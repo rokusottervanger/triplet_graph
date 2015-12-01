@@ -17,7 +17,6 @@ struct Measurement
     std::vector<geo::Vec3d> points;
     std::vector<geo::Vec3d> line_list;
     std::string frame_id;
-
 };
 
 // -----------------------------------------------------------------------------------------------
@@ -31,8 +30,12 @@ struct AssociatedMeasurement
     std::vector<int> nodes;
 };
 
+Measurement operator*(const geo::Transform& lhs, const Measurement& rhs);
+AssociatedMeasurement operator*(const geo::Transform& lhs, const AssociatedMeasurement& rhs);
 
 
 } // end namespace triplet_graph
+
+
 
 #endif

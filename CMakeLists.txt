@@ -68,7 +68,7 @@ file(GLOB_RECURSE HEADER_FILES include/*.h)
 add_library(triplet_graph
 #    src/IncompleteRelation.cpp
     src/Path.cpp
-    #src/Measurement.cpp
+    src/Measurement.cpp
     src/Visualizer.cpp
     src/Node.cpp
     src/Edge2.cpp
