@@ -117,23 +117,19 @@ int main(int argc, char** argv)
         if ( associations.nodes.size() > 1 )
             tmp_odom = geo::Transform::identity();
 
-        // TODO: Make function to easily visualize entire graph!!!!!!!!!
-//        triplet_graph::calculatePositions(graph, positions, path );
+        std::cout << "Path: \n" << path << std::endl;
 
-        associations.measurement.frame_id = measurement.frame_id;
-        associations.measurement.time_stamp = measurement.time_stamp;
-        visualizer.publish(associations.measurement);
+        // TODO: Make function to easily visualize entire graph
+
+        // - - - - - - - - - - - - - - - - - -
+        // Update graph
+
+        // Updates existing edges and adds edges between measured points
+        std::cout << "Updating graph..." << std::endl;
+        triplet_graph::updateGraph( graph, associations );
+        std::cout << "Done!" << std::endl << std::endl;
 
         }
-
-
-//        // - - - - - - - - - - - - - - - - - -
-//        // Update graph
-
-//        // Updates existing edges and adds edges between measured points
-//        std::cout << "Updating graph..." << std::endl;
-//        triplet_graph::updateGraph( graph, associations );
-//        std::cout << "Done!" << std::endl << std::endl;
 
 
 //        // - - - - - - - - - - - - - - - - - -

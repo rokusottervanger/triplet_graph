@@ -145,6 +145,20 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
     std::vector<Edge2> edges = graph.getEdge2s();
     std::vector<Edge3> triplets = graph.getEdge3s();
 
+    // TODO: remove this and make nice graph visualization
+    Visualizer visualizer;
+    tue::Configuration config;
+    config.writeGroup("points");
+    config.setValue("name","'graph_positions'");
+    config.writeGroup("color");
+    config.setValue("r",1);
+    config.endGroup();
+    config.endGroup();
+    visualizer.configure(config);
+    Measurement vis_measurement;
+    vis_measurement.frame_id = "amigo/base_laser";
+    vis_measurement.time_stamp = ros::Time::now();
+
     // Calculate positions of nodes that are to be associated
     for ( int i = 1; i <= path.size(); ++i )
     {
@@ -248,11 +262,18 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             std::cout << "(p-l1) = " << p-l1 << ", (p-l2) = " << p-l2 << ", (p-l3) = " << p-l3 << std::endl;
         }
     }
+    vis_measurement.points = positions;
+    visualizer.publish(vis_measurement);
 }
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, Measurement &unassociated, const geo::Transform3d &delta, const int goal_node_i)
+void associate(Graph &graph,
+               const Measurement &measurement,
+               AssociatedMeasurement &associations,
+               Measurement &unassociated,
+               const geo::Transform3d &delta,
+               const int goal_node_i)
 {
     Path path;
     associate(graph, measurement, associations, unassociated, delta, goal_node_i, path);
@@ -260,20 +281,33 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, Measurement &unassociated, const geo::Transform &delta, const int goal_node_i, Path& path)
+void associate(Graph &graph,
+               const Measurement &measurement,
+               AssociatedMeasurement &associations,
+               Measurement &unassociated,
+               const geo::Transform &delta,
+               const int goal_node_i,
+               Path& path)
 {
-    // If no points to associate, just return without doing anything
-    if (measurement.points.size() == 0)
-        return;
-
     double max_distance = 0.1; // TODO: magic number, parameterize!
     double max_distance_sq = max_distance*max_distance;
 
+    // If too little associations given, use old associations stored in graph
     if ( associations.nodes.size() < 2 )
     {
         associations = graph.getAssociations();
         std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough initial associations given, using old associations" << "\033[0m" << std::endl;
     }
+
+    // Update associations using odom delta
+    associations = delta.inverse() * associations;
+    graph.setAssociations(associations);
+
+    // If no points to associate, just return after updating associations and unassociated nodes
+    if (measurement.points.size() == 0)
+        return;
+
+    // Now find a path through the graph to the goal
     PathFinder pathFinder(graph, associations.nodes);
     pathFinder.findPath(goal_node_i, path);
 
@@ -374,6 +408,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
             if ( e > -1 )
             {
                 // update edge;
+                // TODO: What if triangle inequality doesn't hold anymore? Don't update? Use uncertainty in edge to describe the tension in the triangle?
                 graph.setEdgeLength(e, length);
             }
 
