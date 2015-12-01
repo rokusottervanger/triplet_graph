@@ -14,7 +14,7 @@ corner_detector:
 odom_tracker:
     map_frame: "map"
     odom_frame: "amigo/odom"
-    base_link_frame: "amigo/base_link"
+    base_link_frame: "amigo/base_laser"
 graph_filename: "robotics_testlab_B.yaml"
 visualization:
     points:
