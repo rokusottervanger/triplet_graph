@@ -38,6 +38,7 @@ int main(int argc, char** argv)
     triplet_graph::OdomTracker odomTracker;
     triplet_graph::Visualizer visualizer;
     triplet_graph::AssociatedMeasurement associations;
+    geo::Transform tmp_odom(0,0,0);
 
 
     // - - - - - - - - - - - - - - - - - -
@@ -64,6 +65,7 @@ int main(int argc, char** argv)
     ros::Rate loop_rate(15);
 
     int target_node = -1;
+    int loop = 0;
 
     while (ros::ok())
     {
@@ -77,9 +79,9 @@ int main(int argc, char** argv)
         std::cout << "Done" << std::endl << std::endl;
 
         triplet_graph::Measurement measurement;
+        triplet_graph::Measurement unassociated_points;
         geo::Transform delta;
         triplet_graph::Path path;
-
 
         // - - - - - - - - - - - - - - - - - -
         // Find corners
@@ -88,75 +90,91 @@ int main(int argc, char** argv)
         cornerDetector.process(measurement);
         std::cout << measurement.points.size() << " corners detected" << std::endl << std::endl;
 
+        if ( loop < 3 )
+        {
+            loop++;
+            triplet_graph::extendGraph(graph,measurement,associations);
+        }
+        else
+        {
 
         // - - - - - - - - - - - - - - - - - -
         // Get odom data
 
         std::cout << "Getting odom delta" << std::endl;
         odomTracker.getDelta(delta,measurement.time_stamp);
-        std::cout << "Got odom data: " << delta << std::endl << std::endl;
+        tmp_odom = tmp_odom * delta;
+        std::cout << "Got odom delta: " << delta << std::endl;
+        std::cout << "Current tmp_odom: " << tmp_odom << std::endl << std::endl;
 
 
         // - - - - - - - - - - - - - - - - - -
         // Associate
 
         std::cout << "Trying to associate..." << std::endl;
-        triplet_graph::associate( graph, measurement, associations, delta, target_node, path );
+        triplet_graph::associate( graph, measurement, associations, unassociated_points, delta, target_node, path );
         std::cout << "Associated " << associations.nodes.size() << " nodes" << std::endl << std::endl;
         if ( associations.nodes.size() > 1 )
-        {
-            graph.setAssociations(associations);
+            tmp_odom = geo::Transform::identity();
+
+        // TODO: Make function to easily visualize entire graph!!!!!!!!!
+//        triplet_graph::calculatePositions(graph, positions, path );
+
+        associations.measurement.frame_id = measurement.frame_id;
+        associations.measurement.time_stamp = measurement.time_stamp;
+        visualizer.publish(associations.measurement);
+
         }
 
 
-        // - - - - - - - - - - - - - - - - - -
-        // Update graph
+//        // - - - - - - - - - - - - - - - - - -
+//        // Update graph
 
-        // Updates existing edges and adds edges between measured points
-        std::cout << "Updating graph..." << std::endl;
-        triplet_graph::updateGraph( graph, associations );
-        std::cout << "Done!" << std::endl << std::endl;
+//        // Updates existing edges and adds edges between measured points
+//        std::cout << "Updating graph..." << std::endl;
+//        triplet_graph::updateGraph( graph, associations );
+//        std::cout << "Done!" << std::endl << std::endl;
 
 
-        // - - - - - - - - - - - - - - - - - -
-        // Extend graph
+//        // - - - - - - - - - - - - - - - - - -
+//        // Extend graph
 
-        int graph_size = graph.size();
-        int nodes_to_add = measurement.points.size() - associations.nodes.size();
+//        int graph_size = graph.size();
+//        int nodes_to_add = measurement.points.size() - associations.nodes.size();
 
-        std::cout << "Extending graph with " << nodes_to_add << " nodes..." << std::endl;
+//        std::cout << "Extending graph with " << nodes_to_add << " nodes..." << std::endl;
 
-        triplet_graph::extendGraph( graph, measurement, associations );
+//        triplet_graph::extendGraph( graph, unassociated_points, associations );
 
-        if ( graph.size() - graph_size != nodes_to_add )
-            std::cout << "\033[31m" << "[LASER PROCESSOR] Graph size was " << graph_size << " and is now " << graph.size() << " but there were only " << nodes_to_add << " nodes unassociated!" << "\033[0m" << std::endl;
-        std::cout << "Done!" << std::endl;
+////        if ( graph.size() - graph_size != nodes_to_add )
+////            std::cout << "\033[31m" << "[LASER PROCESSOR] Graph size was " << graph_size << " and is now " << graph.size() << " but there were only " << nodes_to_add << " nodes unassociated!" << "\033[0m" << std::endl;
+//        std::cout << "Done!" << std::endl;
 
 
         // - - - - - - - - - - - - - - - - - -
         // Visualize graph
 
         // Calculate positions again to visualize them in rviz:
-        std::vector<geo::Vec3d> positions(graph.size());
-        for ( int i = 0; i < associations.nodes.size(); ++i )
-            positions[associations.nodes[i]] = associations.measurement.points[i];
+//        std::vector<geo::Vec3d> positions(graph.size());
+//        for ( int i = 0; i < associations.nodes.size(); ++i )
+//            positions[associations.nodes[i]] = associations.measurement.points[i];
 
-        calculatePositions(graph, positions, path);
+//        calculatePositions(graph, positions, path);
 
-        // Visualize positions
-        triplet_graph::Measurement vis_graph;
-        vis_graph.points = positions;
-        vis_graph.frame_id = measurement.frame_id;
-        vis_graph.time_stamp = measurement.time_stamp;
+//        // Visualize positions
+//        triplet_graph::Measurement vis_graph;
+//        vis_graph.points = positions;
+//        vis_graph.frame_id = measurement.frame_id;
+//        vis_graph.time_stamp = measurement.time_stamp;
 
-        std::cout << "positions vector:" << std::endl;
-        for ( std::vector<geo::Vec3d>::iterator it = positions.begin(); it != positions.end(); ++it )
-            std::cout << *it << std::endl;
-        std::cout << std::endl;
-        std::cout << "Path: " << std::endl;
-        std::cout << path << std::endl;
+//        std::cout << "positions vector:" << std::endl;
+//        for ( std::vector<geo::Vec3d>::iterator it = positions.begin(); it != positions.end(); ++it )
+//            std::cout << *it << std::endl;
+//        std::cout << std::endl;
+//        std::cout << "Path: " << std::endl;
+//        std::cout << path << std::endl;
 
-        visualizer.publish(vis_graph);
+//        visualizer.publish(vis_graph);
 
 
         // - - - - - - - - - - - - - - - - - -

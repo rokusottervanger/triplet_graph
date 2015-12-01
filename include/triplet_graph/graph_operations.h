@@ -16,13 +16,13 @@ bool configure(Graph &g, tue::Configuration &config);
 
 void calculatePositions(const Graph& graph, std::vector<geo::Vec3d>& positions, const Path& path);
 
-void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i);
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, Measurement &unassociated, const geo::Transform3 &delta, const int goal_node_i);
 
-void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i, Path &path);
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, Measurement &unassociated, const geo::Transform3 &delta, const int goal_node_i, Path& path);
 
 void updateGraph(Graph &graph, const AssociatedMeasurement &associations);
 
-void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations);
+void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations);
 
 void save(const Graph &graph, const std::string &filename);
 

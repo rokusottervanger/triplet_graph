@@ -60,7 +60,7 @@ int Graph::addEdge2(const int node1, const int node2, const double& length)
     nodes_[node2].edge_by_peer_[node1] = i;
     nodes_[node2].peer_by_edge_[i] = node1;
 
-//    std::cout << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << std::endl;
+//    std::cout << "\033[31m" << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << "\033[0m" << std::endl;
 
     return i;
 }

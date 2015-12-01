@@ -11,6 +11,7 @@
 #include "triplet_graph/Path.h"
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/PathFinder.h"
+#include "triplet_graph/Visualizer.h"
 
 namespace triplet_graph
 {
@@ -136,6 +137,9 @@ bool configure(Graph& g, tue::Configuration &config)
 
 // -----------------------------------------------------------------------------------------------
 
+// TODO: make more efficient! Calculates positions from scratch every iteration,
+// while it would be much more efficient to cache those and transform them to the
+// pose of the new measurement
 void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, const Path& path)
 {
     std::vector<Edge2> edges = graph.getEdge2s();
@@ -154,10 +158,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
 
         if ( parent1_i == -1 || parent2_i == -1 )
         {
-            if ( parent1_i != -1 || parent2_i != -1 )
-            {
-                std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Node " << node_i << " has one parent. This is never supposed to happen!" << "\033[0m" << std::endl;
-            }
+            // If root node, position should already be in positions vector, so continue
             continue;
         }
 
@@ -225,7 +226,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
 
         // Area = 1/2 * base * height
         // Area = 1/2 * l3 * k; so
-        double k_sq = 4.0/l3_sq * A_sq;
+        double k_sq = 4.0 * A_sq/l3_sq;
 
         // This gives:
         double k = sqrt(k_sq);
@@ -237,20 +238,29 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
 
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
 
+        // TODO: Remove this after debugging
+        if ( positions[node_i] != positions[node_i] ) // if k is NaN
+        {
+            std::cout << "Node " << node_i << ", with parents ( " << parent1_i << ", " << parent2_i << ") : " << positions[node_i] << std::endl;
+            std::cout << "base_x: " << base_x << ", base_y: " << base_y << std::endl;
+            std::cout << "s = " << s << " and k = " << k << std::endl;
+            std::cout << "k_sq = " << k_sq << ", l3_sq = " << l3_sq << ", A_sq = " << A_sq << ", p = " << p << ", (l1, l2, l3) = (" << l1 << ", " << l2 << ", " << l3 << ")" << std::endl;
+            std::cout << "(p-l1) = " << p-l1 << ", (p-l2) = " << p-l2 << ", (p-l3) = " << p-l3 << std::endl;
+        }
     }
 }
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i)
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, Measurement &unassociated, const geo::Transform3d &delta, const int goal_node_i)
 {
     Path path;
-    associate(graph, measurement, associations, delta, goal_node_i, path);
+    associate(graph, measurement, associations, unassociated, delta, goal_node_i, path);
 }
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(const Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, const geo::Transform3d &delta, const int goal_node_i, Path& path)
+void associate(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations, Measurement &unassociated, const geo::Transform &delta, const int goal_node_i, Path& path)
 {
     // If no points to associate, just return without doing anything
     if (measurement.points.size() == 0)
@@ -267,8 +277,7 @@ void associate(const Graph &graph, const Measurement &measurement, AssociatedMea
     else
     {
         associations = graph.getAssociations();
-        std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough initial associations given" << "\033[0m" << std::endl;
-        return;
+        std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough initial associations given, using old associations" << "\033[0m" << std::endl;
     }
 
 
@@ -321,7 +330,15 @@ void associate(const Graph &graph, const Measurement &measurement, AssociatedMea
             associations.measurement.points.push_back(best_pos);
             // TODO: make sure that one measurement without (associated) points does not let the robot get lost
         }
+        else
+        {
+            unassociated.points.push_back(*it_m);
+        }
     }
+
+    // If successful, set graph's latest associations
+    if ( associations.nodes.size() > 1 )
+        graph.setAssociations(associations);
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -351,19 +368,23 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
             geo::Vec3d pt1 = associations.measurement.points[i];
             geo::Vec3d pt2 = associations.measurement.points[j];
             geo::Vec3d d21 = pt2 - pt1;
+            double length = d21.length();
+
+            if (length == 0)
+                std::cout << "\033[31m" << "[GRAPH] updateGraph: ERROR Edge length is zero" << "\033[0m" << std::endl;
 
             // If edge exists...
             if ( e > -1 )
             {
                 // update edge;
-                graph.setEdgeLength(e, d21.length());
+                graph.setEdgeLength(e, length);
             }
 
             // and if it didn't
             else
             {
                 // add it to the graph
-                e = graph.addEdge2(n1, n2, d21.length() );
+                e = graph.addEdge2(n1, n2, length );
             }
 
             edges = graph.getEdge2s();
@@ -431,45 +452,42 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
 
 // -----------------------------------------------------------------------------------------------
 
-void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasurement &associations)
-/* Function to extend an existing graph using a measurement and the
- * associated measurement derived from that. The associated measurement
- * must be a subset of the measurement. Only adds the unassociated points,
- * does not update the existing relations in the graph.
+void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations)
+/* Function to extend an existing graph using a measurement of
+ * unassociated points and the associated measurement from the same
+ * measurement. There should not be any overlap between the unassociated
+ * and the associated points. Only adds the unassociated points, does
+ * not update the existing relations in the graph.
  */
 {
     // Add unassociated nodes
-    int i = 0; // Index in vector of associations
-    for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); ++it )
+    for ( std::vector<geo::Vec3d>::const_iterator it = unassociated.points.begin(); it != unassociated.points.end(); ++it )
     {
-        // If point is associated, it was already in the measurement continue. (Assumes that order of points in associated measurement is equal to order in measurement)
-        if ( i < associations.measurement.points.size() && *it == associations.measurement.points[i] ) // TODO: Make sure i does not run out of this vector?
-        {
-            ++i;
-            continue;
-        }
-
         int n1 = graph.addNode(Node::generateId());
         geo::Vec3d pt1 = *it;
 
-        // Add edges and triplets between all other points in the measurement
+        // Add edges and triplets between all points in associations
         int j = 0;
         for ( std::vector<int>::const_iterator it_2 = associations.nodes.begin(); it_2 != associations.nodes.end(); ++it_2 )
         {
             int n2 = *it_2;
             geo::Vec3d pt2 = associations.measurement.points[j];
 
+            if ( pt2 == pt1 )
+                std::cout << "\033[31m" << "[GRAPH] extendGraph: WARNING Found the same point in associations " <<
+                             "and unassociated points vectors. Extendgraph cannot handle this. Did you forget " <<
+                             "to associate?" << "\033[0m" << std::endl;
+
             // Calculate vector between current new point and current associated point
             geo::Vec3d d21 = pt2 - pt1;
 
-            // Add edge to graph with length of diff vector
             graph.addEdge2(n1, n2, d21.length() );
 
-            int k = j+1;
+            int k = 0;
             for ( std::vector<int>::const_iterator it_3 = associations.nodes.begin(); it_3 != it_2; ++it_3 )
             {
                 int n3 = *it_3;
-                geo::Vec3d pt3 = measurement.points[k];
+                geo::Vec3d pt3 = associations.measurement.points[k];
 
                 // Calculate the vectors from node 1 to the other two
                 geo::Vec3d d31 = pt3 - pt1;
@@ -490,9 +508,9 @@ void extendGraph(Graph &graph, const Measurement &measurement, AssociatedMeasure
         // Add newly found point to associations
         associations.nodes.push_back(n1);
         associations.measurement.points.push_back(pt1);
-
-        ++i;
     }
+
+    graph.setAssociations(associations);
 }
 
 // -----------------------------------------------------------------------------------------------
