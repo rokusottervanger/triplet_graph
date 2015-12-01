@@ -269,16 +269,13 @@ void associate(Graph &graph, const Measurement &measurement, AssociatedMeasureme
     double max_distance = 0.1; // TODO: magic number, parameterize!
     double max_distance_sq = max_distance*max_distance;
 
-    if ( associations.nodes.size() > 1 )
-    {
-        PathFinder pathFinder(graph, associations.nodes);
-        pathFinder.findPath(goal_node_i, path);
-    }
-    else
+    if ( associations.nodes.size() < 2 )
     {
         associations = graph.getAssociations();
         std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough initial associations given, using old associations" << "\033[0m" << std::endl;
     }
+    PathFinder pathFinder(graph, associations.nodes);
+    pathFinder.findPath(goal_node_i, path);
 
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
