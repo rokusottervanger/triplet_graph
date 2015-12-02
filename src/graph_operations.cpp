@@ -233,7 +233,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
 
         // Use Heron's formula for the area of the triangle:
         // p = half circumference
-        double p  = ( l1 + l2 + l3)/2.0;
+        double p  = ( l1 + l2 + l3 )/2.0;
 
         // Area = sqrt(p*(p-l1)*(p-l2)*(p-l3)); so
         double A_sq = p*(p-l1)*(p-l2)*(p-l3);
@@ -320,7 +320,7 @@ void associate(Graph &graph,
 
     // Add prior associations to positions vector to
     for ( int i = 0; i < associations.nodes.size(); ++i )
-        positions[associations.nodes[i]] = delta.inverse() * associations.measurement.points[i];
+        positions[associations.nodes[i]] = associations.measurement.points[i];
     associations.measurement.points.clear();
     associations.nodes.clear();
 
@@ -490,6 +490,7 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
  * measurement. There should not be any overlap between the unassociated
  * and the associated points. Only adds the unassociated points, does
  * not update the existing relations in the graph.
+ * TODO: make sure edges are also correct if no update was done (use graph point of associated point, and measurement of unassociated point)
  */
 {
     // Add unassociated nodes
