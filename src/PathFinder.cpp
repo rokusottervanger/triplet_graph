@@ -219,10 +219,8 @@ void PathFinder::addAllNodesTo(Path& path)
     std::vector<Edge2> edges = graph_->getEdge2s();
 
     // TODO: If the order is important, fix that.
-    std::cout << "Prevs: " << std::endl;
     for ( int i = 0; i < nodes.size(); ++i )
     {
-        std::cout << prevs_[i] << ", " << ns_[i] << std::endl;
         if ( prevs_[i] > -1 )
         {
             path.push_back(i);
