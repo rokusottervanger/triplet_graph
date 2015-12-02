@@ -26,7 +26,7 @@ class PathFinder
     void addAllNodesTo(Path& path);
 
 public:
-    PathFinder(const Graph& graph, std::vector<int>& source_nodes);
+    PathFinder(const Graph& graph, const std::vector<int>& source_nodes);
 
     double findPath(Path &path);
     double findPath(const int target_node, Path &path);

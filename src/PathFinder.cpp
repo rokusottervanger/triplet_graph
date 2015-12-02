@@ -7,14 +7,14 @@
 namespace triplet_graph
 {
 
-PathFinder::PathFinder(const Graph &graph, std::vector<int> &source_nodes):
+PathFinder::PathFinder(const Graph &graph, const std::vector<int> &source_nodes):
     graph_(&graph),
     all_done_(false)
 {
     prevs_ = std::vector<int>(graph.size(),-1);  // vector of edges from which each node is reached (index is node index)
     ns_ = std::vector<double>(graph.size(),1e38); // cost to get to nodes (index is node index)
 
-    for ( std::vector<int>::iterator it = source_nodes.begin(); it != source_nodes.end(); ++it )
+    for ( std::vector<int>::const_iterator it = source_nodes.begin(); it != source_nodes.end(); ++it )
         source_nodes_.insert(*it);
 }
 
@@ -118,11 +118,18 @@ double PathFinder::findPath(const int target_node, Path& path)
             ts[*t_it] = -1; // TODO: Is this OK?
 
             // Retrieve the right node from the triplet.
-//            int v = getThirdNode(triplets[*t_it],edges[u].A,edges[u].B);
             int v = triplets[*t_it].getThirdNode(edges[u].A,edges[u].B);
 
             // TODO: Calculate weight using the two edges connecting the third node to the two base nodes
             double w = 1.0;
+
+            // Check triangle inequality!
+            double l1 = edges[u].l;
+            double l2 = edges[nodes[v].edgeByPeer(edges[u].A)].l;
+            double l3 = edges[nodes[v].edgeByPeer(edges[u].B)].l;
+            double p  = ( l1 + l2 + l3 )/2.0;
+            if ( (p-l1)*(p-l2)*(p-l3) )
+                w = 1e38;
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
@@ -169,18 +176,19 @@ void PathFinder::tracePath(const int target_node, Path& path)
     trace.push(CostInt(ns_[target_node],target_node));
     int n, e;
 
+    std::vector<int> es = prevs_;
+
     while ( !trace.empty() )
     {
         n = trace.top().second;
         trace.pop();
 
-        std::cout << "n = " << n << std::endl;
-
         // The current node refers to its originating edge using prevs
         e = prevs_[n];
+        int visited = es[n];
 
         // If edge not yet visited and pushed to path, push both node A and node B of this edge to trace and push current node to path
-        if ( e != -1 )
+        if ( visited != -1 )
         {
             // Don't add source nodes (cost == 0) to trace
             int na = edges[e].A;
@@ -194,7 +202,7 @@ void PathFinder::tracePath(const int target_node, Path& path)
             path.push_back(n);
             path.parent_tree.push_back(std::make_pair(na,nb));
 
-            prevs_[n] = -1;
+            es[n] = -1;
         }
     }
 
@@ -211,16 +219,19 @@ void PathFinder::addAllNodesTo(Path& path)
     std::vector<Edge2> edges = graph_->getEdge2s();
 
     // TODO: If the order is important, fix that.
+    std::cout << "Prevs: " << std::endl;
     for ( int i = 0; i < nodes.size(); ++i )
     {
-        path.push_back(i);
+        std::cout << prevs_[i] << ", " << ns_[i] << std::endl;
         if ( prevs_[i] > -1 )
         {
+            path.push_back(i);
             Edge2 parent_edge = edges[prevs_[i]];
             path.parent_tree.push_back(std::make_pair(parent_edge.A,parent_edge.B));
         }
-        else
+        else if ( ns_[i] == 0 )
         {
+            path.push_back(i);
             path.parent_tree.push_back(std::make_pair(-1,-1));
         }
     }
