@@ -7,7 +7,7 @@
 namespace triplet_graph
 {
 
-OdomTracker::OdomTracker(): tf_listener_() {}
+OdomTracker::OdomTracker(): tf_listener_(), have_previous_pose_(false) {}
 
 void OdomTracker::configure(tue::Configuration &config)
 {
@@ -40,6 +40,7 @@ void OdomTracker::getDelta(geo::Transform& movement, const ros::Time& time)
     if (!tf_listener_->waitForTransform(odom_frame_id_, base_link_frame_id_, time, ros::Duration(1.0)))
     {
         ROS_WARN_STREAM("[ODOM TRACKER] Cannot get transform from '" << odom_frame_id_ << "' to '" << base_link_frame_id_ << "'.");
+        movement = geo::Transform::identity();
         return;
     }
 
