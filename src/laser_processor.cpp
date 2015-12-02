@@ -37,8 +37,8 @@ int main(int argc, char** argv)
     triplet_graph::CornerDetector cornerDetector;
     triplet_graph::OdomTracker odomTracker;
     triplet_graph::Visualizer visualizer;
-    triplet_graph::AssociatedMeasurement associations;
-    geo::Transform tmp_odom(0,0,0);
+
+    geo::Transform tmp_odom = geo::Transform::identity();
 
 
     // - - - - - - - - - - - - - - - - - -
@@ -78,10 +78,16 @@ int main(int argc, char** argv)
         timer.start();
         std::cout << "Done" << std::endl << std::endl;
 
+
+        // - - - - - - - - - - - - - - - - - -
+        // Instantiate stuff
+
         triplet_graph::Measurement measurement;
         triplet_graph::Measurement unassociated_points;
-        geo::Transform delta;
+        triplet_graph::AssociatedMeasurement associations;
+        geo::Transform delta = geo::Transform::identity();
         triplet_graph::Path path;
+
 
         // - - - - - - - - - - - - - - - - - -
         // Find corners
@@ -94,6 +100,7 @@ int main(int argc, char** argv)
         {
             loop++;
             triplet_graph::extendGraph(graph,measurement,associations);
+            std::cout << "Extended graph with " << associations.nodes.size() << " points" << std::endl;
         }
         else
         {
@@ -125,9 +132,9 @@ int main(int argc, char** argv)
         // Update graph
 
         // Updates existing edges and adds edges between measured points
-        std::cout << "Updating graph..." << std::endl;
-        triplet_graph::updateGraph( graph, associations );
-        std::cout << "Done!" << std::endl << std::endl;
+//        std::cout << "Updating graph..." << std::endl;
+//        triplet_graph::updateGraph( graph, associations );
+//        std::cout << "Done!" << std::endl << std::endl;
 
         }
 
@@ -178,7 +185,7 @@ int main(int argc, char** argv)
 
         ros::spinOnce();
 
-        std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << std::endl;
+        std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
