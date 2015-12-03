@@ -75,6 +75,14 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
         return -1;
     }
 
+    int edge1 = nodes_[node1].edgeByPeer(node2);
+    int edge2 = nodes_[node2].edgeByPeer(node3);
+    int edge3 = nodes_[node3].edgeByPeer(node1);
+
+    if ( edge1 == -1 || edge2 == -1 || edge3 == -1 )
+        std::cout << "[GRAPH] AddEdge3: One of the edges does not exist, not adding triplet and returning -1" << std::endl;
+        return -1;
+
     Edge3 trip(node1, node2, node3);
 
     int i;
@@ -141,22 +149,24 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
         deleted_triplets_.pop_back();
     }
 
+
     // Add triplet to all nodes and edges that are part of this triplet:
     nodes_[node1].addTriplet(i);
     nodes_[node1].triplets_by_peer_[node2].push_back(i);
     nodes_[node1].triplets_by_peer_[node3].push_back(i);
-    edges_[nodes_[node1].edgeByPeer(node2)].triplet_by_node_[node3] = i; // Assumes that edge between node1 and node2 already exists
+    edges_[nodes_[node1].edgeByPeer(node2)].triplet_by_node_[node3] = i;
+
 
     nodes_[node2].addTriplet(i);
     nodes_[node2].triplets_by_peer_[node1].push_back(i);
     nodes_[node2].triplets_by_peer_[node3].push_back(i);
-    edges_[nodes_[node2].edgeByPeer(node3)].triplet_by_node_[node1] = i; // Assumes that edge between node2 and node3 already exists
+    edges_[nodes_[node2].edgeByPeer(node3)].triplet_by_node_[node1] = i;
+
 
     nodes_[node3].addTriplet(i);
     nodes_[node3].triplets_by_peer_[node1].push_back(i);
     nodes_[node3].triplets_by_peer_[node2].push_back(i);
-    edges_[nodes_[node3].edgeByPeer(node1)].triplet_by_node_[node2] = i; // Assumes that edge between node1 and node3 already exists
-
+    edges_[nodes_[node3].edgeByPeer(node1)].triplet_by_node_[node2] = i;
 
 //    std::cout << "[GRAPH] Added Edge3 between nodes " << node1 << ", " << node2 << " and " << node3 << std::endl;
 
