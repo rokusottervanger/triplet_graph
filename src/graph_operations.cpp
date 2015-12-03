@@ -165,14 +165,10 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         // Calculate index in path
         int index = path.size()-i;
 
-        std::cout << "Hier 1" << std::endl;
-
         // Get node index and its parent nodes' indices
         int node_i = path[index];
-        int parent1_i = path.parent_tree[node_i].first;
-        int parent2_i = path.parent_tree[node_i].second;
-
-        std::cout << "Hier 2" << std::endl;
+        int parent1_i = path.parent_tree[index].first;
+        int parent2_i = path.parent_tree[index].second;
 
         if ( parent1_i == -1 || parent2_i == -1 )
         {
@@ -188,8 +184,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             return;
         }
 
-        std::cout << "Hier 3" << std::endl;
-
         // Get triplet that connects parents' edge with new node
         int triplet_i = edges[parents_edge_i].tripletByNode(node_i);
         if ( triplet_i == -1 )
@@ -197,8 +191,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! No triplet connects node " << node_i << " with its parents " << parent1_i << " and " << parent2_i << ". This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
-
-        std::cout << "Hier 4" << std::endl;
 
         // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
         // If clockwise (wrong direction) swap parent nodes.
@@ -211,8 +203,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             parent1_i = parent2_i;
             parent2_i = tmp;
         }
-
-        std::cout << "Hier 5" << std::endl;
 
         int edge_1_i = (graph.begin() + parent1_i)->edgeByPeer(node_i);
         if ( edge_1_i == -1 )
@@ -227,8 +217,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
             std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
-
-        std::cout << "Hier 6" << std::endl;
 
         Edge2 edge_1 = edges[edge_1_i];
         Edge2 edge_2 = edges[edge_2_i];
