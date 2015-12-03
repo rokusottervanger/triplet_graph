@@ -96,14 +96,6 @@ int main(int argc, char** argv)
         cornerDetector.process(measurement);
         std::cout << measurement.points.size() << " corners detected" << std::endl << std::endl;
 
-        if ( loop < 3 )
-        {
-            loop++;
-            triplet_graph::extendGraph(graph,measurement,associations);
-            std::cout << "Extended graph with " << associations.nodes.size() << " points" << std::endl;
-        }
-        else
-        {
 
         // - - - - - - - - - - - - - - - - - -
         // Get odom data
@@ -111,8 +103,9 @@ int main(int argc, char** argv)
         std::cout << "Getting odom delta" << std::endl;
         odomTracker.getDelta(delta,measurement.time_stamp);
         tmp_odom = tmp_odom * delta;
-        std::cout << "Got odom delta: " << delta << std::endl;
-        std::cout << "Current tmp_odom: " << tmp_odom << std::endl << std::endl;
+        std::cout << "Done" << std::endl << std::endl;
+//        std::cout << "Got odom delta: " << delta << std::endl;
+//        std::cout << "Current tmp_odom: " << tmp_odom << std::endl << std::endl;
 
 
         // - - - - - - - - - - - - - - - - - -
@@ -124,7 +117,7 @@ int main(int argc, char** argv)
         if ( associations.nodes.size() > 1 )
             tmp_odom = geo::Transform::identity();
 
-        std::cout << "Path: \n" << path << std::endl;
+//        std::cout << "Path: \n" << path << std::endl;
 
         // TODO: Make function to easily visualize entire graph
 
@@ -136,22 +129,21 @@ int main(int argc, char** argv)
 //        triplet_graph::updateGraph( graph, associations );
 //        std::cout << "Done!" << std::endl << std::endl;
 
-        }
 
-
-//        // - - - - - - - - - - - - - - - - - -
-//        // Extend graph
+        // - - - - - - - - - - - - - - - - - -
+        // Extend graph
 
 //        int graph_size = graph.size();
-//        int nodes_to_add = measurement.points.size() - associations.nodes.size();
 
-//        std::cout << "Extending graph with " << nodes_to_add << " nodes..." << std::endl;
+        if ( loop < 3 && associations.measurement.points.size() < 2 || associations.measurement.points.size() > 1 )
+        {
+            std::cout << "Extending graph with " << unassociated_points.points.size() << " nodes..." << std::endl;
 
-//        triplet_graph::extendGraph( graph, unassociated_points, associations );
+            triplet_graph::extendGraph( graph, unassociated_points, associations );
 
-////        if ( graph.size() - graph_size != nodes_to_add )
-////            std::cout << "\033[31m" << "[LASER PROCESSOR] Graph size was " << graph_size << " and is now " << graph.size() << " but there were only " << nodes_to_add << " nodes unassociated!" << "\033[0m" << std::endl;
-//        std::cout << "Done!" << std::endl;
+            std::cout << "Done!" << std::endl;
+            loop ++;
+        }
 
 
         // - - - - - - - - - - - - - - - - - -
