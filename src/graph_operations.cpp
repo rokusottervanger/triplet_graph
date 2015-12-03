@@ -251,17 +251,8 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
 
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
-
-        // TODO: Remove this after debugging
-        if ( positions[node_i] != positions[node_i] ) // if k is NaN
-        {
-            std::cout << "Node " << node_i << ", with parents ( " << parent1_i << ", " << parent2_i << ") : " << positions[node_i] << std::endl;
-            std::cout << "base_x: " << base_x << ", base_y: " << base_y << std::endl;
-            std::cout << "s = " << s << " and k = " << k << std::endl;
-            std::cout << "k_sq = " << k_sq << ", l3_sq = " << l3_sq << ", A_sq = " << A_sq << ", p = " << p << ", (l1, l2, l3) = (" << l1 << ", " << l2 << ", " << l3 << ")" << std::endl;
-            std::cout << "(p-l1) = " << p-l1 << ", (p-l2) = " << p-l2 << ", (p-l3) = " << p-l3 << std::endl;
-        }
     }
+
     vis_measurement.points = positions;
     visualizer.publish(vis_measurement);
 }
@@ -533,6 +524,7 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
                     graph.addEdge3(n1,n2,n3);
                 else
                     graph.addEdge3(n1,n3,n2);
+
                 ++k;
             }
             ++j;
@@ -586,7 +578,7 @@ void save(const Graph &graph, const std::string &filename)
     }
     config.endArray();
 
-    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " to " << filename.c_str() << std::endl;
+    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " triplets to " << filename.c_str() << std::endl;
 
     // Convert config to yaml string and write to file.
     std::ofstream file;
