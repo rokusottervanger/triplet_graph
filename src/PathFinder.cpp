@@ -128,7 +128,7 @@ double PathFinder::findPath(const int target_node, Path& path)
             double l2 = edges[nodes[v].edgeByPeer(edges[u].A)].l;
             double l3 = edges[nodes[v].edgeByPeer(edges[u].B)].l;
             double p  = ( l1 + l2 + l3 )/2.0;
-            if ( (p-l1)*(p-l2)*(p-l3) )
+            if ( (p-l1)*(p-l2)*(p-l3) < 0 )
                 w = 1e38;
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
