@@ -33,6 +33,35 @@ double PathFinder::findPath(Path &path)
 
 // -----------------------------------------------------------------------------------------------
 
+double weighting1(double l_pp, double l_pc1, double l_pc2)
+/* Weighting function for triangles. Uses the lengths of the triangle's edges
+ * to calculate the cost of using this triangle to calculate the position of
+ * the child node. The first length connects the parent nodes, the other two
+ * connect the child node to its respective parents.
+ * This function uses the ratio between the two child edge lengths and twice
+ * the parent edge length.
+ */
+{
+    double AR = ( l_pc1 + l_pc2 )/( 2*l_pp );
+    return AR + 1/AR;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+double weighting2(double l_pp, double l_pc1, double l_pc2)
+/* Weighting function for triangles. Uses the lengths of the triangle's edges
+ * to calculate the cost of using this triangle to calculate the position of
+ * the child node. The first length connects the parent nodes, the other two
+ * connect the child node to its respective parents.
+ * This function uses the ratio between the largest and smallest edge
+ * lengths.
+ */
+{
+    return std::min(std::min(l_pp,l_pc1),l_pc2)/std::max(std::max(l_pp,l_pc1),l_pc2);
+}
+
+// -----------------------------------------------------------------------------------------------
+
 double PathFinder::findPath(const int target_node, Path& path)
 {
     // If path was already calculated...
@@ -120,16 +149,17 @@ double PathFinder::findPath(const int target_node, Path& path)
             // Retrieve the right node from the triplet.
             int v = triplets[*t_it].getThirdNode(edges[u].A,edges[u].B);
 
-            // TODO: Calculate weight using the two edges connecting the third node to the two base nodes
-            double w = 1.0;
-
+            // TODO: Better weight calculation
             // Check triangle inequality!
+            double w;
             double l1 = edges[u].l;
             double l2 = edges[nodes[v].edgeByPeer(edges[u].A)].l;
             double l3 = edges[nodes[v].edgeByPeer(edges[u].B)].l;
             double p  = ( l1 + l2 + l3 )/2.0;
             if ( (p-l1)*(p-l2)*(p-l3) < 0 )
                 w = 1e38;
+            else
+                w = weighting1(l1,l2,l3);
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
