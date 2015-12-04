@@ -80,8 +80,10 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
     int edge3 = nodes_[node3].edgeByPeer(node1);
 
     if ( edge1 == -1 || edge2 == -1 || edge3 == -1 )
+    {
         std::cout << "[GRAPH] AddEdge3: One of the edges does not exist, not adding triplet and returning -1" << std::endl;
         return -1;
+    }
 
     Edge3 trip(node1, node2, node3);
 
