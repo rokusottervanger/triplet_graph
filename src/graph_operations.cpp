@@ -149,10 +149,16 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
     Visualizer visualizer;
     tue::Configuration config;
     config.writeGroup("points");
-    config.setValue("name","graph_positions");
-    config.writeGroup("color");
-    config.setValue("r",1);
+        config.setValue("name","graph_positions");
+        config.writeGroup("color");
+            config.setValue("r",1);
+        config.endGroup();
     config.endGroup();
+    config.writeGroup("lines");
+        config.setValue("name","graph_edges");
+        config.writeGroup("color");
+            config.setValue("b",1);
+        config.endGroup();
     config.endGroup();
     visualizer.configure(config);
     Measurement vis_measurement;
@@ -251,6 +257,18 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
 
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
+
+        // Visualize parent-child edges
+        vis_measurement.line_list.push_back(positions[node_i]);
+        vis_measurement.line_list.push_back(positions[parent1_i]);
+        vis_measurement.line_list.push_back(positions[node_i]);
+        vis_measurement.line_list.push_back(positions[parent2_i]);
+
+        if ( fabs(positions[node_i].z) > 1e-5 )
+        {
+            std::cout << "\033[31m" << "Calculated a position out of the xy-plane!" << "\033[0m" << std::endl;
+            std::cout << "\033[31m" << "Parent position: " << positions[parent1_i] << "\033[0m" << std::endl;
+        }
     }
 
     vis_measurement.points = positions;
