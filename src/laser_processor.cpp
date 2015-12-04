@@ -117,7 +117,8 @@ int main(int argc, char** argv)
         if ( associations.nodes.size() > 1 )
             tmp_odom = geo::Transform::identity();
 
-//        std::cout << "Path: \n" << path << std::endl;
+        std::cout << "path.size() = " << path.size() << std::endl;
+        std::cout << "graph.size() = " << graph.size() << std::endl;
 
         // TODO: Make function to easily visualize entire graph
 
