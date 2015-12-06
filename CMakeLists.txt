@@ -44,7 +44,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES triplet_graph
-#  CATKIN_DEPENDS other_catkin_pkg
+ CATKIN_DEPENDS geolib2 tf tue_config
 #  DEPENDS system_lib
 )
 
@@ -75,22 +75,24 @@ add_library(triplet_graph
     src/Graph.cpp
     src/PathFinder.cpp
     src/graph_operations.cpp
+    src/CornerDetector.cpp
+    src/OdomTracker.cpp
     ${HEADER_FILES}
 )
 target_link_libraries(triplet_graph
     ${catkin_LIBRARIES}
 )
 
-add_executable(laser_processor
-    src/CornerDetector.cpp
-    src/OdomTracker.cpp
-    src/laser_processor.cpp
-    ${HEADER_FILES}
-)
-target_link_libraries(laser_processor
-    triplet_graph
-    ${catkin_LIBRARIES}
-)
+#add_executable(laser_processor
+#    src/CornerDetector.cpp
+#    src/OdomTracker.cpp
+#    src/laser_processor.cpp
+#    ${HEADER_FILES}
+#)
+#target_link_libraries(laser_processor
+#    triplet_graph
+#    ${catkin_LIBRARIES}
+#)
 
 
 
