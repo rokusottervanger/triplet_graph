@@ -17,7 +17,7 @@ namespace triplet_graph
 class CornerDetector
 {
 public:
-    void configure(tue::Configuration &config);
+    bool configure(tue::Configuration &config);
     void process(Measurement &measurement);
 
 private:

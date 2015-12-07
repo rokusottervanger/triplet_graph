@@ -9,28 +9,27 @@ namespace triplet_graph
 
 OdomTracker::OdomTracker(): tf_listener_(), have_previous_pose_(false) {}
 
-void OdomTracker::configure(tue::Configuration &config)
+OdomTracker::~OdomTracker()
 {
-    if (config.readGroup("odom_tracker", tue::REQUIRED))
-    {
-        config.value("map_frame", map_frame_id_);
-        config.value("odom_frame", odom_frame_id_);
-        config.value("base_link_frame", base_link_frame_id_);
+    delete tf_listener_;
+}
 
-        config.endGroup();
-    }
-    else
-    {
-        std::cout << "\033[31m" << "[ODOM TRACKER] Configure: No configuration for odom tracker found!" << "\033[0m" << std::endl;
-    }
+bool OdomTracker::configure(tue::Configuration &config)
+{
+    config.value("map_frame", map_frame_id_);
+    config.value("odom_frame", odom_frame_id_);
+    config.value("base_link_frame", base_link_frame_id_);
 
     if (config.hasError())
-        return;
+    {
+        std::cout << "[ODOM TRACKER] configure: ERROR: " << config.error() << std::endl;
+        return false;
+    }
 
     delete tf_listener_;
     tf_listener_ = new tf::TransformListener;
 
-    return;
+    return true;
 }
 
 // -----------------------------------------------------------------------------------------------

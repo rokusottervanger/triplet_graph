@@ -9,34 +9,36 @@
 namespace triplet_graph
 {
 
-void CornerDetector::configure(tue::Configuration &config)
+bool CornerDetector::configure(tue::Configuration &config)
 {
     std::string laser_topic;
-    if( config.readGroup("corner_detector"))
+
+    config.value("laser_topic", laser_topic);
+    config.value("corner_threshold", corner_threshold_);
+    config.value("step_size", step_size_);
+    config.value("jump_size", jump_size_);
+
+    if ( config.readGroup("visualization"))
     {
-        config.value("laser_topic", laser_topic);
-        config.value("corner_threshold", corner_threshold_);
-        config.value("step_size", step_size_);
-        config.value("jump_size", jump_size_);
-
-        if ( config.readGroup("visualization"))
-        {
-            visualizer_.configure(config);
-            config.endGroup();
-        }
-        else
-            std::cout << "[CornerDetector] No visualization parameters found" << std::endl;
-
+        visualizer_.configure(config);
         config.endGroup();
     }
+    else
+        std::cout << "[CornerDetector] Configure: No visualization parameters found" << std::endl;
+
 
     if (config.hasError())
-        return;
+    {
+        std::cout << "[CornerDetector] Configure: Config has error: " << config.error() << std::endl;
+        return false;
+    }
 
     ros::NodeHandle nh;
 
     // Communication
     sub_scan_ = nh.subscribe<sensor_msgs::LaserScan>(laser_topic, 1, &CornerDetector::scanCallback, this);
+
+    return true;
 }
 
 // -----------------------------------------------------------------------------------------------
