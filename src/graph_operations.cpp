@@ -169,7 +169,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
     for ( int i = 1; i <= path.size(); ++i )
     {
         // Calculate index in path
-        int index = path.size()-i;
+        int index = path.size()-i; // Assumes order in path!!!!!!!
 
         // Get node index and its parent nodes' indices
         int node_i = path[index];
@@ -263,12 +263,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         vis_measurement.line_list.push_back(positions[parent1_i]);
         vis_measurement.line_list.push_back(positions[node_i]);
         vis_measurement.line_list.push_back(positions[parent2_i]);
-
-        if ( fabs(positions[node_i].z) > 1e-5 )
-        {
-            std::cout << "\033[31m" << "Calculated a position out of the xy-plane!" << "\033[0m" << std::endl;
-            std::cout << "\033[31m" << "Parent position: " << positions[parent1_i] << "\033[0m" << std::endl;
-        }
     }
 
     vis_measurement.points = positions;
@@ -329,7 +323,9 @@ void associate(Graph &graph,
 
     // Add prior associations to positions vector to
     for ( int i = 0; i < associations.nodes.size(); ++i )
+    {
         positions[associations.nodes[i]] = associations.measurement.points[i];
+    }
     associations.measurement.points.clear();
     associations.nodes.clear();
 
