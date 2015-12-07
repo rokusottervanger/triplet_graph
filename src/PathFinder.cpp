@@ -24,7 +24,7 @@ double PathFinder::findPath(Path &path)
 {
     if ( all_done_ )
     {
-        addAllNodesTo(path);
+        tracePath(-1,path);
         return 0;
     }
     else
@@ -188,7 +188,7 @@ double PathFinder::findPath(const int target_node, Path& path)
 
     // If there is no target node (target_node == -1), the program will get here after calculating paths to ever node in the graph.
     // Now push all nodes in the graph into the path.
-    addAllNodesTo(path);
+    tracePath(target_node,path);
     all_done_ = true;
 
     return 0;
@@ -202,8 +202,23 @@ void PathFinder::tracePath(const int target_node, Path& path)
 
     std::vector<Edge2> edges = graph_->getEdge2s();
 
+    bool add_all;
+
     // Push target node into trace
-    trace.push(CostInt(ns_[target_node],target_node));
+    if ( target_node > -1 )
+    {
+        add_all = false;
+        trace.push(CostInt(ns_[target_node],target_node));
+    }
+    else
+    {
+        add_all = true;
+        for ( int i = 0; i < ns_.size(); ++i )
+        {
+            if ( ns_[i] != 0 )
+                trace.push(CostInt(ns_[i],i));
+        }
+    }
     int n, e;
 
     std::vector<int> es = prevs_;
@@ -222,11 +237,11 @@ void PathFinder::tracePath(const int target_node, Path& path)
         {
             // Don't add source nodes (cost == 0) to trace
             int na = edges[e].A;
-            if ( ns_[na] != 0 )
+            if ( ns_[na] != 0 && !add_all )
                 trace.push(CostInt(ns_[na],na));
 
             int nb = edges[e].B;
-            if ( ns_[nb] != 0 )
+            if ( ns_[nb] != 0 && !add_all )
                 trace.push(CostInt(ns_[nb],nb));
 
             path.push_back(n);
@@ -239,30 +254,6 @@ void PathFinder::tracePath(const int target_node, Path& path)
     // Finally, add source nodes to path
     path.insert(path.end(), source_nodes_.begin(), source_nodes_.end());
     path.parent_tree.resize(path.size(),std::make_pair(-1,-1));
-}
-
-// -----------------------------------------------------------------------------------------------
-
-void PathFinder::addAllNodesTo(Path& path)
-{
-    std::vector<Node> nodes = graph_->getNodes();
-    std::vector<Edge2> edges = graph_->getEdge2s();
-
-    // TODO: If the order is important, fix that.
-    for ( int i = 0; i < nodes.size(); ++i )
-    {
-        if ( prevs_[i] > -1 )
-        {
-            path.push_back(i);
-            Edge2 parent_edge = edges[prevs_[i]];
-            path.parent_tree.push_back(std::make_pair(parent_edge.A,parent_edge.B));
-        }
-        else if ( ns_[i] == 0 )
-        {
-            path.push_back(i);
-            path.parent_tree.push_back(std::make_pair(-1,-1));
-        }
-    }
 }
 
 }

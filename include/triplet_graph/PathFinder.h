@@ -23,7 +23,6 @@ class PathFinder
     // In the path trace search: first is the cost to get to the node of which the index is second
 
     void tracePath(const int target_node, Path &path);
-    void addAllNodesTo(Path& path);
 
 public:
     PathFinder(const Graph& graph, const std::vector<int>& source_nodes);
