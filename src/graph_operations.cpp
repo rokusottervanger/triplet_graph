@@ -276,10 +276,11 @@ void associate(Graph &graph,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
                const geo::Transform3d &delta,
-               const int goal_node_i)
+               const int goal_node_i,
+               const double max_distance)
 {
     Path path;
-    associate(graph, measurement, associations, unassociated, delta, goal_node_i, path);
+    associate(graph, measurement, associations, unassociated, delta, goal_node_i, path, max_distance);
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -290,9 +291,10 @@ void associate(Graph &graph,
                Measurement &unassociated,
                const geo::Transform &delta,
                const int goal_node_i,
-               Path& path)
+               Path& path,
+               const double max_distance)
 {
-    double max_distance = 0.1; // TODO: magic number, parameterize!
+//    double max_distance = 0.1; // TODO: magic number, parameterize!
     double max_distance_sq = max_distance*max_distance;
 
     // If too little associations given, use old associations stored in graph
