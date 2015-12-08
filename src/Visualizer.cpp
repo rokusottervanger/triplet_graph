@@ -14,6 +14,13 @@ Visualizer::Visualizer():
 void Visualizer::configure(tue::Configuration& config)
 {
     marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+
+    ros::Duration ttl;
+    double lifetime = 0;
+    if ( !config.value("lifetime", lifetime, tue::OPTIONAL) )
+        std::cout << "[VISUALIZER] configure: no lifetime specified, using infinite lifetime" << std::endl;
+    ttl = ros::Duration(lifetime);
+
     if ( config.readGroup("points") )
     {
         config.value("name", points_name_, tue::REQUIRED);
@@ -41,6 +48,8 @@ void Visualizer::configure(tue::Configuration& config)
         points_.color.g = g;
         points_.color.b = b;
         points_.color.a = 1;
+
+        points_.lifetime = ttl;
 
         config.endGroup();
         is_configured_ = true;
@@ -72,6 +81,8 @@ void Visualizer::configure(tue::Configuration& config)
         lines_.color.g = g;
         lines_.color.b = b;
         lines_.color.a = 1;
+
+        lines_.lifetime = ttl;
 
         config.endGroup();
         is_configured_ = true;

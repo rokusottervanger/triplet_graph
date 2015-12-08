@@ -148,6 +148,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
     // TODO: remove this and make nice graph visualization
     Visualizer visualizer;
     tue::Configuration config;
+    config.setValue("lifetime",0.1);
     config.writeGroup("points");
         config.setValue("name","graph_positions");
         config.writeGroup("color");
@@ -315,6 +316,8 @@ void associate(Graph &graph,
     // Now find a path through the graph to the goal
     PathFinder pathFinder(graph, associations.nodes);
     pathFinder.findPath(goal_node_i, path);
+
+    std::cout << "Path: " << path << std::endl;
 
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
