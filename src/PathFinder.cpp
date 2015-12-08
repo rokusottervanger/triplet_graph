@@ -57,7 +57,8 @@ double weighting2(double l_pp, double l_pc1, double l_pc2)
  * lengths.
  */
 {
-    return std::min(std::min(l_pp,l_pc1),l_pc2)/std::max(std::max(l_pp,l_pc1),l_pc2);
+    double skewness = std::min(std::min(l_pp,l_pc1),l_pc2)/std::max(std::max(l_pp,l_pc1),l_pc2);
+    return skewness + 1/skewness;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -159,7 +160,7 @@ double PathFinder::findPath(const int target_node, Path& path)
             if ( (p-l1)*(p-l2)*(p-l3) < 0 )
                 w = 1e38;
             else
-                w = weighting1(l1,l2,l3);
+                w = weighting2(l1,l2,l3)*(l2+l3);
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
@@ -173,12 +174,15 @@ double PathFinder::findPath(const int target_node, Path& path)
                 {
                     int neighbor = edges[*e_it].getOtherNode(v);
 
+                    // if neighbor is not visited yet, add it to queue
                     if ( ns_[neighbor] < 1e38 )
                         Q.push(CostInt(new_cost, *e_it));
                 }
 
                 // Store edge that lead to this node
                 prevs_[v] = u;
+
+                std::cout << "Node " << v << " got weight " << w << ", from parent nodes " << edges[u].A << " and " << edges[u].B << std::endl;
             }
         }
 
