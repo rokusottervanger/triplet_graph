@@ -162,9 +162,9 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         config.endGroup();
     config.endGroup();
     visualizer.configure(config);
-    Measurement vis_measurement;
-    vis_measurement.frame_id = "amigo/base_laser";
-    vis_measurement.time_stamp = ros::Time::now();
+    AssociatedMeasurement vis_measurement;
+    vis_measurement.measurement.frame_id = "amigo/base_laser";
+    vis_measurement.measurement.time_stamp = ros::Time::now();
 
     // Calculate positions of nodes that are to be associated
     for ( int i = 1; i <= path.size(); ++i )
@@ -260,13 +260,14 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
 
         // Visualize parent-child edges
-        vis_measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.line_list.push_back(positions[parent1_i]);
-        vis_measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.line_list.push_back(positions[parent2_i]);
+        vis_measurement.measurement.line_list.push_back(positions[node_i]);
+        vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
+        vis_measurement.measurement.line_list.push_back(positions[node_i]);
+        vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
+        vis_measurement.measurement.points.push_back(positions[node_i]);
+        vis_measurement.nodes.push_back(node_i);
     }
 
-    vis_measurement.points = positions;
     visualizer.publish(vis_measurement);
 }
 

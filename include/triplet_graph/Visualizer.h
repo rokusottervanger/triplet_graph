@@ -5,7 +5,7 @@
 
 #include <ros/node_handle.h>
 #include <ros/publisher.h>
-#include <visualization_msgs/Marker.h>
+#include <visualization_msgs/MarkerArray.h>
 
 #include <tue/config/configuration.h>
 
@@ -18,6 +18,7 @@ class Visualizer
 {
     visualization_msgs::Marker points_;
     visualization_msgs::Marker lines_;
+    visualization_msgs::MarkerArray msg_;
     ros::Publisher marker_pub_;
     ros::NodeHandle nh_;
     bool is_configured_;
@@ -28,6 +29,7 @@ public:
     Visualizer();
     void configure(tue::Configuration &config);
     void publish(const Measurement &measurement);
+    void publish(const AssociatedMeasurement& measurement);
     bool isConfigured(){return is_configured_;}
 };
 

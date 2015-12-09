@@ -1,5 +1,6 @@
 #include "triplet_graph/Visualizer.h"
 #include "triplet_graph/Measurement.h"
+#include <sstream>
 
 namespace triplet_graph
 {
@@ -13,7 +14,7 @@ Visualizer::Visualizer():
 
 void Visualizer::configure(tue::Configuration& config)
 {
-    marker_pub_ = nh_.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+    marker_pub_ = nh_.advertise<visualization_msgs::MarkerArray>("visualization_marker", 10);
 
     ros::Duration ttl;
     double lifetime = 0;
@@ -87,6 +88,60 @@ void Visualizer::configure(tue::Configuration& config)
         config.endGroup();
         is_configured_ = true;
     }
+
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+void Visualizer::publish(const AssociatedMeasurement& measurement)
+{
+    if ( !is_configured_ )
+        return;
+
+    publish(measurement.measurement);
+
+    if ( measurement.nodes.size() )
+    {
+        int i = 0;
+        for ( std::vector<geo::Vec3d>::const_iterator it = measurement.measurement.points.begin(); it != measurement.measurement.points.end(); it++ )
+        {
+            visualization_msgs::Marker text_marker;
+            text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+            text_marker.action = visualization_msgs::Marker::ADD;
+            text_marker.scale.z = 0.1;
+
+            text_marker.color.r = 1;
+            text_marker.color.g = 1;
+            text_marker.color.b = 1;
+            text_marker.color.a = 1.0;
+
+            geometry_msgs::Point p;
+            p.x = it->getX();
+            p.y = it->getY();
+            p.z = it->getZ();
+
+            text_marker.lifetime = points_.lifetime;
+
+            text_marker.pose.position = p;
+            text_marker.header.frame_id = measurement.measurement.frame_id;
+            text_marker.header.stamp = measurement.measurement.time_stamp;
+            text_marker.ns = "graph_node_indices";
+
+            std::stringstream ss;
+            ss << measurement.nodes[i];
+
+            text_marker.text = ss.str();
+
+            std::cout << "Added " << measurement.nodes[i] << std::endl;
+
+            msg_.markers.push_back(text_marker);
+
+            ++i;
+        }
+
+        marker_pub_.publish(msg_);
+        msg_.markers.clear();
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -95,6 +150,7 @@ void Visualizer::publish(const Measurement& measurement)
 {
     if ( !is_configured_ )
         return;
+
     // - - - - - - - - - - - - - - - - - - - - - - - -
     // Publish points
 
@@ -115,7 +171,7 @@ void Visualizer::publish(const Measurement& measurement)
             points_.points.push_back(p);
         }
 
-        marker_pub_.publish(points_);
+        msg_.markers.push_back(points_);
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,8 +194,11 @@ void Visualizer::publish(const Measurement& measurement)
             lines_.points.push_back(p);
         }
 
-        marker_pub_.publish(lines_);
+        msg_.markers.push_back(lines_);
     }
+
+    marker_pub_.publish(msg_);
+    msg_.markers.clear();
 }
 
 } // end namespace triplet_graph
