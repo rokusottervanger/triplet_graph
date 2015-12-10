@@ -107,7 +107,6 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
         {
             visualization_msgs::Marker text_marker;
             text_marker.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-            text_marker.action = visualization_msgs::Marker::ADD;
             text_marker.scale.z = 0.1;
 
             text_marker.color.r = 1;
@@ -126,13 +125,12 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
             text_marker.header.frame_id = measurement.measurement.frame_id;
             text_marker.header.stamp = measurement.measurement.time_stamp;
             text_marker.ns = "graph_node_indices";
+            text_marker.id = i;
 
             std::stringstream ss;
             ss << measurement.nodes[i];
 
             text_marker.text = ss.str();
-
-            std::cout << "Added " << measurement.nodes[i] << std::endl;
 
             msg_.markers.push_back(text_marker);
 
