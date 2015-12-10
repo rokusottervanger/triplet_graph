@@ -57,8 +57,8 @@ double weighting2(double l_pp, double l_pc1, double l_pc2)
  * lengths.
  */
 {
-    double skewness = std::min(std::min(l_pp,l_pc1),l_pc2)/std::max(std::max(l_pp,l_pc1),l_pc2);
-    return skewness + 1/skewness;
+    double skewness = std::max(std::max(l_pp,l_pc1),l_pc2)/std::min(std::min(l_pp,l_pc1),l_pc2);
+    return skewness;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -181,8 +181,6 @@ double PathFinder::findPath(const int target_node, Path& path)
 
                 // Store edge that lead to this node
                 prevs_[v] = u;
-
-                std::cout << "Node " << v << " got weight " << w << ", from parent nodes " << edges[u].A << " and " << edges[u].B << std::endl;
             }
         }
 
