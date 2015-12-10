@@ -180,6 +180,9 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         if ( parent1_i == -1 || parent2_i == -1 )
         {
             // If root node, position should already be in positions vector, so continue
+            vis_measurement.measurement.points.push_back(positions[node_i]);
+            vis_measurement.nodes.push_back(node_i);
+
             continue;
         }
 
@@ -202,6 +205,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
         // If clockwise (wrong direction) swap parent nodes.
         Edge3 trip = triplets[triplet_i];
+
         if ( parent1_i == trip.B && parent2_i == trip.A ||
              parent1_i == trip.A && parent2_i == trip.C ||
              parent1_i == trip.C && parent2_i == trip.B ) // TODO: make this nicer?
@@ -230,28 +234,17 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         Edge2 parents_edge = edges[parents_edge_i];
 
         // In notes, names of l1 and l2 were swapped, so:
-        double l1 = edge_2.l;
-        double l2 = edge_1.l;
+        double l1 = edge_1.l;
+        double l2 = edge_2.l;
         double l3 = parents_edge.l;
 
         // I'm gonna need the squares of two of those lengths
+        double l1_sq = l1*l1;
         double l2_sq = l2*l2;
         double l3_sq = l3*l3;
 
-        // Use Heron's formula for the area of the triangle:
-        // p = half circumference
-        double p  = ( l1 + l2 + l3 )/2.0;
-
-        // Area = sqrt(p*(p-l1)*(p-l2)*(p-l3)); so
-        double A_sq = p*(p-l1)*(p-l2)*(p-l3);
-
-        // Area = 1/2 * base * height
-        // Area = 1/2 * l3 * k; so
-        double k_sq = 4.0 * A_sq/l3_sq;
-
-        // This gives:
-        double k = sqrt(k_sq);
-        double s = sqrt(l2_sq - k_sq);
+        double s = (l1_sq - l2_sq + l3_sq)/(2*l3);
+        double k = sqrt(l1_sq - s*s);
 
         // Define the triangle frame and espress the position of the new node in the sensor frame
         geo::Vec3d base_x = (positions[parent2_i] - positions[parent1_i])/edges[parents_edge_i].l;
@@ -296,7 +289,6 @@ void associate(Graph &graph,
                Path& path,
                const double max_distance)
 {
-//    double max_distance = 0.1; // TODO: magic number, parameterize!
     double max_distance_sq = max_distance*max_distance;
 
     // If too little associations given, use old associations stored in graph
@@ -370,7 +362,6 @@ void associate(Graph &graph,
         {
             associations.nodes.push_back(best_guess);
             associations.measurement.points.push_back(best_pos);
-            // TODO: make sure that one measurement without (associated) points does not let the robot get lost
         }
         else
         {
@@ -482,8 +473,11 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
                 // If the triplet did not exist yet...
                 else
                 {
-                    // add it to the graph
-                    graph.addEdge3(n1,n2,n3);
+                    // add it to the graph in the right order
+                    if ( sign > 0 ) // Clockwise
+                        graph.addEdge3(n1,n3,n2);
+                    else
+                        graph.addEdge3(n1,n2,n3);
                 }
                 ++k;
             }
