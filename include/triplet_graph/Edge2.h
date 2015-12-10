@@ -28,7 +28,6 @@ public:
 
 private:
 
-    // TODO: Implement filling of this map!!!
     std::map< int, int> triplet_by_node_; // map from node indices the shared triplet of the three nodes
 };
 
