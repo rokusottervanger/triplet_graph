@@ -89,53 +89,13 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
 
     int i;
 
-    // TODO: make checking for existance more efficient using quick lookup maps
-    // If a triplet exists between the three nodes, it is at least stored in the node that is part of the least triplets, so get node with the least triplets
-    int n1, n2, n3;
+    i = edges_[edge1].tripletByNode(node3);
 
-    int size1 = nodes_[node1].triplets.size();
-    int size2 = nodes_[node2].triplets.size();
-    int size3 = nodes_[node3].triplets.size();
-
-    if ( size2 < size1 )
+    if ( i > -1 )
     {
-        size1 = size2;
-        n1 = node2;
-        n2 = node1;
-        n3 = node3;
-    }
-    else
-    {
-        n1 = node1;
-        n2 = node2;
-        n3 = node3;
-    }
-
-    if ( size3 < size1 )
-    {
-        size1 = size3;
-        n1 = node3;
-        n2 = node2;
-        n3 = node1;
-    }
-
-    // Now loop through that node's list of triplets and check if there is one that also refers to the other two nodes
-    for ( std::vector<int>::const_iterator it = nodes_[n1].triplets.begin(); it != nodes_[n1].triplets.end(); it++ )
-    {
-        std::vector<int> v_indices;
-        v_indices.push_back(triplets_[*it].A);
-        v_indices.push_back(triplets_[*it].B);
-        v_indices.push_back(triplets_[*it].C);
-
-        do
-        {
-            if ( v_indices[0] == node1 && v_indices[1] == node2 && v_indices[2] == node3 )
-            {
-                std::cout << "[GRAPH] AddEdge3: Found the same triplet as the one we're trying to add! Only updating order!" << std::endl;
-                triplets_[*it] = trip;
-                return *it;
-            }
-        } while  ( std::next_permutation(v_indices.begin(),v_indices.end()) );
+        // Triplet already exists, so overwrite old triplet and return
+        triplets_[i] = trip;
+        return i;
     }
 
     // triplet does not yet exist, so add to graph's triplets list
