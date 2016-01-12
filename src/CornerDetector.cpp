@@ -15,7 +15,7 @@ bool CornerDetector::configure(tue::Configuration &config)
 
     config.value("laser_topic", laser_topic);
     config.value("corner_threshold", corner_threshold_);
-    config.value("step_size", step_size_);
+    config.value("step_size", step_dist_);
     config.value("jump_size", jump_size_);
 
     if ( config.readGroup("visualization"))
@@ -97,29 +97,34 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
     // - - - - - - - - - - - - - - - - - -
     // Find corners
 
-    int step_size = 0;
-    double step_dist_sq_ = 0.25*0.25; // step size in meters
+    double step_dist_sq_ = step_dist_*step_dist_;   // squared step size in meters
+    int step_size = 0;                          // step size in number of beams
 
-    std::set<int> added_point_indices;
-    for (int i = 0; i < num_beams-step_size; i++ )
+    for (int i = 0; i < num_beams-step_size; i++ )  // Loop through beams
     {
         geo::Vec3d A, B, db, dc, N, c;
 
-        for (int j = 0; j < num_beams - i; j++ )
+        // Determine step size in number of beams based on step distance
+        for (int j = i+1; j < num_beams - i; j++ )  // loop through next few beams (break when step reaches step_dist_)
         {
-            step_size = j;
-
             // Get vectors to range points
             A = lrf_model_.rangeToPoint(sensor_ranges[i],i);
-            B = lrf_model_.rangeToPoint(sensor_ranges[i+step_size],i+step_size);
+            B = lrf_model_.rangeToPoint(sensor_ranges[j],j);
 
             // Calculate vector between point A and point B
             geo::Vec3d db_tmp = B - A;
 
             if ( db_tmp.length2() < step_dist_sq_ )
+            {
+                step_size = j-i;
                 db = db_tmp;
+            }
             else
+            {
+//                std::cout << "Step size is now " << step_size << std::endl;
+//                std::cout << "Segment vector: " << db << std::endl;
                 break;
+            }
         }
 
         // Calculate normal unit vector to db
@@ -130,20 +135,27 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
         int corner_index;
 
         // For every intermediate point, check if distance to line segment ab is small enough. If too big, it's a corner!
-        for (int j = 1; j <= step_size; j++ )
+        for (int j = 1; j < step_size; j++ )
         {
             // If a jump occurs, move on to after jump
             if ( fabs(sensor_ranges[i+j] - sensor_ranges[i+j-1]) > jump_size_ )
             {
                 d_max = corner_threshold_;
                 i = i+j+1;
+//                std::cout << "Jump!" << std::endl;
                 break;
             }
-            c = lrf_model_.rangeToPoint(sensor_ranges[i+j],i+j);
-            dc = c - A;
-            double d = fabs(N.dot(dc));
+
+            c = lrf_model_.rangeToPoint(sensor_ranges[i+j],i+j);    // Vector to intermediate point c
+            dc = c - A;                                             // Difference vector from A to c
+//            std::cout << "dc = " << dc << std::endl;
+            double d = fabs(N.dot(dc));                             // Projection of difference vector on normal vector N
+//            std::cout << "d = " << d << std::endl;
+
+            // If projection of difference vector on normal vector is too large, it's part of a corner
             if ( d > corner_threshold_ )
             {
+                // Take only the largest deviation from the line segment as corner point.
                 if ( d > d_max )
                 {
                     d_max = d;
@@ -153,14 +165,14 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
             }
         }
 
-        if ( d_max > corner_threshold_ && added_point_indices.find(corner_index) == added_point_indices.end() )
+        // Check if a corner was found during this step and if it had not been found before
+        if ( d_max > corner_threshold_ )
         {
             measurement.points.push_back(c_corner);
 
             measurement.line_list.push_back(A);
             measurement.line_list.push_back(B);
 
-            added_point_indices.insert(corner_index);
             i = corner_index;
         }
     }

@@ -31,7 +31,7 @@ private:
     Visualizer visualizer_;
 
     double jump_size_;
-    int step_size_;
+    double step_dist_;
     float corner_threshold_;
 
 };
