@@ -233,7 +233,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         Edge2 edge_2 = edges[edge_2_i];
         Edge2 parents_edge = edges[parents_edge_i];
 
-        // In notes, names of l1 and l2 were swapped, so:
         double l1 = edge_1.l;
         double l2 = edge_2.l;
         double l3 = parents_edge.l;

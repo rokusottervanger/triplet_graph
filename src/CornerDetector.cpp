@@ -105,8 +105,12 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
         geo::Vec3d A, B, db, dc, N, c;
 
         // Determine step size in number of beams based on step distance
-        for (int j = i+1; j < num_beams - i; j++ )  // loop through next few beams (break when step reaches step_dist_)
+        for (int j = i+1; j < num_beams; j++ )  // loop through next few beams (break when step reaches step_dist_)
         {
+            // If a jump occurs, move on to after jump
+            if ( fabs(sensor_ranges[j] - sensor_ranges[j-1]) > jump_size_ )
+                break;
+
             // Get vectors to range points
             A = lrf_model_.rangeToPoint(sensor_ranges[i],i);
             B = lrf_model_.rangeToPoint(sensor_ranges[j],j);
@@ -120,11 +124,7 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
                 db = db_tmp;
             }
             else
-            {
-//                std::cout << "Step size is now " << step_size << std::endl;
-//                std::cout << "Segment vector: " << db << std::endl;
                 break;
-            }
         }
 
         // Calculate normal unit vector to db
@@ -132,25 +132,23 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
 
         double d_max = corner_threshold_;
         geo::Vec3d c_corner;
-        int corner_index;
+        int corner_index = 0;
 
-        // For every intermediate point, check if distance to line segment ab is small enough. If too big, it's a corner!
+        // For every intermediate point, check if distance to line segment AB is small enough. If too big, it's a corner!
         for (int j = 1; j < step_size; j++ )
         {
             // If a jump occurs, move on to after jump
+            // TODO: Hacky! skipping points just before jumps.
             if ( fabs(sensor_ranges[i+j] - sensor_ranges[i+j-1]) > jump_size_ )
             {
                 d_max = corner_threshold_;
-                i = i+j+1;
-//                std::cout << "Jump!" << std::endl;
+                i = i+j;
                 break;
             }
 
             c = lrf_model_.rangeToPoint(sensor_ranges[i+j],i+j);    // Vector to intermediate point c
             dc = c - A;                                             // Difference vector from A to c
-//            std::cout << "dc = " << dc << std::endl;
             double d = fabs(N.dot(dc));                             // Projection of difference vector on normal vector N
-//            std::cout << "d = " << d << std::endl;
 
             // If projection of difference vector on normal vector is too large, it's part of a corner
             if ( d > corner_threshold_ )
@@ -165,8 +163,8 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
             }
         }
 
-        // Check if a corner was found during this step and if it had not been found before
-        if ( d_max > corner_threshold_ )
+        // Check if a corner was found during this step
+        if ( corner_index > 0 )
         {
             measurement.points.push_back(c_corner);
 
