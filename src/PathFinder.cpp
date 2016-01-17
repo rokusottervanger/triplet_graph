@@ -63,6 +63,31 @@ double weighting2(double l_pp, double l_pc1, double l_pc2)
 
 // -----------------------------------------------------------------------------------------------
 
+// TODO: Check if i'm using the right lengths at the right places!!!!
+double weighting3(double l3, double l1, double l2)
+/* Weighting function for triangles. Uses the lengths of the triangle's edges
+ * to calculate the cost of using this triangle to calculate the position of
+ * the child node. The first length connects the parent nodes, the other two
+ * connect the child node to its respective parents.
+ * This function uses the ratio between the largest and smallest edge
+ * lengths.
+ */
+{
+    double l1_sq = l1*l1;
+    double l2_sq = l2*l2;
+    double l3_sq = l3*l3;
+
+    double x = (l1_sq-l2_sq+l3_sq)/(2*l3);
+    double x_sq = x*x;
+
+    double dx_sq = l1_sq/l2_sq + l2_sq/l3_sq + 1/4;
+    double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
+    double dy_sq = 1/(l1_sq-x_sq) * thing*thing + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq))+x_sq/(l1_sq-x_sq);
+    return dx_sq+dy_sq;
+}
+
+// -----------------------------------------------------------------------------------------------
+
 double PathFinder::findPath(const int target_node, Path& path)
 {
     // If path was already calculated...
