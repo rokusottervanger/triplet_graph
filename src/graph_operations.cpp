@@ -294,15 +294,14 @@ void associate(Graph &graph,
     if ( associations.nodes.size() < 2 )
     {
         associations = graph.getAssociations();
-        std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough initial associations given, using old associations" << "\033[0m" << std::endl;
     }
 
     // Update associations using odom delta
     associations = delta.inverse() * associations;
     graph.setAssociations(associations);
 
-    // If no points to associate, just return after updating associations and unassociated nodes
-    if (measurement.points.size() == 0)
+    // If no points to associate, just return after updating associations nodes
+    if (measurement.points.size() == 0 )
         return;
 
     // Now find a path through the graph to the goal
@@ -370,7 +369,12 @@ void associate(Graph &graph,
 
     // If successful, set graph's latest associations
     if ( associations.nodes.size() > 1 )
+    {
         graph.setAssociations(associations);
+        std::cout << "[GRAPH] " << associations.nodes.size() << " associations found, storing in graph" << std::endl;
+    }
+    else
+        std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough associations found, not storing new associations." << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -548,7 +552,17 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
         associations.measurement.points.push_back(pt1);
     }
 
+    // If not enough new points were found to localize on, just add the point to the old stored associations.
+    if ( associations.nodes.size() < 2 )
+    {
+        std::cout << "ExtendGraph: Going wrong here!" << std::endl;
+        AssociatedMeasurement old_associations = graph.getAssociations();
+        old_associations.nodes.push_back(associations.nodes[0]);
+        old_associations.measurement.points.push_back(associations.measurement.points[0]);
+        associations = old_associations;
+    }
     graph.setAssociations(associations);
+
 }
 
 // -----------------------------------------------------------------------------------------------

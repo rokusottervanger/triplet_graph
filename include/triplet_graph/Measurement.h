@@ -20,7 +20,7 @@ struct Measurement
 };
 
 // -----------------------------------------------------------------------------------------------
-
+// TODO: inherit from instead of contain measurement
 struct AssociatedMeasurement
 {
     // A measurement containing all associated points
