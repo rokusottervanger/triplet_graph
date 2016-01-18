@@ -80,7 +80,7 @@ double weighting3(double l3, double l1, double l2)
     double x = (l1_sq-l2_sq+l3_sq)/(2*l3);
     double x_sq = x*x;
 
-    double dx_sq = l1_sq/l2_sq + l2_sq/l3_sq + 1/4;
+    double dx_sq = l1_sq/l3_sq + l2_sq/l3_sq + 1/4.0;
     double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
     double dy_sq = 1/(l1_sq-x_sq) * thing*thing + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq))+x_sq/(l1_sq-x_sq);
     return dx_sq+dy_sq;
@@ -185,7 +185,7 @@ double PathFinder::findPath(const int target_node, Path& path)
             if ( (p-l1)*(p-l2)*(p-l3) < 0 )
                 w = 1e38;
             else
-                w = weighting2(l1,l2,l3)*(l2+l3);
+                w = weighting3(l1,l2,l3);
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
