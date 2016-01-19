@@ -305,10 +305,19 @@ void associate(Graph &graph,
         return;
 
     // Now find a path through the graph to the goal
+    std::cout << "Initializing PathFinder with current graph and " << associations.nodes.size() << " source nodes:" << std::endl;
+    for ( std::vector<int>::iterator it = associations.nodes.begin(); it != associations.nodes.end(); ++it )
+    {
+        std::cout << *it << std::endl;
+    }
+    std::cout << std::endl;
+
     PathFinder pathFinder(graph, associations.nodes);
+
+    std::cout << "input path size: " << path.size() << std::endl;
     pathFinder.findPath(goal_node_i, path);
 
-    std::cout << "Path: " << path << std::endl;
+    std::cout << "Found path: " << path << std::endl;
 
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -501,6 +510,14 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
  * TODO: make sure edges are also correct if no update was done (use graph point of associated point, and measurement of unassociated point)
  */
 {
+    /* If there are not enough points associated with the graph to
+     * express positions of new points with respect to them, just
+     * return; unless of course the graph does not have enough nodes
+     * yet!
+     */
+    if ( graph.size() > 2 && associations.nodes.size() < 2 )
+        return;
+
     // Add unassociated nodes
     for ( std::vector<geo::Vec3d>::const_iterator it = unassociated.points.begin(); it != unassociated.points.end(); ++it )
     {
@@ -553,13 +570,15 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
     }
 
     // If not enough new points were found to localize on, just add the point to the old stored associations.
-    if ( associations.nodes.size() < 2 )
+    if ( associations.nodes.size() == 1 )
     {
-        std::cout << "ExtendGraph: Going wrong here!" << std::endl;
         AssociatedMeasurement old_associations = graph.getAssociations();
-        old_associations.nodes.push_back(associations.nodes[0]);
-        old_associations.measurement.points.push_back(associations.measurement.points[0]);
-        associations = old_associations;
+        if ( std::find(old_associations.nodes.begin(), old_associations.nodes.end(), associations.nodes[0]) == old_associations.nodes.end() )
+        {
+            old_associations.nodes.push_back(associations.nodes[0]);
+            old_associations.measurement.points.push_back(associations.measurement.points[0]);
+            associations = old_associations;
+        }
     }
     graph.setAssociations(associations);
 

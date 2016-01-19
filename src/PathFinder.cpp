@@ -94,9 +94,12 @@ double PathFinder::findPath(const int target_node, Path& path)
     if ( target_node != -1 && prevs_[target_node] != -1 )
     {
         // directly trace back that path
+        std::cout << "Path was already calculated, so just tracing it back" << std::endl;
         tracePath(target_node, path);
         return ns_[target_node];
     }
+    else
+        std::cout << "Calculating path to all nodes" << std::endl;
 
     // get a copy of the nodes, edges and triplets in the graph
     std::vector<Node>  nodes    = graph_->getNodes();
@@ -127,16 +130,25 @@ double PathFinder::findPath(const int target_node, Path& path)
                 else
                 {
                     int edge = nodes[*it_1].edgeByPeer(*it_2);
-                    if ( edge != -1 )
+                    if ( edge == -1 )
+                        std::cout << "[FIND_PATH] Warning! Edge between nodes " << *it_1 << " and " << *it_2 << " does not exist." << std::endl;
+                    else
                     {
                         Q.push(CostInt(0,edge));
                         es[edge] = 0;
                     }
+
                 }
             }
             ns_[*it_1] = 0;
         }
     }
+
+    if ( Q.size() < 1 )
+    {
+        std::cout << "\033[31m" << "[PathFinder] Not enough valid input points!" << "\033[0m" << std::endl;
+    }
+
 
     /* The path is to contain the series of nodes to get from the source nodes to
      * the target node. To construct this path, the prevs vector is maintained,
