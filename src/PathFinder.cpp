@@ -131,9 +131,12 @@ double PathFinder::findPath(const int target_node, Path& path)
                 {
                     int edge = nodes[*it_1].edgeByPeer(*it_2);
                     if ( edge == -1 )
-                        std::cout << "[FIND_PATH] Warning! Edge between nodes " << *it_1 << " and " << *it_2 << " does not exist." << std::endl;
+                    {
+                        std::cout << "[FIND_PATH] Warning! Edge between nodes " << *it_1 << " and " << *it_2 << " does not exist!" << std::endl;
+                    }
                     else
                     {
+                        std::cout << "Pushing source edge between nodes " << edges[edge].A << " and "  << edges[edge].B << " to queue" << std::endl;
                         Q.push(CostInt(0,edge));
                         es[edge] = 0;
                     }
@@ -176,13 +179,16 @@ double PathFinder::findPath(const int target_node, Path& path)
 
         std::vector<int> common_triplets = nodes[edges[u].A].tripletsByPeer(edges[u].B);
 
+        if ( common_triplets.size() == 0 )
+            std::cout << "Did not find any common triplets" << std::endl;
+
         // Run through common triplets of the current pair of nodes
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
         {
-            // If this triplet was already visited, continue
-            if ( ts[*t_it] == -1 )
-                continue;
-            ts[*t_it] = -1; // TODO: Is this OK?
+//            // If this triplet was already visited, continue
+//            if ( ts[*t_it] == -1 )
+//                continue;
+//            ts[*t_it] = -1; // TODO: Is this OK?
 
             // Retrieve the right node from the triplet.
             int v = triplets[*t_it].getThirdNode(edges[u].A,edges[u].B);
@@ -229,6 +235,18 @@ double PathFinder::findPath(const int target_node, Path& path)
     // Now push all nodes in the graph into the path.
     tracePath(target_node,path);
     all_done_ = true;
+
+    std::cout << "Prevs_:" << std::endl;
+    for ( unsigned int i = 0; i < prevs_.size(); ++i )
+    {
+        std::cout << prevs_[i] << std::endl;
+    }
+
+    std::cout << std::endl << "ns_:" << std::endl;
+    for ( unsigned int i = 0; i < ns_.size(); ++i )
+    {
+        std::cout << ns_[i] << std::endl;
+    }
 
     return 0;
 }

@@ -295,6 +295,17 @@ void associate(Graph &graph,
     {
         associations = graph.getAssociations();
     }
+    // Else, check if edges between these nodes exist. If they don't, add them!
+//    else
+//    {
+//        for ( std::vector<int>::iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
+//        {
+//            for ( std::vector<int>::iterator it_2 = associations.nodes.begin(); it_2 != associations.nodes.end(); ++it_2 )
+//            {
+//                if ( graph.getNodes()[*it_1].edgeByPeer(*it_2) == -1 )
+//                    graph.addEdge2()
+//        }
+//    }
 
     // Update associations using odom delta
     associations = delta.inverse() * associations;
