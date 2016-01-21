@@ -38,7 +38,12 @@ int Graph::addEdge2(const int node1, const int node2, const double& length)
 {
     Edge2 edge2(node1, node2, length);
 
-    int i;
+    int i = nodes_[node1].edgeByPeer(node2);
+
+    if ( i != -1 )
+    {
+        return i;
+    }
 
     if (deleted_edges_.empty())
     {
@@ -91,10 +96,10 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
 
     i = edges_[edge1].tripletByNode(node3);
 
-    if ( i > -1 )
+    if ( i != -1 )
     {
         // Triplet already exists, so overwrite old triplet and return
-        triplets_[i] = trip;
+//        triplets_[i] = trip;
         return i;
     }
 
