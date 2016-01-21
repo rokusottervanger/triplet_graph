@@ -136,7 +136,6 @@ double PathFinder::findPath(const int target_node, Path& path)
                     }
                     else
                     {
-                        std::cout << "Pushing source edge between nodes " << edges[edge].A << " and "  << edges[edge].B << " to queue" << std::endl;
                         Q.push(CostInt(0,edge));
                         es[edge] = 0;
                     }
@@ -185,11 +184,6 @@ double PathFinder::findPath(const int target_node, Path& path)
         // Run through common triplets of the current pair of nodes
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
         {
-//            // If this triplet was already visited, continue
-//            if ( ts[*t_it] == -1 )
-//                continue;
-//            ts[*t_it] = -1; // TODO: Is this OK?
-
             // Retrieve the right node from the triplet.
             int v = triplets[*t_it].getThirdNode(edges[u].A,edges[u].B);
 
@@ -201,9 +195,13 @@ double PathFinder::findPath(const int target_node, Path& path)
             double l3 = edges[nodes[v].edgeByPeer(edges[u].B)].l;
             double p  = ( l1 + l2 + l3 )/2.0;
             if ( (p-l1)*(p-l2)*(p-l3) < 0 )
+            {
                 w = 1e38;
+            }
             else
+            {
                 w = weighting3(l1,l2,l3);
+            }
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.

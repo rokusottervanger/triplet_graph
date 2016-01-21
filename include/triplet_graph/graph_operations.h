@@ -33,7 +33,7 @@ void associate( Graph &graph,
                 Path& path,
                 const double);
 
-void updateGraph(Graph &graph, const AssociatedMeasurement &associations);
+void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool update_lengths=false);
 
 void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations);
 

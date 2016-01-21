@@ -148,7 +148,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
     // TODO: remove this and make nice graph visualization
     Visualizer visualizer;
     tue::Configuration config;
-    config.setValue("lifetime",0.1);
+    config.setValue("lifetime",0);
     config.writeGroup("points");
         config.setValue("name","graph_positions");
         config.writeGroup("color");
@@ -316,7 +316,6 @@ void associate(Graph &graph,
         return;
 
     // Now find a path through the graph to the goal
-    std::cout << "Initializing PathFinder with current graph and " << associations.nodes.size() << " source nodes:" << std::endl;
     for ( std::vector<int>::iterator it = associations.nodes.begin(); it != associations.nodes.end(); ++it )
     {
         std::cout << *it << std::endl;
@@ -324,8 +323,6 @@ void associate(Graph &graph,
     std::cout << std::endl;
 
     PathFinder pathFinder(graph, associations.nodes);
-
-    std::cout << "input path size: " << path.size() << std::endl;
     pathFinder.findPath(goal_node_i, path);
 
     std::cout << "Found path: " << path << std::endl;
@@ -399,7 +396,7 @@ void associate(Graph &graph,
 
 // -----------------------------------------------------------------------------------------------
 
-void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
+void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool update_lengths)
 /* Function to update an existing graph using an associated measurement.
  * Updates the edge lengths and triplet orders. Does not add measured
  * points to the existing graph.
@@ -412,7 +409,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
     for ( std::vector<int>::const_iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
     {
         int n1 = *it_1;
-        Node node1 = *(graph.begin() + n1);
+        Node node1 = graph.getNodes()[n1];
 
         int j = 0;
         for ( std::vector<int>::const_iterator it_2 = associations.nodes.begin(); it_2 != it_1; ++it_2 )
@@ -432,9 +429,13 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
             // If edge exists...
             if ( e > -1 )
             {
-                // update edge;
-                // TODO: What if triangle inequality doesn't hold anymore? Don't update? Use uncertainty in edge to describe the tension in the triangle?
-                graph.setEdgeLength(e, length);
+                // And lengths should be updated...
+                if ( update_lengths )
+                {
+                    // update edge;
+                    // TODO: What if triangle inequality doesn't hold anymore? Don't update? Use uncertainty in edge to describe the tension in the triangle?
+                    graph.setEdgeLength(e, length);
+                }
             }
 
             // and if it didn't
@@ -463,32 +464,35 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
                 double sign = d21.cross(d31).z;
 
                 // If triplet exists...
-                if ( t > -1 )
+                if ( t != -1 )
                 {
-                    // get a copy of the triplet.
-                    Edge3 triplet = triplets[t];
-
-                    // If order of nodes n1, n2 and n2 is the same as in triplet...
-                    if ( n1 == triplet.A && n2 == triplet.B && n3 == triplet.C ||
-                         n1 == triplet.B && n2 == triplet.C && n3 == triplet.A ||
-                         n1 == triplet.C && n2 == triplet.A && n3 == triplet.B ) // TODO: make this nicer?
+                    if ( update_lengths )
                     {
-                        // check if that order is clockwise, and if it is...
-                        if ( sign < 0 )
+                        // get a copy of the triplet.
+                        Edge3 triplet = triplets[t];
+
+                        // If order of nodes n1, n2 and n2 is the same as in triplet...
+                        if ( n1 == triplet.A && n2 == triplet.B && n3 == triplet.C ||
+                             n1 == triplet.B && n2 == triplet.C && n3 == triplet.A ||
+                             n1 == triplet.C && n2 == triplet.A && n3 == triplet.B ) // TODO: make this nicer?
                         {
-                            // flip it.
-                            graph.flipTriplet(t);
+                            // check if that order is clockwise, and if it is...
+                            if ( sign < 0 )
+                            {
+                                // flip it.
+                                graph.flipTriplet(t);
+                            }
                         }
-                    }
 
-                    // If it is not the same order, it is the only other...
-                    else
-                    {
-                        // check if that order is clockwise, and if it is...
-                        if ( sign > 0 )
+                        // If it is not the same order, it is the only other...
+                        else
                         {
-                            // flip it.
-                            graph.flipTriplet(t);
+                            // check if that order is clockwise, and if it is...
+                            if ( sign > 0 )
+                            {
+                                // flip it.
+                                graph.flipTriplet(t);
+                            }
                         }
                     }
                 }
@@ -497,10 +501,10 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations)
                 else
                 {
                     // add it to the graph in the right order
-                    if ( sign > 0 ) // Clockwise
-                        graph.addEdge3(n1,n3,n2);
-                    else
+                    if ( sign > 0 ) // Counter clockwise
                         graph.addEdge3(n1,n2,n3);
+                    else
+                        graph.addEdge3(n1,n3,n2);
                 }
                 ++k;
             }
@@ -557,6 +561,14 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
             {
                 int n3 = *it_3;
                 geo::Vec3d pt3 = associations.measurement.points[k];
+
+                // If edge between the two associated nodes does not yet exist, add it.
+//                if ( graph.getNodes()[n2].edgeByPeer(n3) == -1 )
+//                {
+//                    std::cout << "Edge between " << n2 << " and " << n3 << " did not exist yet. Adding it..." << std::endl;
+//                    geo::Vec3d d23 = pt3 - pt2;
+//                    std::cout << "result: " << graph.addEdge2(n2, n3, d23.length()) << std::endl;
+//                }
 
                 // Calculate the vectors from node 1 to the other two
                 geo::Vec3d d31 = pt3 - pt1;
