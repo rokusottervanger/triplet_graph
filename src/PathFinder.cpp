@@ -234,17 +234,17 @@ double PathFinder::findPath(const int target_node, Path& path)
     tracePath(target_node,path);
     all_done_ = true;
 
-    std::cout << "Prevs_:" << std::endl;
-    for ( unsigned int i = 0; i < prevs_.size(); ++i )
-    {
-        std::cout << prevs_[i] << std::endl;
-    }
+//    std::cout << "Prevs_:" << std::endl;
+//    for ( unsigned int i = 0; i < prevs_.size(); ++i )
+//    {
+//        std::cout << prevs_[i] << std::endl;
+//    }
 
-    std::cout << std::endl << "ns_:" << std::endl;
-    for ( unsigned int i = 0; i < ns_.size(); ++i )
-    {
-        std::cout << ns_[i] << std::endl;
-    }
+//    std::cout << std::endl << "ns_:" << std::endl;
+//    for ( unsigned int i = 0; i < ns_.size(); ++i )
+//    {
+//        std::cout << ns_[i] << std::endl;
+//    }
 
     return 0;
 }

@@ -316,6 +316,7 @@ void associate(Graph &graph,
         return;
 
     // Now find a path through the graph to the goal
+    std::cout << "Previous associations: " << std::endl;
     for ( std::vector<int>::iterator it = associations.nodes.begin(); it != associations.nodes.end(); ++it )
     {
         std::cout << *it << std::endl;
