@@ -20,7 +20,6 @@ void associate( Graph &graph,
                 const Measurement &measurement,
                 AssociatedMeasurement &associations,
                 Measurement &unassociated,
-                const geo::Transform3 &delta,
                 const int goal_node_i,
                 const double);
 
@@ -28,7 +27,6 @@ void associate( Graph &graph,
                 const Measurement &measurement,
                 AssociatedMeasurement &associations,
                 Measurement &unassociated,
-                const geo::Transform3 &delta,
                 const int goal_node_i,
                 Path& path,
                 const double);

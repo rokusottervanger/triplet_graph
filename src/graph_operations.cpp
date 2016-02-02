@@ -269,12 +269,11 @@ void associate(Graph &graph,
                const Measurement &measurement,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
-               const geo::Transform3d &delta,
                const int goal_node_i,
                const double max_distance)
 {
     Path path;
-    associate(graph, measurement, associations, unassociated, delta, goal_node_i, path, max_distance);
+    associate(graph, measurement, associations, unassociated, goal_node_i, path, max_distance);
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -283,46 +282,18 @@ void associate(Graph &graph,
                const Measurement &measurement,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
-               const geo::Transform &delta,
                const int goal_node_i,
                Path& path,
                const double max_distance)
 {
-    double max_distance_sq = max_distance*max_distance;
 
-    // If too little associations given, use old associations stored in graph
-    if ( associations.nodes.size() < 2 )
-    {
-        associations = graph.getAssociations();
-    }
-    // Else, check if edges between these nodes exist. If they don't, add them!
-//    else
-//    {
-//        for ( std::vector<int>::iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
-//        {
-//            for ( std::vector<int>::iterator it_2 = associations.nodes.begin(); it_2 != associations.nodes.end(); ++it_2 )
-//            {
-//                if ( graph.getNodes()[*it_1].edgeByPeer(*it_2) == -1 )
-//                    graph.addEdge2()
-//        }
-//    }
-
-    // Update associations using odom delta
-    associations = delta.inverse() * associations;
-    graph.setAssociations(associations);
-
-    // If no points to associate, just return after updating associations nodes
+    // If no points to associate, just return
     if (measurement.points.size() == 0 )
         return;
 
-    // Now find a path through the graph to the goal
-    std::cout << "Previous associations: " << std::endl;
-    for ( std::vector<int>::iterator it = associations.nodes.begin(); it != associations.nodes.end(); ++it )
-    {
-        std::cout << *it << std::endl;
-    }
-    std::cout << std::endl;
+    double max_distance_sq = max_distance*max_distance;
 
+    // Now find a path through the graph to the goal
     PathFinder pathFinder(graph, associations.nodes);
     pathFinder.findPath(goal_node_i, path);
 
@@ -384,29 +355,6 @@ void associate(Graph &graph,
             unassociated.points.push_back(*it_m);
         }
     }
-
-    // If successful, set graph's latest associations
-    if ( associations.nodes.size() > 1 )
-    {
-        std::vector<Node> nodes = graph.getNodes();
-        for ( std::vector<int>::iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
-        {
-            std::vector<int>::iterator it = it_1+1;
-            for ( std::vector<int>::iterator it_2 = it_1+1 ; it_2 != associations.nodes.end(); ++it_2 )
-            {
-                int num_of_common_trips = nodes[*it_1].tripletsByPeer(*it_2).size();
-                if ( num_of_common_trips > 0 )
-                {
-                    graph.setAssociations(associations);
-                    std::cout << "[GRAPH] " << associations.nodes.size() << " associations found, storing in graph" << std::endl;
-                    return;
-                }
-            }
-        }
-        std::cout << "\033[31m" << "[GRAPH] WARNING! Enough associations found, but no common triplets, so not storing new associations." << "\033[0m" << std::endl;
-    }
-    else
-        std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough associations found, not storing new associations." << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -546,8 +494,7 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
      * yet!
      */
     if ( graph.size() > 2 && associations.nodes.size() < 2 )
-//        return;
-        associations = graph.getAssociations();
+        return;
 
     // Add unassociated nodes
     for ( std::vector<geo::Vec3d>::const_iterator it = unassociated.points.begin(); it != unassociated.points.end(); ++it )
@@ -607,22 +554,6 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
         associations.nodes.push_back(n1);
         associations.measurement.points.push_back(pt1);
     }
-
-    // If not enough new points were found to localize on, just add the point to the old stored associations.
-    if ( associations.nodes.size() == 1 )
-    {
-        AssociatedMeasurement old_associations = graph.getAssociations();
-
-        // Only add the node/point combination to the associations if it is not already in there
-        if ( std::find(old_associations.nodes.begin(), old_associations.nodes.end(), associations.nodes[0]) == old_associations.nodes.end() )
-        {
-            old_associations.nodes.push_back(associations.nodes[0]);
-            old_associations.measurement.points.push_back(associations.measurement.points[0]);
-            associations = old_associations;
-        }
-    }
-    graph.setAssociations(associations);
-
 }
 
 // -----------------------------------------------------------------------------------------------
