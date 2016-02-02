@@ -388,8 +388,22 @@ void associate(Graph &graph,
     // If successful, set graph's latest associations
     if ( associations.nodes.size() > 1 )
     {
-        graph.setAssociations(associations);
-        std::cout << "[GRAPH] " << associations.nodes.size() << " associations found, storing in graph" << std::endl;
+        std::vector<Node> nodes = graph.getNodes();
+        for ( std::vector<int>::iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
+        {
+            std::vector<int>::iterator it = it_1+1;
+            for ( std::vector<int>::iterator it_2 = it_1+1 ; it_2 != associations.nodes.end(); ++it_2 )
+            {
+                int num_of_common_trips = nodes[*it_1].tripletsByPeer(*it_2).size();
+                if ( num_of_common_trips > 0 )
+                {
+                    graph.setAssociations(associations);
+                    std::cout << "[GRAPH] " << associations.nodes.size() << " associations found, storing in graph" << std::endl;
+                    return;
+                }
+            }
+        }
+        std::cout << "\033[31m" << "[GRAPH] WARNING! Enough associations found, but no common triplets, so not storing new associations." << "\033[0m" << std::endl;
     }
     else
         std::cout << "\033[31m" << "[GRAPH] WARNING! Not enough associations found, not storing new associations." << "\033[0m" << std::endl;
@@ -532,7 +546,8 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
      * yet!
      */
     if ( graph.size() > 2 && associations.nodes.size() < 2 )
-        return;
+//        return;
+        associations = graph.getAssociations();
 
     // Add unassociated nodes
     for ( std::vector<geo::Vec3d>::const_iterator it = unassociated.points.begin(); it != unassociated.points.end(); ++it )
@@ -597,6 +612,8 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
     if ( associations.nodes.size() == 1 )
     {
         AssociatedMeasurement old_associations = graph.getAssociations();
+
+        // Only add the node/point combination to the associations if it is not already in there
         if ( std::find(old_associations.nodes.begin(), old_associations.nodes.end(), associations.nodes[0]) == old_associations.nodes.end() )
         {
             old_associations.nodes.push_back(associations.nodes[0]);
