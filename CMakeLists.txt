@@ -83,16 +83,15 @@ target_link_libraries(triplet_graph
     ${catkin_LIBRARIES}
 )
 
-#add_executable(laser_processor
-#    src/CornerDetector.cpp
-#    src/OdomTracker.cpp
-#    src/laser_processor.cpp
-#    ${HEADER_FILES}
-#)
-#target_link_libraries(laser_processor
-#    triplet_graph
-#    ${catkin_LIBRARIES}
-#)
+add_executable(mapping
+    src/mapping.cpp
+)
+target_link_libraries(mapping ${catkin_LIBRARIES})
+
+add_executable(localization
+    src/localization.cpp
+)
+target_link_libraries(localization ${catkin_LIBRARIES})
 
 
 
