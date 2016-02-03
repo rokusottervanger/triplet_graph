@@ -128,7 +128,7 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
             text_marker.id = i;
 
             std::stringstream ss;
-            ss << measurement.nodes[i];
+            ss << measurement.nodes[i] << " (" << p.x << ", " << p.y << ")";
 
             text_marker.text = ss.str();
 
