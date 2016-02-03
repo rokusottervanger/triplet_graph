@@ -137,6 +137,19 @@ bool configure(Graph& g, tue::Configuration &config)
 
 // -----------------------------------------------------------------------------------------------
 
+// TODO: check connectivity of graph before returning true!
+bool load(Graph &graph, std::string filename)
+/* Utility function to load a graph configuration given the filename of the config file.
+ */
+{
+    tue::Configuration config;
+    config.loadFromYAMLFile(filename);
+
+    return configure(graph,config);
+}
+
+// -----------------------------------------------------------------------------------------------
+
 // TODO: make more efficient! Calculates positions from scratch every iteration,
 // while it would be much more efficient to cache those and transform them to the
 // pose of the new measurement
