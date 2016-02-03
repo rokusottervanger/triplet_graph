@@ -86,12 +86,12 @@ target_link_libraries(triplet_graph
 add_executable(mapping
     src/mapping.cpp
 )
-target_link_libraries(mapping ${catkin_LIBRARIES})
+target_link_libraries(mapping triplet_graph ${catkin_LIBRARIES})
 
 add_executable(localization
     src/localization.cpp
 )
-target_link_libraries(localization ${catkin_LIBRARIES})
+target_link_libraries(localization triplet_graph ${catkin_LIBRARIES})
 
 
 
