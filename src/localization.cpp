@@ -112,7 +112,11 @@ int main(int argc, char** argv)
     if ( config.value("graph_filename",graph_filename) )
     {
         std::cout << "Loading graph from config file..." << std::endl;
-        triplet_graph::load(graph, graph_filename);
+        if ( !triplet_graph::load(graph, graph_filename) )
+        {
+            std::cout << "Failed to load graph" << std::endl;
+            return -1;
+        }
         std::cout << "Loaded!" << std::endl;
     }
 

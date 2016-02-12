@@ -143,7 +143,11 @@ bool load(Graph &graph, std::string filename)
  */
 {
     tue::Configuration config;
-    config.loadFromYAMLFile(filename);
+    if ( !config.loadFromYAMLFile(filename) )
+    {
+        std::cout << "[LOAD] config with filename " << filename << " cannot be loaded: " << config.error();
+        return false;
+    }
 
     return configure(graph,config);
 }
