@@ -19,14 +19,12 @@ private:
     std::vector<Edge2> edges_;
     std::vector<Edge3> triplets_;
 
-    AssociatedMeasurement last_associations_;
-
     std::vector<int> deleted_nodes_;
     std::vector<int> deleted_edges_;
     std::vector<int> deleted_triplets_;
 
 public:
-    Graph():last_associations_() {}
+    Graph(){}
 
     ~Graph(){}
 
@@ -45,10 +43,6 @@ public:
     void setEdgeLength(const int i, const double l);
 
     void flipTriplet(const int i);
-
-    void setAssociations(const AssociatedMeasurement& associations) { last_associations_ = associations; }
-
-    AssociatedMeasurement getAssociations() const { return last_associations_; }
 
     // TODO: This still contains the deleted nodes, edges and triplets!
     std::vector<Node> getNodes() const {return nodes_;}

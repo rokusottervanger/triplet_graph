@@ -87,6 +87,10 @@ int main(int argc, char** argv)
         config.endGroup();
         std::cout << "Done!" << std::endl << std::endl;
     }
+    else
+    {
+        std::cout << "No visualizer configuration found" << std::endl;
+    }
 
 
     // - - - - - - - - - - - - - - - - - -
@@ -154,7 +158,6 @@ int main(int argc, char** argv)
     int target_node = -1;
 
     // old_associations are always the latest associations that yield succesful localization
-
 
     while (ros::ok())
     {
@@ -255,6 +258,8 @@ int main(int argc, char** argv)
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
+
+        visualizer.publish(triplet_graph::generateVisualization(graph,associations));
 
         loop_rate.sleep();
     }

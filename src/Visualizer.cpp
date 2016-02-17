@@ -43,7 +43,9 @@ void Visualizer::configure(tue::Configuration& config)
             config.endGroup();
         }
         else
+        {
             r = g = b = 1.0;
+        }
 
         points_.color.r = r;
         points_.color.g = g;
@@ -71,12 +73,15 @@ void Visualizer::configure(tue::Configuration& config)
         float r = 0, g = 0, b = 0;
         if ( config.readGroup("color") )
         {
-            if (!config.value("r",r,tue::OPTIONAL) && !config.value("g",g,tue::OPTIONAL) && !config.value("b",b,tue::OPTIONAL))
-                r = g = b = 1.0;
+            config.value("r",r);
+            config.value("g",g);
+            config.value("b",b);
             config.endGroup();
         }
         else
+        {
             r = g = b = 1.0;
+        }
 
         lines_.color.r = r;
         lines_.color.g = g;
@@ -124,7 +129,7 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
             text_marker.pose.position = p;
             text_marker.header.frame_id = measurement.measurement.frame_id;
             text_marker.header.stamp = measurement.measurement.time_stamp;
-            text_marker.ns = "graph_node_indices";
+            text_marker.ns = "node_numbers";
             text_marker.id = i;
 
             std::stringstream ss;
