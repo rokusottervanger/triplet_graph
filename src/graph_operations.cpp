@@ -162,27 +162,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
     std::vector<Edge2> edges = graph.getEdge2s();
     std::vector<Edge3> triplets = graph.getEdge3s();
 
-    // TODO: remove this and make nice graph visualization
-    Visualizer visualizer;
-    tue::Configuration config;
-    config.setValue("lifetime",0);
-    config.writeGroup("points");
-        config.setValue("name","graph_positions");
-        config.writeGroup("color");
-            config.setValue("r",1);
-        config.endGroup();
-    config.endGroup();
-    config.writeGroup("lines");
-        config.setValue("name","graph_edges");
-        config.writeGroup("color");
-            config.setValue("b",1);
-        config.endGroup();
-    config.endGroup();
-    visualizer.configure(config);
-    AssociatedMeasurement vis_measurement;
-    vis_measurement.measurement.frame_id = "amigo/base_laser";
-    vis_measurement.measurement.time_stamp = ros::Time::now();
-
     // Calculate positions of nodes that are to be associated
     for ( int i = 1; i <= path.size(); ++i )
     {
@@ -197,9 +176,6 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         if ( parent1_i == -1 || parent2_i == -1 )
         {
             // If root node, position should already be in positions vector, so continue
-            vis_measurement.measurement.points.push_back(positions[node_i]);
-            vis_measurement.nodes.push_back(node_i);
-
             continue;
         }
 
@@ -267,17 +243,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
 
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
-
-        // Visualize parent-child edges
-        vis_measurement.measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
-        vis_measurement.measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
-        vis_measurement.measurement.points.push_back(positions[node_i]);
-        vis_measurement.nodes.push_back(node_i);
     }
-
-    visualizer.publish(vis_measurement);
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -571,6 +537,43 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
         associations.nodes.push_back(n1);
         associations.measurement.points.push_back(pt1);
     }
+}
+
+// -----------------------------------------------------------------------------------------------
+
+AssociatedMeasurement generateVisualization(const Graph& graph, const AssociatedMeasurement& associations)
+{
+    std::vector<geo::Vec3d> positions(graph.size());\
+    for ( unsigned int i = 0; i < associations.nodes.size(); ++i )
+    {
+        positions[associations.nodes[i]] = associations.measurement.points[i];
+    }
+
+    PathFinder pathFinder(graph, associations.nodes);
+    Path path;
+    pathFinder.findPath(-1,path);
+
+    calculatePositions(graph, positions, path);
+
+    AssociatedMeasurement vis_measurement;
+    vis_measurement.measurement.frame_id = associations.measurement.frame_id;
+    vis_measurement.measurement.time_stamp = associations.measurement.time_stamp;
+
+    for ( unsigned int i = 0; i < path.size(); ++i )
+    {
+        int node_i = path[i];
+        int parent1_i = path.parent_tree[i].first;
+        int parent2_i = path.parent_tree[i].second;
+
+        vis_measurement.measurement.line_list.push_back(positions[node_i]);
+        vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
+        vis_measurement.measurement.line_list.push_back(positions[node_i]);
+        vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
+        vis_measurement.measurement.points.push_back(positions[node_i]);
+        vis_measurement.nodes.push_back(node_i);
+    }
+
+    return vis_measurement;
 }
 
 // -----------------------------------------------------------------------------------------------

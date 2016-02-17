@@ -10,7 +10,7 @@ corner_detector:
             color: {r: 0, g: 1, b: 0}
         lines:
             name: "corner_lines"
-            color: {r: 0, g: 0, b: 1}
+            color: {r: 0, g: 1, b: 1}
 association:
     max_association_distance: 0.10
 odom_tracker:
@@ -28,3 +28,6 @@ visualization:
     points:
         name: "graph_nodes"
         color: {r: 1, g: 0, b: 0}
+    lines:
+        name: "graph_edges"
+        color: {r: 1, g: 1, b: 0}
