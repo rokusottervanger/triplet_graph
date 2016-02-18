@@ -24,6 +24,7 @@ public:
     int edgeByPeer(const int peer) const;
     int peerByEdge(const int edge) const;
     std::vector<int> tripletsByPeer(const int peer) const;
+    std::vector<int> getPeers() const;
 
     void addTriplet(const int triplet);
     void addEdge(const int edge);
