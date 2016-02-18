@@ -18,7 +18,7 @@ public:
 
     int A, B; // node indices
     double l; // length
-    bool fixed; // denotes whether or not the distance is fixed in the real world (connected nodes are part of the same rigid object)
+    bool rigid; // denotes whether or not the distance is fixed in the real world (connected nodes are part of the same rigid object)
 
     bool deleted;
 
