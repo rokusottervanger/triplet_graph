@@ -78,6 +78,18 @@ std::vector<int> Node::tripletsByPeer(const int peer) const
     return std::vector<int>();
 }
 
+std::vector<int> Node::getPeers() const
+{
+    std::vector<int> peers;
+    peers.reserve(edges.size());
+    for ( std::vector<int>::const_iterator it = edges.begin(); it != edges.end(); ++it )
+    {
+        int peer = peerByEdge(*it);
+        peers.push_back(peer);
+    }
+    return peers;
+}
+
 // TODO:
 //    void deleteTriplet(const int triplet);
 //    void deleteEdge(const int edge);

@@ -19,6 +19,9 @@ namespace triplet_graph
 // -----------------------------------------------------------------------------------------------
 
 int findNodeByID(const Graph& g, const std::string &id)
+/**
+ * Find the index of a node in the graph, given the node id
+ */
 {
     for ( Graph::const_iterator it = g.begin(); it != g.end(); ++it )
     {
@@ -33,6 +36,9 @@ int findNodeByID(const Graph& g, const std::string &id)
 // -----------------------------------------------------------------------------------------------
 
 bool configure(Graph& g, tue::Configuration &config)
+/**
+ * Configure a graph using a tue::Configuration
+ */
 {
     if (config.readArray("nodes"))
     {
@@ -139,7 +145,8 @@ bool configure(Graph& g, tue::Configuration &config)
 
 // TODO: check connectivity of graph before returning true!
 bool load(Graph &graph, std::string filename)
-/* Utility function to load a graph configuration given the filename of the config file.
+/**
+ * Utility function to load a graph configuration given the filename of the config file.
  */
 {
     tue::Configuration config;
@@ -158,6 +165,11 @@ bool load(Graph &graph, std::string filename)
 // while it would be much more efficient to cache those and transform them to the
 // pose of the new measurement
 void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, const Path& path)
+/**
+ * Given a graph, a path and a sparse vector of positions, calculates the positions of
+ * all nodes in the path. The vector of positions must be of the same size as the graph
+ * and must contain at least the positions of the root nodes of the given path.
+ */
 {
     std::vector<Edge2> edges = graph.getEdge2s();
     std::vector<Edge3> triplets = graph.getEdge3s();
@@ -254,6 +266,17 @@ void associate(Graph &graph,
                Measurement &unassociated,
                const int goal_node_i,
                const double max_distance)
+/**
+ * Given a graph, a measurement, previous associations, a goal node and a maximum association
+ * distance, associates measured points with graph nodes and stores these in associations.
+ * The input argument 'associations' must contain at least two associated measurement points
+ * as these are used to predict the positions of the graph nodes. These associations can
+ * either be given as an initial pose or they can be the previous associated measurement
+ * resulting from this function, possibly updated using odometry information. Gives back
+ * unassociated nodes in the 'unassociated' argument. The goal node must be the node index of
+ * the node that is to be found, but may also be -1 if all nodes need to be associated (for
+ * example in case of creating a new graph).
+ */
 {
     Path path;
     associate(graph, measurement, associations, unassociated, goal_node_i, path, max_distance);
@@ -268,6 +291,18 @@ void associate(Graph &graph,
                const int goal_node_i,
                Path& path,
                const double max_distance)
+/**
+ * Given a graph, a measurement, previous associations, a goal node and a maximum association
+ * distance, associates measured points with graph nodes and stores these in associations.
+ * The input argument 'associations' must contain at least two associated measurement points
+ * as these are used to predict the positions of the graph nodes. These associations can
+ * either be given as an initial pose or they can be the previous associated measurement
+ * resulting from this function, possibly updated using odometry information. Gives back
+ * unassociated nodes in the 'unassociated' argument. The goal node must be the node index of
+ * the node that is to be found, but may also be -1 if all nodes need to be associated (for
+ * example in case of creating a new graph). Additionally gives back the best path that was
+ * found to reach the goal node.
+ */
 {
 
     // If no points to associate, just return
@@ -343,7 +378,8 @@ void associate(Graph &graph,
 // -----------------------------------------------------------------------------------------------
 
 void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool update_lengths)
-/* Function to update an existing graph using an associated measurement.
+/**
+ * Function to update an existing graph using an associated measurement.
  * Updates the edge lengths and triplet orders. Does not add measured
  * points to the existing graph.
  */
@@ -463,7 +499,8 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
 // -----------------------------------------------------------------------------------------------
 
 void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations)
-/* Function to extend an existing graph using a measurement of
+/**
+ * Function to extend an existing graph using a measurement of
  * unassociated points and the associated measurement from the same
  * measurement. There should not be any overlap between the unassociated
  * and the associated points. Only adds the unassociated points, does
@@ -541,7 +578,15 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
 
 // -----------------------------------------------------------------------------------------------
 
+// TODO: Implement caching pathfinder and positions data so that path and graph node positions are not calculated twice.
 AssociatedMeasurement generateVisualization(const Graph& graph, const AssociatedMeasurement& associations)
+/**
+ * Generates an associated measurement (list of points with corresponding node names)
+ * given a graph and at least two given associations, which can be used to visualize
+ * the graph using the Visualizer class. Uses PathFinder with goal node -1 and the
+ * calculatePositions function, so if combined with association, these operations are
+ * performed twice, so minimize use of this.
+ */
 {
     std::vector<geo::Vec3d> positions(graph.size());\
     for ( unsigned int i = 0; i < associations.nodes.size(); ++i )
@@ -579,6 +624,9 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
 // -----------------------------------------------------------------------------------------------
 
 void save(const Graph &graph, const std::string &filename)
+/**
+ * Stores the given graph in a yaml-file with name 'filename'.
+ */
 {
     // Instantiate a new config and write graph configuration to it
     tue::Configuration config;
