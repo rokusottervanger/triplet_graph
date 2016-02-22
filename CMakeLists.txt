@@ -77,6 +77,7 @@ add_library(triplet_graph
     src/graph_operations.cpp
     src/CornerDetector.cpp
     src/OdomTracker.cpp
+    src/Associator.cpp
     ${HEADER_FILES}
 )
 target_link_libraries(triplet_graph
