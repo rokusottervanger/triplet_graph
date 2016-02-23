@@ -30,9 +30,10 @@ void Visualizer::configure(tue::Configuration& config)
         points_.pose.orientation.w = 1.0;
 
         points_.id = 0;
-        points_.type = visualization_msgs::Marker::POINTS;
+        points_.type = visualization_msgs::Marker::SPHERE;
         points_.scale.x = 0.03;
         points_.scale.y = 0.03;
+        points_.scale.z = 0.03;
 
         float r = 0, g = 0, b = 0;
         if ( config.readGroup("color") )
@@ -157,25 +158,53 @@ void Visualizer::publish(const Measurement& measurement)
     // - - - - - - - - - - - - - - - - - - - - - - - -
     // Publish points
 
+//    if ( measurement.points.size() )
+//    {
+//        points_.points.clear();
+
+//        points_.header.stamp = measurement.time_stamp;
+//        points_.header.frame_id = measurement.frame_id;
+
+//        for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
+//        {
+//            geometry_msgs::Point p;
+//            p.x = it->getX();
+//            p.y = it->getY();
+//            p.z = it->getZ();
+
+//            points_.points.push_back(p);
+//        }
+
+//        msg_.markers.push_back(points_);
+//    }
+
     if ( measurement.points.size() )
     {
-        points_.points.clear();
-
-        points_.header.stamp = measurement.time_stamp;
-        points_.header.frame_id = measurement.frame_id;
-
+        int i;
         for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
         {
+            points_.header.stamp = measurement.time_stamp;
+            points_.header.frame_id = measurement.frame_id;
+
+            points_.id = i;
+
             geometry_msgs::Point p;
             p.x = it->getX();
             p.y = it->getY();
             p.z = it->getZ();
 
-            points_.points.push_back(p);
-        }
+            points_.pose.position = p;
+            points_.pose.orientation.w = 1;
+            points_.pose.orientation.x = 0;
+            points_.pose.orientation.y = 0;
+            points_.pose.orientation.z = 0;
 
-        msg_.markers.push_back(points_);
+            msg_.markers.push_back(points_);
+            i++;
+        }
     }
+
+
 
     // - - - - - - - - - - - - - - - - - - - - - - - -
     // Publish lines
