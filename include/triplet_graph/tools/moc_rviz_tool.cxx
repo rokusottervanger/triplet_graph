@@ -16,7 +16,7 @@
 #endif
 
 QT_BEGIN_MOC_NAMESPACE
-static const uint qt_meta_data_rviz_plugin_tutorials__RigidEdgesTool[] = {
+static const uint qt_meta_data_triplet_graph__RigidEdgesTool[] = {
 
  // content:
        6,       // revision
@@ -32,11 +32,11 @@ static const uint qt_meta_data_rviz_plugin_tutorials__RigidEdgesTool[] = {
        0        // eod
 };
 
-static const char qt_meta_stringdata_rviz_plugin_tutorials__RigidEdgesTool[] = {
-    "rviz_plugin_tutorials::RigidEdgesTool\0"
+static const char qt_meta_stringdata_triplet_graph__RigidEdgesTool[] = {
+    "triplet_graph::RigidEdgesTool\0"
 };
 
-void rviz_plugin_tutorials::RigidEdgesTool::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void triplet_graph::RigidEdgesTool::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     Q_UNUSED(_o);
     Q_UNUSED(_id);
@@ -44,36 +44,36 @@ void rviz_plugin_tutorials::RigidEdgesTool::qt_static_metacall(QObject *_o, QMet
     Q_UNUSED(_a);
 }
 
-const QMetaObjectExtraData rviz_plugin_tutorials::RigidEdgesTool::staticMetaObjectExtraData = {
+const QMetaObjectExtraData triplet_graph::RigidEdgesTool::staticMetaObjectExtraData = {
     0,  qt_static_metacall 
 };
 
-const QMetaObject rviz_plugin_tutorials::RigidEdgesTool::staticMetaObject = {
-    { &rviz::Tool::staticMetaObject, qt_meta_stringdata_rviz_plugin_tutorials__RigidEdgesTool,
-      qt_meta_data_rviz_plugin_tutorials__RigidEdgesTool, &staticMetaObjectExtraData }
+const QMetaObject triplet_graph::RigidEdgesTool::staticMetaObject = {
+    { &rviz::SelectionTool::staticMetaObject, qt_meta_stringdata_triplet_graph__RigidEdgesTool,
+      qt_meta_data_triplet_graph__RigidEdgesTool, &staticMetaObjectExtraData }
 };
 
 #ifdef Q_NO_DATA_RELOCATION
-const QMetaObject &rviz_plugin_tutorials::RigidEdgesTool::getStaticMetaObject() { return staticMetaObject; }
+const QMetaObject &triplet_graph::RigidEdgesTool::getStaticMetaObject() { return staticMetaObject; }
 #endif //Q_NO_DATA_RELOCATION
 
-const QMetaObject *rviz_plugin_tutorials::RigidEdgesTool::metaObject() const
+const QMetaObject *triplet_graph::RigidEdgesTool::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->metaObject : &staticMetaObject;
 }
 
-void *rviz_plugin_tutorials::RigidEdgesTool::qt_metacast(const char *_clname)
+void *triplet_graph::RigidEdgesTool::qt_metacast(const char *_clname)
 {
     if (!_clname) return 0;
-    if (!strcmp(_clname, qt_meta_stringdata_rviz_plugin_tutorials__RigidEdgesTool))
+    if (!strcmp(_clname, qt_meta_stringdata_triplet_graph__RigidEdgesTool))
         return static_cast<void*>(const_cast< RigidEdgesTool*>(this));
-    typedef rviz::Tool QMocSuperClass;
+    typedef rviz::SelectionTool QMocSuperClass;
     return QMocSuperClass::qt_metacast(_clname);
 }
 
-int rviz_plugin_tutorials::RigidEdgesTool::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int triplet_graph::RigidEdgesTool::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
-    typedef rviz::Tool QMocSuperClass;
+    typedef rviz::SelectionTool QMocSuperClass;
     _id = QMocSuperClass::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;

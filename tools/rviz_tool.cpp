@@ -1,25 +1,19 @@
-#include <OGRE/OgreSceneNode.h>
-#include <OGRE/OgreSceneManager.h>
-#include <OGRE/OgreEntity.h>
-
-#include <ros/console.h>
-
-#include <rviz/viewport_mouse_event.h>
-#include <rviz/visualization_manager.h>
-#include <rviz/mesh_loader.h>
-#include <rviz/geometry.h>
-#include <rviz/properties/vector_property.h>
-
 #include "triplet_graph/tools/rviz_tool.h"
 
-namespace rviz_plugin_tutorials
+#include <rviz/selection/selection_manager.h>
+#include <rviz/viewport_mouse_event.h>
+#include <rviz/display_context.h>
+#include <rviz/selection/forwards.h>
+#include <rviz/properties/property_tree_model.h>
+#include <rviz/properties/property.h>
+#include <rviz/properties/vector_property.h>
+
+namespace triplet_graph
 {
 
-RigidEdgesTool::RigidEdgesTool():
-    moving_flag_node_( NULL ),
-    current_flag_property_( NULL )
+RigidEdgesTool::RigidEdgesTool()
 {
-    shortcut_key_ = 'l';
+    shortcut_key_ = 'e';
 }
 
 // The destructor destroys the Ogre scene nodes for the flags so they
@@ -28,145 +22,104 @@ RigidEdgesTool::RigidEdgesTool():
 // button.
 RigidEdgesTool::~RigidEdgesTool()
 {
-    for( unsigned i = 0; i < flag_nodes_.size(); i++ )
-    {
-        scene_manager_->destroySceneNode( flag_nodes_[ i ]);
-    }
+
 }
 
-// onInitialize() is called by the superclass after scene_manager_ and
-// context_ are set.  It should be called only once per instantiation.
-// This is where most one-time initialization work should be done.
-// onInitialize() is called during initial instantiation of the tool
-// object.  At this point the tool has not been activated yet, so any
-// scene objects created should be invisible or disconnected from the
-// scene at this point.
-//
-// In this case we load a mesh object with the shape and appearance of
-// the flag, create an Ogre::SceneNode for the moving flag, and then
-// set it invisible.
+// onInitialize() is called after construction (adding the tool to the
+// toolbar)
 void RigidEdgesTool::onInitialize()
 {
-    flag_resource_ = "package://rviz_plugin_tutorials/media/flag.dae";
-
-    if( rviz::loadMeshFromResource( flag_resource_ ).isNull() )
-    {
-        ROS_ERROR( "PlantFlagTool: failed to load model resource '%s'.", flag_resource_.c_str() );
-        return;
-    }
-
-    moving_flag_node_ = scene_manager_->getRootSceneNode()->createChildSceneNode();
-    Ogre::Entity* entity = scene_manager_->createEntity( flag_resource_ );
-    moving_flag_node_->attachObject( entity );
-    moving_flag_node_->setVisible( false );
+//    SelectionTool::onInitialize();
+    // Initialize service client?
 }
 
-// Activation and deactivation
-// ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//
 // activate() is called when the tool is started by the user, either
 // by clicking on its button in the toolbar or by pressing its hotkey.
-//
-// First we set the moving flag node to be visible, then we create an
-// rviz::VectorProperty to show the user the position of the flag.
-// Unlike rviz::Display, rviz::Tool is not a subclass of
-// rviz::Property, so when we want to add a tool property we need to
-// get the parent container with getPropertyContainer() and add it to
-// that.
-//
-// We wouldn't have to set current_flag_property_ to be read-only, but
-// if it were writable the flag should really change position when the
-// user edits the property.  This is a fine idea, and is possible, but
-// is left as an exercise for the reader.
 void RigidEdgesTool::activate()
 {
-    if( moving_flag_node_ )
-    {
-        moving_flag_node_->setVisible( true );
-
-        current_flag_property_ = new rviz::VectorProperty( "Flag " + QString::number( flag_nodes_.size() ));
-        current_flag_property_->setReadOnly( true );
-        getPropertyContainer()->addChild( current_flag_property_ );
-    }
+//    SelectionTool::activate();
 }
 
-// deactivate() is called when the tool is being turned off because
-// another tool has been chosen.
-//
-// We make the moving flag invisible, then delete the current flag
-// property.  Deleting a property also removes it from its parent
-// property, so that doesn't need to be done in a separate step.  If
-// we didn't delete it here, it would stay in the list of flags when
-// we switch to another tool.
+// deactivate() is called when the tool is turned off because another
+// tool has been chosen.
 void RigidEdgesTool::deactivate()
 {
-    if( moving_flag_node_ )
-    {
-        moving_flag_node_->setVisible( false );
-        delete current_flag_property_;
-        current_flag_property_ = NULL;
-    }
+//    SelectionTool::deactivate();
+    // Clear selection
 }
 
-// Handling mouse events
-// ^^^^^^^^^^^^^^^^^^^^^
-//
 // processMouseEvent() is sort of the main function of a Tool, because
 // mouse interactions are the point of Tools.
-//
-// We use the utility function rviz::getPointOnPlaneFromWindowXY() to
-// see where on the ground plane the user's mouse is pointing, then
-// move the moving flag to that point and update the VectorProperty.
-//
-// If this mouse event was a left button press, we want to save the
-// current flag location.  Therefore we make a new flag at the same
-// place and drop the pointer to the VectorProperty.  Dropping the
-// pointer means when the tool is deactivated the VectorProperty won't
-// be deleted, which is what we want.
 int RigidEdgesTool::processMouseEvent( rviz::ViewportMouseEvent& event )
 {
-    if( !moving_flag_node_ )
-    {
-        return Render;
-    }
-    Ogre::Vector3 intersection;
-    Ogre::Plane ground_plane( Ogre::Vector3::UNIT_Z, 0.0f );
-    if( rviz::getPointOnPlaneFromWindowXY( event.viewport,
-                                           ground_plane,
-                                           event.x, event.y, intersection ))
-    {
-        moving_flag_node_->setVisible( true );
-        moving_flag_node_->setPosition( intersection );
-        current_flag_property_->setVector( intersection );
+    return SelectionTool::processMouseEvent( event );
+}
 
-        if( event.leftDown() )
+int RigidEdgesTool::processKeyEvent(QKeyEvent *event, rviz::RenderPanel *panel)
+{
+    if(event->type() == QKeyEvent::KeyPress)
+    {
+        if ( event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return )
         {
-            // Start drawing box and selecting nodes when inside box
-            makeFlag( intersection );
-            current_flag_property_ = NULL; // Drop the reference so that deactivate() won't remove it.
-            return Render | Finished;
+            rviz::SelectionManager* sel_manager = context_->getSelectionManager();
+
+            rviz::M_Picked selection = sel_manager->getSelection();
+
+            rviz::PropertyTreeModel *model = sel_manager->getPropertyModel();
+
+            int num_points = model->rowCount();
+
+            for ( int i = 0; i < num_points; ++i )
+            {
+                QModelIndex child_index = model->index( i, 0 );
+                rviz::Property* child = model->getProp( child_index );
+                rviz::VectorProperty* subchild = (rviz::VectorProperty*) child->childAt( 0 );
+                Ogre::Vector3 vec = subchild->getVector();
+                std::cout << vec << std::endl;
+            }
+
+            // Selected nodes numbers are sent to the graph in a service call to fix all internal edges.
+            std::cout << "Number of selected points: " << num_points << std::endl;
         }
     }
-    else
-    {
-        moving_flag_node_->setVisible( false ); // If the mouse is not pointing at the ground plane, don't show the flag.
-    }
-    return Render;
 }
 
-// This is a helper function to create a new flag in the Ogre scene and save its scene node in a list.
-void RigidEdgesTool::makeFlag( const Ogre::Vector3& position )
-{
-    Ogre::SceneNode* node = scene_manager_->getRootSceneNode()->createChildSceneNode();
-    Ogre::Entity* entity = scene_manager_->createEntity( flag_resource_ );
-    node->attachObject( entity );
-    node->setVisible( true );
-    node->setPosition( position );
-    flag_nodes_.push_back( node );
-}
-
-} // end namespace rviz_plugin_tutorials
+} // end namespace triplet_graph
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(rviz_plugin_tutorials::RigidEdgesTool,rviz::Tool )
+PLUGINLIB_EXPORT_CLASS(triplet_graph::RigidEdgesTool,rviz::Tool )
 // END_TUTORIAL
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
