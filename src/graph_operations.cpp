@@ -161,6 +161,19 @@ bool load(Graph &graph, std::string filename)
 
 // -----------------------------------------------------------------------------------------------
 
+void setRigidEdges(const Graph &graph, std::vector<int>& nodes)
+{
+    for ( std::vector<int>::const_iterator it1 = nodes.begin(); it1 != nodes.end(); ++it1 )
+    {
+        for ( std::vector<int>::const_iterator it2 = nodes.begin(); it2 != it1; ++it2 )
+        {
+            graph.setEdgeRigid()
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------
+
 // TODO: make more efficient! Calculates positions from scratch every iteration,
 // while it would be much more efficient to cache those and transform them to the
 // pose of the new measurement

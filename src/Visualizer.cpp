@@ -104,7 +104,9 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
     if ( !is_configured_ )
         return;
 
-    publish(measurement.measurement);
+    addAssociatedPointsToMsg(measurement);
+
+    addLinesToMsg(measurement.measurement);
 
     if ( measurement.nodes.size() )
     {
@@ -150,34 +152,8 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
 
 // ----------------------------------------------------------------------------------------------------
 
-void Visualizer::publish(const Measurement& measurement)
+void Visualizer::addPointsToMsg(const Measurement& measurement)
 {
-    if ( !is_configured_ )
-        return;
-
-    // - - - - - - - - - - - - - - - - - - - - - - - -
-    // Publish points
-
-//    if ( measurement.points.size() )
-//    {
-//        points_.points.clear();
-
-//        points_.header.stamp = measurement.time_stamp;
-//        points_.header.frame_id = measurement.frame_id;
-
-//        for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
-//        {
-//            geometry_msgs::Point p;
-//            p.x = it->getX();
-//            p.y = it->getY();
-//            p.z = it->getZ();
-
-//            points_.points.push_back(p);
-//        }
-
-//        msg_.markers.push_back(points_);
-//    }
-
     if ( measurement.points.size() )
     {
         int i;
@@ -203,12 +179,41 @@ void Visualizer::publish(const Measurement& measurement)
             i++;
         }
     }
+}
 
+// ----------------------------------------------------------------------------------------------------
 
+void Visualizer::addAssociatedPointsToMsg(const AssociatedMeasurement& measurement)
+{
+    if ( measurement.measurement.points.size() )
+    {
+        for ( int i = 0; i < measurement.measurement.points.size(); ++i )
+        {
+            points_.header.stamp = measurement.measurement.time_stamp;
+            points_.header.frame_id = measurement.measurement.frame_id;
 
-    // - - - - - - - - - - - - - - - - - - - - - - - -
-    // Publish lines
+            points_.id = measurement.nodes[i];
 
+            geometry_msgs::Point p;
+            p.x = measurement.measurement.points[i].getX();
+            p.y = measurement.measurement.points[i].getY();
+            p.z = measurement.measurement.points[i].getZ();
+
+            points_.pose.position = p;
+            points_.pose.orientation.w = 1;
+            points_.pose.orientation.x = 0;
+            points_.pose.orientation.y = 0;
+            points_.pose.orientation.z = 0;
+
+            msg_.markers.push_back(points_);
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+void Visualizer::addLinesToMsg(const Measurement& measurement)
+{
     if ( measurement.line_list.size() )
     {
         lines_.points.clear();
@@ -228,6 +233,18 @@ void Visualizer::publish(const Measurement& measurement)
 
         msg_.markers.push_back(lines_);
     }
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+void Visualizer::publish(const Measurement& measurement)
+{
+    if ( !is_configured_ )
+        return;
+
+    addPointsToMsg(measurement);
+
+    addLinesToMsg(measurement);
 
     marker_pub_.publish(msg_);
     msg_.markers.clear();

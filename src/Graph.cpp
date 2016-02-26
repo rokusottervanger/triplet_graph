@@ -282,6 +282,21 @@ void Graph::setEdgeLength(const int i, const double l)
 
 // -----------------------------------------------------------------------------------------------
 
+void Graph::setEdgeRigid(const int i)
+{
+    edges_[i].rigid = true;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+void Graph::setEdgeRigid(const int n1, const int n2)
+{
+    int e = nodes_[n1].edgeByPeer(n2);
+    setEdgeRigid(e);
+}
+
+// -----------------------------------------------------------------------------------------------
+
 void Graph::flipTriplet(const int i)
 {
     int tmp = triplets_[i].B;

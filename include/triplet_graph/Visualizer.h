@@ -25,6 +25,10 @@ class Visualizer
 
     std::string points_name_, lines_name_;
 
+    void addPointsToMsg(const Measurement&);
+    void addAssociatedPointsToMsg(const AssociatedMeasurement&);
+    void addLinesToMsg(const Measurement&);
+
 public:
     Visualizer();
     void configure(tue::Configuration &config);

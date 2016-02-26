@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   geolib2
   tue_config
   rviz
+  message_generation
 )
 
 # find_package(Boost REQUIRED COMPONENTS system program_options)
@@ -25,18 +26,13 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 # Generate services
-# add_service_files(
-#    FILES
-#    service1.srv
-#    ...
-# )
+add_service_files(
+   FILES
+   Nodes.srv
+)
 
 # Generate added messages and services with any dependencies listed here
-# generate_messages(
-#    DEPENDENCIES
-#    geometry_msgs
-#    ...
-# )
+generate_messages()
 
 # ------------------------------------------------------------------------------------------------
 #                                          CATKIN EXPORT
@@ -45,7 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES triplet_graph
- CATKIN_DEPENDS geolib2 tf tue_config
+ CATKIN_DEPENDS geolib2 tf tue_config message_runtime
 #  DEPENDS system_lib
 )
 
@@ -123,6 +119,7 @@ add_library(triplet_graph
     src/CornerDetector.cpp
     src/OdomTracker.cpp
     src/Associator.cpp
+    src/Server.cpp
     ${HEADER_FILES}
 )
 target_link_libraries(triplet_graph
