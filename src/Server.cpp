@@ -11,9 +11,9 @@ Server::Server(Graph* graph)
 {
     graph_ptr_ = graph;
 
-    deletion_service_ = n_.advertiseService("deleteNodes", &Server::deleteCallback, this);
-    merger_service_ = n_.advertiseService("mergeNodes", &Server::mergeCallback, this);
-    rigid_edges_server_ = n_.advertiseService("rigidifyEdges", &Server::rigidEdgesCallback, this);
+    deletion_service_ = n_.advertiseService("delete_nodes", &Server::deleteCallback, this);
+    merger_service_ = n_.advertiseService("merge_nodes", &Server::mergeCallback, this);
+    rigid_edges_server_ = n_.advertiseService("rigidify_edges", &Server::rigidEdgesCallback, this);
 }
 
 bool Server::deleteCallback(Nodes::Request& req, Nodes::Response& res)
@@ -30,6 +30,7 @@ bool Server::mergeCallback(Nodes::Request& req, Nodes::Response& res)
 
 bool Server::rigidEdgesCallback(Nodes::Request& req, Nodes::Response& res)
 {
+    setRigidEdges(*graph_ptr_,req.nodes);
     return true;
 }
 

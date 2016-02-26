@@ -4,6 +4,8 @@
 #include <rviz/tool.h>
 #include <rviz/default_plugin/tools/selection_tool.h>
 
+#include <ros/node_handle.h>
+
 namespace triplet_graph
 {
 
@@ -16,21 +18,14 @@ class RigidEdgesTool: public rviz::SelectionTool
     Q_OBJECT
 public:
     RigidEdgesTool();
-    ~RigidEdgesTool();
 
-    virtual void onInitialize();
-
-    virtual void activate();
-    virtual void deactivate();
-
-    virtual int processMouseEvent( rviz::ViewportMouseEvent& event );
     virtual int processKeyEvent( QKeyEvent *event, rviz::RenderPanel *panel );
 
-//    virtual void load( const rviz::Config& config );
-//    virtual void save( rviz::Config config ) const;
-
 private:
-    bool selecting_;
+    ros::NodeHandle n_;
+    ros::ServiceClient deleteClient_;
+    ros::ServiceClient mergeClient_;
+    ros::ServiceClient rigidEdgeClient_;
 
 };
 

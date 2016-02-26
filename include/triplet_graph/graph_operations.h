@@ -15,6 +15,8 @@ int findNodeByID(const Graph& g, const std::string& id);
 bool configure(Graph &g, tue::Configuration &config);
 bool load(Graph &g, std::string filename);
 
+void setRigidEdges(Graph &graph, const std::vector<int>& nodes);
+
 void calculatePositions(const Graph& graph, std::vector<geo::Vec3d>& positions, const Path& path);
 
 void associate( Graph &graph,

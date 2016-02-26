@@ -161,13 +161,13 @@ bool load(Graph &graph, std::string filename)
 
 // -----------------------------------------------------------------------------------------------
 
-void setRigidEdges(const Graph &graph, std::vector<int>& nodes)
+void setRigidEdges(Graph &graph, const std::vector<int>& nodes)
 {
     for ( std::vector<int>::const_iterator it1 = nodes.begin(); it1 != nodes.end(); ++it1 )
     {
         for ( std::vector<int>::const_iterator it2 = nodes.begin(); it2 != it1; ++it2 )
         {
-            graph.setEdgeRigid()
+            graph.setEdgeRigid(*it1,*it2);
         }
     }
 }
