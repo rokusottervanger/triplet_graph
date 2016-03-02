@@ -28,6 +28,8 @@ void Associator::setAssociations(const AssociatedMeasurement& associations)
 bool Associator::associate(const Graph& graph, const Measurement& measurement)
 {
     // Base case
+    // ------------------------------
+
     if ( true )
     {
         associated_ = true;
@@ -35,9 +37,19 @@ bool Associator::associate(const Graph& graph, const Measurement& measurement)
     }
 
     // Recursive case
+    // ------------------------------
+
     std::vector<geo::Vec3d> prediction;
+
     nearestNeighbor(measurement, prediction);
-    return(associate(graph, measurement)); // Associate function must reduce measurement to the unassociated points, or something...
+    //  - Hypothesize association
+    //  - If possible, make prediction about nodes rigidly connected (object)
+    //  - Do nearest neighbor association on this object
+    //  - Decide if correct association or not.
+    //      - If confirmed, add hypothesis and resulting nearest neighbor associations to associations and proceed
+    //      - If not confirmed, go back, try another hypothesis until out of (reasonable) combinations and proceed
+
+    return associate(graph, measurement); // Associate function must reduce measurement to the unassociated points, or something...
 
     // If this takes too long,
     return false;
