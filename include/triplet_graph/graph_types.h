@@ -12,6 +12,7 @@ class  Path;
 struct Measurement;
 struct AssociatedMeasurement;
 class  Visualizer;
+class  Server;
 
 }
 

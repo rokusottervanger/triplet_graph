@@ -1,6 +1,6 @@
 #include "triplet_graph/Associator.h"
 
-//#include "triplet_graph/Graph.h"
+#include "triplet_graph/Graph.h"
 #include "triplet_graph/Measurement.h"
 
 namespace triplet_graph
@@ -25,12 +25,19 @@ void Associator::setAssociations(const AssociatedMeasurement& associations)
 
 // -----------------------------------------------------------------------------------------------
 
-bool Associator::associate(const Graph& graph, const Measurement& measurement)
+void Associator::setGraph(const Graph& graph)
+{
+    graph_ = graph;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+double Associator::associate(const Graph& graph, const Measurement& measurement)
 {
     // Base case
     // ------------------------------
 
-    if ( true )
+    if ( measurement.points.size() == 0 )
     {
         associated_ = true;
         return true;
@@ -39,9 +46,23 @@ bool Associator::associate(const Graph& graph, const Measurement& measurement)
     // Recursive case
     // ------------------------------
 
-    std::vector<geo::Vec3d> prediction;
+//    std::vector<geo::Vec3d> prediction;
 
-    nearestNeighbor(measurement, prediction);
+//    nearestNeighbor(measurement, prediction);
+    double best_total_dist = 1e9;
+    for ( int i = 0; i < measurement.points.size(); i++ )
+    {
+
+
+        double dist = associate(graph,measurement); // TODO: reduce size of measurement for recursion to work!
+        if ( dist < best_total_dist )
+        {
+            best_total_dist = dist;
+        }
+    }
+
+    return best_total_dist;
+
     //  - Hypothesize association
     //  - If possible, make prediction about nodes rigidly connected (object)
     //  - Do nearest neighbor association on this object
@@ -93,6 +114,46 @@ void Associator::nearestNeighbor( const Measurement& measurement, const std::vec
             unassociated_points_.points.push_back(*it_m);
         }
     }
+}
+
+// -----------------------------------------------------------------------------------------------
+
+Graph Associator::getObjectSubgraph( const Graph& graph, const int node_i )
+{
+    // THIS FUNCTION MAY RESULT IN A GRAPH WITHOUT EDGE3S!!!
+    Graph object;
+
+    std::ostringstream node_id;
+    node_id << node_i;
+    object.addNode(node_id.str());
+
+    std::vector<Node> nodes = graph.getNodes();
+    Node base_node = nodes[node_i];
+    std::vector<int> peers = base_node.getPeers();
+
+    std::vector<Edge2> edges = graph.getEdge2s();
+    std::vector<Edge3> trips = graph.getEdge3s();
+
+    for ( std::vector<int>::const_iterator it = peers.begin(); it != peers.end(); ++it )
+    {
+        int e = base_node.edgeByPeer(*it);
+        if ( edges[e].rigid )
+        {
+            std::ostringstream peer_id;
+            peer_id << *it;
+            object.addNode(peer_id.str());
+            object.addEdge2(node_i,*it,edges[e].l);
+        }
+    }
+
+    return object;
+}
+
+// -----------------------------------------------------------------------------------------------
+
+bool Associator::getAssociations( AssociatedMeasurement& associations )
+{
+    associations = associations_;
 }
 
 // -----------------------------------------------------------------------------------------------

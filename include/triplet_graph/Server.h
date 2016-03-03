@@ -1,5 +1,5 @@
-#ifndef TRIPLET_GRAPH_ASSOCIATOR_H_
-#define TRIPLET_GRAPH_ASSOCIATOR_H_
+#ifndef TRIPLET_GRAPH_SERVER_H_
+#define TRIPLET_GRAPH_SERVER_H_
 
 #include <ros/node_handle.h>
 #include <ros/service_server.h>

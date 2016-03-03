@@ -301,6 +301,7 @@ void PathFinder::tracePath(const int target_node, Path& path)
 
             path.push_back(n);
             path.parent_tree.push_back(std::make_pair(na,nb));
+            path.costs.push_back(ns_[n]);
 
             es[n] = -1;
         }

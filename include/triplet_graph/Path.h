@@ -14,6 +14,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Path& path);
 
     std::vector< std::pair< int, int > > parent_tree;
+    std::vector< double > costs;
 };
 
 }
