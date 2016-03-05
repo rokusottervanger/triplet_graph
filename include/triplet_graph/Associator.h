@@ -16,20 +16,20 @@ class Associator
 public:
     Associator();
 
-    bool configure(tue::Configuration &config);
-    double associate(const Graph &graph, const Measurement &measurement);
+    bool configure();
+    double associate(const Measurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
 
     void setAssociations(const AssociatedMeasurement& associations);
     void setGraph(const Graph& graph);
 
-    bool getAssociations( AssociatedMeasurement& associations );
+    bool getAssociations(const Measurement &measurement, AssociatedMeasurement& associations );
     bool getUnassociatedPoints( Measurement& unassociated_points );
     bool getPath(Path& path);
 
 private:
     Measurement unassociated_points_;
     AssociatedMeasurement associations_;
-    Graph graph_;
+    const Graph* graph_ptr_;
     Path path_;
 
     bool associated_;

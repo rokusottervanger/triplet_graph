@@ -12,6 +12,7 @@
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/PathFinder.h"
 #include "triplet_graph/Visualizer.h"
+#include "triplet_graph/Associator.h"
 
 namespace triplet_graph
 {
@@ -330,61 +331,81 @@ void associate(Graph &graph,
 
     std::cout << "Found path: " << path << std::endl;
 
+    bool local_nn = false;
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // -     Calculate positions of nodes on path in sensor frame
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    std::vector<geo::Vec3d> positions(graph.size());
-
-    // Add prior associations to positions vector to
-    for ( int i = 0; i < associations.nodes.size(); ++i )
+    if ( local_nn )
     {
-        positions[associations.nodes[i]] = associations.measurement.points[i];
-    }
-    associations.measurement.points.clear();
-    associations.nodes.clear();
 
-    calculatePositions(graph,positions,path);
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // -     Calculate positions of nodes on path in sensor frame
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+        std::vector<geo::Vec3d> positions(graph.size());
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // -     Nearest neighbor association
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // TODO: Check if association goes well (in case of false positives, false negatives, etc.)
-    for ( std::vector<geo::Vec3d>::const_iterator it_m = measurement.points.begin(); it_m != measurement.points.end(); ++it_m )
-    {
-        double best_dist_sq = 1.0e9;
-        int best_guess = -1;
-        geo::Vec3d best_pos;
-
-        // Go through nodes in path (nodes to be associated from far to close) to check if one associates with the measured point
-        for ( Path::iterator it_p = path.begin(); it_p != path.end(); ++it_p )
+        // Add prior associations to positions vector to
+        for ( int i = 0; i < associations.nodes.size(); ++i )
         {
-            int i = *it_p;
-            double dx_sq = (*it_m - positions[i]).length2();
-            if ( dx_sq < max_distance_sq )
+            positions[associations.nodes[i]] = associations.measurement.points[i];
+        }
+        associations.measurement.points.clear();
+        associations.nodes.clear();
+
+        calculatePositions(graph,positions,path);
+
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // -     Nearest neighbor association
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+        // TODO: Check if association goes well (in case of false positives, false negatives, etc.)
+        for ( std::vector<geo::Vec3d>::const_iterator it_m = measurement.points.begin(); it_m != measurement.points.end(); ++it_m )
+        {
+            double best_dist_sq = 1.0e9;
+            int best_guess = -1;
+            geo::Vec3d best_pos;
+
+            // Go through nodes in path (nodes to be associated from far to close) to check if one associates with the measured point
+            for ( Path::iterator it_p = path.begin(); it_p != path.end(); ++it_p )
             {
-                if ( dx_sq < best_dist_sq )
+                int i = *it_p;
+                double dx_sq = (*it_m - positions[i]).length2();
+                if ( dx_sq < max_distance_sq )
                 {
-                    best_dist_sq = dx_sq;
-                    best_pos = *it_m;
-                    best_guess = i;
+                    if ( dx_sq < best_dist_sq )
+                    {
+                        best_dist_sq = dx_sq;
+                        best_pos = *it_m;
+                        best_guess = i;
+                    }
                 }
             }
-        }
 
-        // Check if an association is made, and if so, push it into associations
-        if ( best_guess > -1 )
-        {
-            associations.nodes.push_back(best_guess);
-            associations.measurement.points.push_back(best_pos);
+            // Check if an association is made, and if so, push it into associations
+            if ( best_guess > -1 )
+            {
+                associations.nodes.push_back(best_guess);
+                associations.measurement.points.push_back(best_pos);
+            }
+            else
+            {
+                unassociated.points.push_back(*it_m);
+            }
         }
-        else
-        {
-            unassociated.points.push_back(*it_m);
-        }
+    }
+    else
+    {
+        Associator associator;
+        associator.configure();
+
+        associator.setGraph(graph);
+        associator.setAssociations(associations);
+
+        associations.nodes.clear();
+        associations.measurement.points.clear();
+
+        associator.getAssociations(measurement, associations);
+        associator.getPath(path);
+        associator.getUnassociatedPoints(unassociated);
     }
 }
 
