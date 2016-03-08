@@ -34,6 +34,7 @@ private:
 
     bool associated_;
     double max_association_dist_;
+    double max_association_dist_sq_;
 
     void nearestNeighbor( const Measurement& measurement, const std::vector<geo::Vec3d> prediction );
     Graph getObjectSubgraph(const Graph &graph, const int node_i );

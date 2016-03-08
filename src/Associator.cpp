@@ -15,6 +15,7 @@ Associator::Associator():
 bool Associator::configure()
 {
     max_association_dist_ = 0.05;
+    max_association_dist_sq_ = max_association_dist_*max_association_dist_;
     return true;
 }
 
@@ -53,47 +54,52 @@ double Associator::associate(const Measurement& graph_positions, const Measureme
 
     // Take a point from the measurement to associate with graph nodes
     typedef std::pair<geo::Vec3d,double> Point;
-    Point point(measurement.points.back(),measurement.uncertainties.back());
+
+    // TODO: add uncertainties
+//    Point point(measurement.points.back(),measurement.uncertainties.back());
+    Point point(measurement.points.back(),0.0);
 
     Measurement reduced_measurement = measurement;
-    reduced_measurement.pop_back();
+    reduced_measurement.points.pop_back();
 
-    double best_dist = 1e9;
-    double total_dist;
+    double best_dist = max_association_dist_sq_;
+    int best_node = -1;
 
     for ( int i = 0; i < graph_positions.points.size(); i++ )
     {
         AssociatedMeasurement associations;
+        associations.measurement.frame_id = measurement.frame_id;
+        associations.measurement.time_stamp = measurement.time_stamp;
         Measurement reduced_graph_positions;
 
         reduced_graph_positions = graph_positions;
         reduced_graph_positions.points.erase(reduced_graph_positions.points.begin()+i);
-        reduced_graph_positions.uncertainties.erase(reduced_graph_positions.uncertainties.begin()+i);
+
+        if ( reduced_graph_positions.uncertainties.size() > 0 )
+            reduced_graph_positions.uncertainties.erase(reduced_graph_positions.uncertainties.begin()+i);
 
         double local_dist = (point.first - graph_positions.points[i]).length2(); // TODO: This is only the squared euclidian distance, go for something like mahalanobis.
-        //        if ( local_dist < best_dist ) // TODO: uncomment this and check performance improvement
-        //        {
-        double dist = local_dist + associate(reduced_graph_positions, reduced_measurement, associations); // TODO: reduce size of graph positions for recursion to work!
-
-        if ( dist < best_dist )
+        if ( local_dist < best_dist )
         {
-            best_dist = dist;
-            resulting_associations = associations;
+            double dist = local_dist + associate(reduced_graph_positions, reduced_measurement, associations);
+
+            if ( dist < best_dist )
+            {
+                best_dist = dist;
+                resulting_associations = associations;
+                best_node = i;
+            }
         }
-        //        }
     }
 
-    return total_dist;
+    if ( best_node > -1 )
+    {
+        resulting_associations.measurement.points.push_back(point.first);
+        resulting_associations.nodes.push_back(best_node);
+        return best_dist;
+    }
 
-    //  - Hypothesize association
-    //  - If possible, make prediction about nodes rigidly connected (object)
-    //  - Do nearest neighbor association on this object
-    //  - Decide if correct association or not.
-    //      - If confirmed, add hypothesis and resulting nearest neighbor associations to associations and proceed
-    //      - If not confirmed, go back, try another hypothesis until out of (reasonable) combinations and proceed
-
-    // If this takes too long,
-    return false;
+    return 1e12;
 }
 
 // -----------------------------------------------------------------------------------------------
