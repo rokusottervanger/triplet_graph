@@ -310,6 +310,11 @@ void PathFinder::tracePath(const int target_node, Path& path)
     // Finally, add source nodes to path
     path.insert(path.end(), source_nodes_.begin(), source_nodes_.end());
     path.parent_tree.resize(path.size(),std::make_pair(-1,-1));
+    for ( int i = 0; i < source_nodes_.size(); ++i )
+    {
+        path.costs.push_back(0.0);
+    }
+
 }
 
 }
