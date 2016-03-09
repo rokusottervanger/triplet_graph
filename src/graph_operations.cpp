@@ -325,6 +325,10 @@ void associate(Graph &graph,
 
     double max_distance_sq = max_distance*max_distance;
 
+    for ( int i = 0; i < associations.nodes.size(); i++ )
+        std::cout << associations.nodes[i] << std::endl;
+    std::cout << std::endl;
+
     // Now find a path through the graph to the goal
     PathFinder pathFinder(graph, associations.nodes);
     pathFinder.findPath(goal_node_i, path);

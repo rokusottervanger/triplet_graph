@@ -14,7 +14,7 @@ Associator::Associator():
 
 bool Associator::configure()
 {
-    max_association_dist_ = 0.05;
+    max_association_dist_ = 0.08;
     max_association_dist_sq_ = max_association_dist_*max_association_dist_;
     return true;
 }
@@ -38,68 +38,102 @@ void Associator::setGraph(const Graph& graph)
 
 double Associator::associate(const Measurement& graph_positions, const Measurement& measurement, AssociatedMeasurement& resulting_associations)
 {
+    std::cout << "Invoking association function with " << graph_positions.points.size() << " graph nodes and " << measurement.points.size() << " measurement points" << std::endl;
+
+    // ------------------------------
     // Base case
     // ------------------------------
 
     if ( measurement.points.size() == 0 )
     {
+        resulting_associations.measurement.frame_id = measurement.frame_id;
+        resulting_associations.measurement.time_stamp = measurement.time_stamp;
+        std::cout << "Base case! No measurement points left!" << std::endl;
         return 0.0;
     }
 
+
+    // ------------------------------
     // Recursive case
     // ------------------------------
 
-    //    std::vector<geo::Vec3d> prediction;
-    //    nearestNeighbor(measurement, prediction);
-
-    // Take a point from the measurement to associate with graph nodes
-    typedef std::pair<geo::Vec3d,double> Point;
-
-    // TODO: add uncertainties
-//    Point point(measurement.points.back(),measurement.uncertainties.back());
-    Point point(measurement.points.back(),0.0);
-
+    // Take a measurement point from the measurement to associate
+    geo::Vec3d cur_measurement_pt = measurement.points.back();
     Measurement reduced_measurement = measurement;
     reduced_measurement.points.pop_back();
 
-    double best_dist = max_association_dist_sq_;
+
+    // Hypothesize that the measurement point does not associate at all
+    // ------------------------------
+
+    // Give this the highest possible cost, so that a better association is always preferred
+    double local_cost = max_association_dist_sq_;
+
+    // Copy all graph positions (because nothing was associated, all of them are passed to the next recursion)
+    Measurement reduced_graph_positions;
+    reduced_graph_positions = graph_positions;
+    AssociatedMeasurement associations;
+
+    // Calculate further associations and set this association and its cost as the benchmark for other associations
+    double best_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, associations );
+    resulting_associations = associations;
+
+//    std::cout << "max_assoc_dist_sq = " << max_association_dist_sq_ << std::endl;
+
+
+    // Hypothesize association with every graph node
+    // ------------------------------
+
     int best_node = -1;
 
     for ( int i = 0; i < graph_positions.points.size(); i++ )
     {
-        AssociatedMeasurement associations;
-        associations.measurement.frame_id = measurement.frame_id;
-        associations.measurement.time_stamp = measurement.time_stamp;
-        Measurement reduced_graph_positions;
+        // Calculate cost of currently hypothesized association
+        local_cost = (cur_measurement_pt - graph_positions.points[i]).length2(); // TODO: This is only the squared euclidian distance, go for something like mahalanobis.
 
-        reduced_graph_positions = graph_positions;
-        reduced_graph_positions.points.erase(reduced_graph_positions.points.begin()+i);
+//        std::cout << "local cost = " << local_cost << std::endl;
 
-        if ( reduced_graph_positions.uncertainties.size() > 0 )
-            reduced_graph_positions.uncertainties.erase(reduced_graph_positions.uncertainties.begin()+i);
-
-        double local_dist = (point.first - graph_positions.points[i]).length2(); // TODO: This is only the squared euclidian distance, go for something like mahalanobis.
-        if ( local_dist < best_dist )
+        // If local hypothesis cost is low enough...
+        if ( local_cost < max_association_dist_sq_ )
         {
-            double dist = local_dist + associate(reduced_graph_positions, reduced_measurement, associations);
+            // create a new measurement for the graph positions reduced by the locally hypothesized node
+            reduced_graph_positions = graph_positions;
+            reduced_graph_positions.points.erase(reduced_graph_positions.points.begin()+i);
 
-            if ( dist < best_dist )
+            // Calculate further associations given current hypothesis
+            AssociatedMeasurement associations;
+            std::cout << std::endl;
+            double cost = local_cost + associate(reduced_graph_positions, reduced_measurement, associations);
+
+            std::cout << std::endl;
+
+            // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
+            if ( cost < best_cost )
             {
-                best_dist = dist;
+                best_cost = cost;
                 resulting_associations = associations;
                 best_node = i;
             }
         }
     }
 
+
+    // Check what was the best solution
+    // ------------------------------
+
+    // If best node was set, there was a good association, so store that in the resulting associations
     if ( best_node > -1 )
     {
-        resulting_associations.measurement.points.push_back(point.first);
+        resulting_associations.measurement.points.push_back(cur_measurement_pt);
         resulting_associations.nodes.push_back(best_node);
-        return best_dist;
+        std::cout << "Associated measurement point " << cur_measurement_pt << " with node " << best_node << " at " << graph_positions.points[best_node] << std::endl;
+    }
+    else
+    {
+        std::cout << "Measurement point at " << cur_measurement_pt << " not associated." << std::endl;
     }
 
-    return 1e12;
+    return best_cost;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -179,29 +213,50 @@ Graph Associator::getObjectSubgraph( const Graph& graph, const int node_i )
 
 bool Associator::getAssociations( const Measurement& measurement, AssociatedMeasurement& associations )
 {
-    // TODO: this is all kind of hacky. Can some stuff be recycled, cached should positions not be calculated in the association algorithm?
+    // TODO: this is all kind of hacky. Can some stuff be recycled/cached? Should positions not be calculated in the association algorithm?
     // TODO: Goal node other than -1
-    std::cout << "Going to try to associate!" << std::endl;
-    std::cout << "Putting old associations in positions vector" << std::endl;
-    std::vector<geo::Vec3d> positions(graph_ptr_->size());
+
+    // Find a path through the graph starting from the associated nodes
+    PathFinder pathFinder( *graph_ptr_, associations_.nodes );
+    pathFinder.findPath( -1, path_ ); // TODO: Hack!!! goal node -1!
+
+    // Put the known positions (from given associations) in the positions vector
+    std::vector<geo::Vec3d> positions( graph_ptr_->size() );
     for ( int i = 0; i < associations_.nodes.size(); i++ )
     {
-        positions[associations_.nodes[i]] = associations_.measurement.points[i];
+        positions[ associations_.nodes[i] ] = associations_.measurement.points[i];
     }
-    std::cout << "Calculating path..." << std::endl;
-    PathFinder pathFinder(*graph_ptr_, associations_.nodes);
-    Path path;
-    pathFinder.findPath(-1,path);
 
-    std::cout << "Calculating positions... " << std::endl;
-    calculatePositions(*graph_ptr_, positions, path);
+    // Calculate the positions of graph nodes on the path
+    calculatePositions( *graph_ptr_, positions, path_ );
     Measurement graph_positions;
-    graph_positions.points = positions;
+    graph_positions.frame_id   = measurement.frame_id;
+    graph_positions.time_stamp = measurement.time_stamp;
+    graph_positions.points     = positions;
 
-    std::cout << "Associating... " << std::endl;
-    associate(graph_positions,measurement,associations);
+    // Call the recursive association algorithm
+    std::cout << "Associated nodes going into the association algorithm: " << std::endl;
+    for ( int i = 0; i < associations_.nodes.size(); i++ )
+    {
+        std::cout << associations.nodes[i] << ", ";
+    }
+    std::cout << std::endl;
+    std::cout << "Measured points going into the association algorithm: " << std::endl;
+    for ( int i = 0; i < measurement.points.size(); i++ )
+    {
+        std::cout << measurement.points[i] << ", ";
+    }
+    std::cout << " (" << measurement.points.size() << ")\n" << std::endl;
 
-    std::cout << "Done!" << std::endl;
+    associate( graph_positions, measurement, associations );
+
+    std::cout << "Associated nodes coming out of the association algorithm: " << std::endl;
+    for ( int i = 0; i < associations_.nodes.size(); i++ )
+    {
+        std::cout << associations.nodes[i] << ", ";
+    }
+    std::cout << std::endl << std::endl;
+
 
     return true;
 }
