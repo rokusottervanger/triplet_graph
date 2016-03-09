@@ -644,10 +644,14 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
         int parent1_i = path.parent_tree[i].first;
         int parent2_i = path.parent_tree[i].second;
 
-        vis_measurement.measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
-        vis_measurement.measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
+        if ( parent1_i > -1 && parent2_i > -1 )
+        {
+            vis_measurement.measurement.line_list.push_back(positions[node_i]);
+            vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
+            vis_measurement.measurement.line_list.push_back(positions[node_i]);
+            vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
+        }
+
         vis_measurement.measurement.points.push_back(positions[node_i]);
         vis_measurement.nodes.push_back(node_i);
     }
