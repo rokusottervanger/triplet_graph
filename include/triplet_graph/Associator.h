@@ -17,7 +17,7 @@ public:
     Associator();
 
     bool configure();
-    double associate(const Measurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
+    double associate(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
 
     void setAssociations(const AssociatedMeasurement& associations);
     void setGraph(const Graph& graph);

@@ -153,7 +153,7 @@ int main(int argc, char** argv)
         config.endArray();
     }
 
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(15);
 
     int target_node = -1;
 
