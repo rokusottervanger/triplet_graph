@@ -1,0 +1,9 @@
+<library path="lib/libtriplet_graph_tools">
+  <class name="triplet_graph/RigidEdges"
+         type="triplet_graph::RigidEdgesTool"
+         base_class_type="rviz::Tool">
+    <description>
+      Tool for selecting graph nodes in rviz and making the connecting edges rigid.
+    </description>
+  </class>
+</library>

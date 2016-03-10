@@ -205,7 +205,7 @@ int main(int argc, char** argv)
         // Associate
 
         std::cout << "Trying to associate..." << std::endl;
-        triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, max_association_distance);
+        triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, config );
 
         // Check if localization was succesful
         if ( associations.nodes.size() >= 2 )
@@ -248,6 +248,8 @@ int main(int argc, char** argv)
 
         // Proceed using latest associations that led to localization
         associations = old_associations;
+
+        std::vector<triplet_graph::Edge2> edges = graph.getEdge2s();
 
 
         // - - - - - - - - - - - - - - - - - -

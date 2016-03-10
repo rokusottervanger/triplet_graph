@@ -8,6 +8,7 @@
 #include "Edge2.h"
 #include "Edge3.h"
 #include "Measurement.h"
+#include "Server.h"
 
 namespace triplet_graph
 {
@@ -23,8 +24,10 @@ private:
     std::vector<int> deleted_edges_;
     std::vector<int> deleted_triplets_;
 
+    Server guiServer_;
+
 public:
-    Graph(){}
+    Graph(): guiServer_(this) {}
 
     ~Graph(){}
 
@@ -41,6 +44,10 @@ public:
     void deleteEdge3(const int i);
 
     void setEdgeLength(const int i, const double l);
+
+    void setEdgeRigid(const int i);
+
+    void setEdgeRigid(const int n1, const int n2);
 
     void flipTriplet(const int i);
 

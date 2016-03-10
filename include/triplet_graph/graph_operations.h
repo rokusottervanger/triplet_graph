@@ -15,6 +15,8 @@ int findNodeByID(const Graph& g, const std::string& id);
 bool configure(Graph &g, tue::Configuration &config);
 bool load(Graph &g, std::string filename);
 
+void setRigidEdges(Graph &graph, const std::vector<int>& nodes);
+
 void calculatePositions(const Graph& graph, std::vector<geo::Vec3d>& positions, const Path& path);
 
 void associate( Graph &graph,
@@ -22,7 +24,7 @@ void associate( Graph &graph,
                 AssociatedMeasurement &associations,
                 Measurement &unassociated,
                 const int goal_node_i,
-                const double);
+                tue::Configuration& config);
 
 void associate( Graph &graph,
                 const Measurement &measurement,
@@ -30,7 +32,7 @@ void associate( Graph &graph,
                 Measurement &unassociated,
                 const int goal_node_i,
                 Path& path,
-                const double);
+                tue::Configuration& config);
 
 void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool update_lengths=false);
 

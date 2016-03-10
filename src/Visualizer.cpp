@@ -30,9 +30,10 @@ void Visualizer::configure(tue::Configuration& config)
         points_.pose.orientation.w = 1.0;
 
         points_.id = 0;
-        points_.type = visualization_msgs::Marker::POINTS;
+        points_.type = visualization_msgs::Marker::SPHERE;
         points_.scale.x = 0.03;
         points_.scale.y = 0.03;
+        points_.scale.z = 0.03;
 
         float r = 0, g = 0, b = 0;
         if ( config.readGroup("color") )
@@ -103,7 +104,9 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
     if ( !is_configured_ )
         return;
 
-    publish(measurement.measurement);
+    addAssociatedPointsToMsg(measurement);
+
+    addLinesToMsg(measurement.measurement);
 
     if ( measurement.nodes.size() )
     {
@@ -149,37 +152,68 @@ void Visualizer::publish(const AssociatedMeasurement& measurement)
 
 // ----------------------------------------------------------------------------------------------------
 
-void Visualizer::publish(const Measurement& measurement)
+void Visualizer::addPointsToMsg(const Measurement& measurement)
 {
-    if ( !is_configured_ )
-        return;
-
-    // - - - - - - - - - - - - - - - - - - - - - - - -
-    // Publish points
-
     if ( measurement.points.size() )
     {
-        points_.points.clear();
-
-        points_.header.stamp = measurement.time_stamp;
-        points_.header.frame_id = measurement.frame_id;
-
+        int i;
         for ( std::vector<geo::Vec3d>::const_iterator it = measurement.points.begin(); it != measurement.points.end(); it++ )
         {
+            points_.header.stamp = measurement.time_stamp;
+            points_.header.frame_id = measurement.frame_id;
+
+            points_.id = i;
+
             geometry_msgs::Point p;
             p.x = it->getX();
             p.y = it->getY();
             p.z = it->getZ();
 
-            points_.points.push_back(p);
+            points_.pose.position = p;
+            points_.pose.orientation.w = 1;
+            points_.pose.orientation.x = 0;
+            points_.pose.orientation.y = 0;
+            points_.pose.orientation.z = 0;
+
+            msg_.markers.push_back(points_);
+            i++;
         }
-
-        msg_.markers.push_back(points_);
     }
+}
 
-    // - - - - - - - - - - - - - - - - - - - - - - - -
-    // Publish lines
+// ----------------------------------------------------------------------------------------------------
 
+void Visualizer::addAssociatedPointsToMsg(const AssociatedMeasurement& measurement)
+{
+    if ( measurement.measurement.points.size() )
+    {
+        for ( int i = 0; i < measurement.measurement.points.size(); ++i )
+        {
+            points_.header.stamp = measurement.measurement.time_stamp;
+            points_.header.frame_id = measurement.measurement.frame_id;
+
+            points_.id = measurement.nodes[i];
+
+            geometry_msgs::Point p;
+            p.x = measurement.measurement.points[i].getX();
+            p.y = measurement.measurement.points[i].getY();
+            p.z = measurement.measurement.points[i].getZ();
+
+            points_.pose.position = p;
+            points_.pose.orientation.w = 1;
+            points_.pose.orientation.x = 0;
+            points_.pose.orientation.y = 0;
+            points_.pose.orientation.z = 0;
+
+            msg_.markers.push_back(points_);
+        }
+    }
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+void Visualizer::addLinesToMsg(const Measurement& measurement)
+{
     if ( measurement.line_list.size() )
     {
         lines_.points.clear();
@@ -199,6 +233,18 @@ void Visualizer::publish(const Measurement& measurement)
 
         msg_.markers.push_back(lines_);
     }
+}
+
+// ----------------------------------------------------------------------------------------------------
+
+void Visualizer::publish(const Measurement& measurement)
+{
+    if ( !is_configured_ )
+        return;
+
+    addPointsToMsg(measurement);
+
+    addLinesToMsg(measurement);
 
     marker_pub_.publish(msg_);
     msg_.markers.clear();

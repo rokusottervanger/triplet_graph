@@ -12,6 +12,7 @@
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/PathFinder.h"
 #include "triplet_graph/Visualizer.h"
+#include "triplet_graph/Associator.h"
 
 namespace triplet_graph
 {
@@ -161,6 +162,19 @@ bool load(Graph &graph, std::string filename)
 
 // -----------------------------------------------------------------------------------------------
 
+void setRigidEdges(Graph &graph, const std::vector<int>& nodes)
+{
+    for ( std::vector<int>::const_iterator it1 = nodes.begin(); it1 != nodes.end(); ++it1 )
+    {
+        for ( std::vector<int>::const_iterator it2 = nodes.begin(); it2 != it1; ++it2 )
+        {
+            graph.setEdgeRigid(*it1,*it2);
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------------------------
+
 // TODO: make more efficient! Calculates positions from scratch every iteration,
 // while it would be much more efficient to cache those and transform them to the
 // pose of the new measurement
@@ -265,7 +279,7 @@ void associate(Graph &graph,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
                const int goal_node_i,
-               const double max_distance)
+               tue::Configuration& config)
 /**
  * Given a graph, a measurement, previous associations, a goal node and a maximum association
  * distance, associates measured points with graph nodes and stores these in associations.
@@ -279,7 +293,7 @@ void associate(Graph &graph,
  */
 {
     Path path;
-    associate(graph, measurement, associations, unassociated, goal_node_i, path, max_distance);
+    associate(graph, measurement, associations, unassociated, goal_node_i, path, config);
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -290,89 +304,38 @@ void associate(Graph &graph,
                Measurement &unassociated,
                const int goal_node_i,
                Path& path,
-               const double max_distance)
+               tue::Configuration& config)
 /**
- * Given a graph, a measurement, previous associations, a goal node and a maximum association
- * distance, associates measured points with graph nodes and stores these in associations.
- * The input argument 'associations' must contain at least two associated measurement points
- * as these are used to predict the positions of the graph nodes. These associations can
- * either be given as an initial pose or they can be the previous associated measurement
- * resulting from this function, possibly updated using odometry information. Gives back
- * unassociated nodes in the 'unassociated' argument. The goal node must be the node index of
- * the node that is to be found, but may also be -1 if all nodes need to be associated (for
- * example in case of creating a new graph). Additionally gives back the best path that was
- * found to reach the goal node.
+ * Given a graph, a measurement, previous associations, a goal node and a configuration,
+ * associates measured points with graph nodes and stores these in associations. The input
+ * argument 'associations' must contain at least two associated measurement points as these
+ * are used to predict the positions of the graph nodes, otherwise the function will not give
+ * back any associations. These associations can either be given as an initial pose or they
+ * can be the previous associated measurement resulting from this function, possibly updated
+ * using odometry information. Gives back unassociated nodes in the 'unassociated' argument.
+ * The goal node must be the node index of the node that is to be found, but may also be -1
+ * if all nodes need to be associated (for example in case of creating a new graph).
+ * Additionally gives back the best path that was found to reach the goal node.
  */
 {
-
     // If no points to associate, just return
     if (measurement.points.size() == 0 )
         return;
 
-    double max_distance_sq = max_distance*max_distance;
+    Associator associator;
+    associator.configure(config);
 
-    // Now find a path through the graph to the goal
-    PathFinder pathFinder(graph, associations.nodes);
-    pathFinder.findPath(goal_node_i, path);
+    associator.setGraph(graph);
+    associator.setAssociations(associations);
+
+    associations.nodes.clear();
+    associations.measurement.points.clear();
+
+    associator.getAssociations(measurement, associations, goal_node_i);
+    associator.getPath(path);
+    associator.getUnassociatedPoints(unassociated);
 
     std::cout << "Found path: " << path << std::endl;
-
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // -     Calculate positions of nodes on path in sensor frame
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    std::vector<geo::Vec3d> positions(graph.size());
-
-    // Add prior associations to positions vector to
-    for ( int i = 0; i < associations.nodes.size(); ++i )
-    {
-        positions[associations.nodes[i]] = associations.measurement.points[i];
-    }
-    associations.measurement.points.clear();
-    associations.nodes.clear();
-
-    calculatePositions(graph,positions,path);
-
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    // -     Nearest neighbor association
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    // TODO: Check if association goes well (in case of false positives, false negatives, etc.)
-    for ( std::vector<geo::Vec3d>::const_iterator it_m = measurement.points.begin(); it_m != measurement.points.end(); ++it_m )
-    {
-        double best_dist_sq = 1.0e9;
-        int best_guess = -1;
-        geo::Vec3d best_pos;
-
-        // Go through nodes in path (nodes to be associated from far to close) to check if one associates with the measured point
-        for ( Path::iterator it_p = path.begin(); it_p != path.end(); ++it_p )
-        {
-            int i = *it_p;
-            double dx_sq = (*it_m - positions[i]).length2();
-            if ( dx_sq < max_distance_sq )
-            {
-                if ( dx_sq < best_dist_sq )
-                {
-                    best_dist_sq = dx_sq;
-                    best_pos = *it_m;
-                    best_guess = i;
-                }
-            }
-        }
-
-        // Check if an association is made, and if so, push it into associations
-        if ( best_guess > -1 )
-        {
-            associations.nodes.push_back(best_guess);
-            associations.measurement.points.push_back(best_pos);
-        }
-        else
-        {
-            unassociated.points.push_back(*it_m);
-        }
-    }
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -610,10 +573,14 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
         int parent1_i = path.parent_tree[i].first;
         int parent2_i = path.parent_tree[i].second;
 
-        vis_measurement.measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
-        vis_measurement.measurement.line_list.push_back(positions[node_i]);
-        vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
+        if ( parent1_i > -1 && parent2_i > -1 )
+        {
+            vis_measurement.measurement.line_list.push_back(positions[node_i]);
+            vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
+            vis_measurement.measurement.line_list.push_back(positions[node_i]);
+            vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
+        }
+
         vis_measurement.measurement.points.push_back(positions[node_i]);
         vis_measurement.nodes.push_back(node_i);
     }
