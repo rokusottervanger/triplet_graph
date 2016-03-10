@@ -13,7 +13,7 @@ corner_detector:
             name: "corner_lines"
             color: {r: 0, g: 1, b: 1}
 association:
-    max_association_distance: 0.10
+    max_association_distance: 0.20
 odom_tracker:
     map_frame: "map"
     odom_frame: "amigo/odom"

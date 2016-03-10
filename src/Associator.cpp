@@ -12,9 +12,18 @@ Associator::Associator():
     associated_(false)
 {}
 
-bool Associator::configure()
+bool Associator::configure(tue::Configuration config)
 {
-    max_association_dist_ = 0.3;
+    if ( config.readGroup("association") )
+    {
+        config.value("max_association_distance", max_association_dist_ );
+        config.endGroup();
+    }
+    else
+    {
+        std::cout << "\033[31m" << "[ASSOCIATOR] Configure: No configuration for association found!" << "\033[0m" << std::endl;
+        return false;
+    }
     max_association_dist_sq_ = max_association_dist_*max_association_dist_;
     return true;
 }
@@ -202,14 +211,11 @@ Graph Associator::getObjectSubgraph( const Graph& graph, const int node_i )
 
 // -----------------------------------------------------------------------------------------------
 
-bool Associator::getAssociations( const Measurement& measurement, AssociatedMeasurement& associations )
+bool Associator::getAssociations( const Measurement& measurement, AssociatedMeasurement& associations, const int goal_node_i )
 {
-    // TODO: this is all kind of hacky. Can some stuff be recycled/cached? Should positions not be calculated in the association algorithm?
-    // TODO: Goal node other than -1
-
     // Find a path through the graph starting from the associated nodes
     PathFinder pathFinder( *graph_ptr_, associations_.nodes );
-    pathFinder.findPath( -1, path_ ); // TODO: Hack!!! goal node -1!
+    pathFinder.findPath( goal_node_i, path_ );
 
     // Put the known positions (from given associations) in the positions vector
     std::vector<geo::Vec3d> positions( graph_ptr_->size() );
@@ -231,28 +237,9 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     }
 
     // Call the recursive association algorithm
-    std::cout << "Associated nodes going into the association algorithm: " << std::endl;
-    for ( int i = 0; i < associations_.nodes.size(); i++ )
-    {
-        std::cout << associations.nodes[i] << ", ";
-    }
-    std::cout << std::endl;
-    std::cout << "Measured points going into the association algorithm: " << std::endl;
-    for ( int i = 0; i < measurement.points.size(); i++ )
-    {
-        std::cout << measurement.points[i] << ", ";
-    }
-    std::cout << " (" << measurement.points.size() << ")\n" << std::endl;
-
     associate( graph_positions, measurement, associations );
 
-    std::cout << "Associated nodes coming out of the association algorithm: " << std::endl;
-    for ( int i = 0; i < associations_.nodes.size(); i++ )
-    {
-        std::cout << associations.nodes[i] << ", ";
-    }
-    std::cout << std::endl << std::endl;
-
+    associated_ = true;
 
     return true;
 }

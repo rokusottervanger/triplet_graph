@@ -24,7 +24,7 @@ void associate( Graph &graph,
                 AssociatedMeasurement &associations,
                 Measurement &unassociated,
                 const int goal_node_i,
-                const double);
+                tue::Configuration& config);
 
 void associate( Graph &graph,
                 const Measurement &measurement,
@@ -32,7 +32,7 @@ void associate( Graph &graph,
                 Measurement &unassociated,
                 const int goal_node_i,
                 Path& path,
-                const double);
+                tue::Configuration& config);
 
 void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool update_lengths=false);
 
