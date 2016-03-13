@@ -36,6 +36,7 @@ private:
     double max_association_dist_sq_;
 
     double associate(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
+    double associateFancy(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
     void nearestNeighbor( const Measurement& measurement, const std::vector<geo::Vec3d> prediction );
     Graph getObjectSubgraph(const Graph &graph, const int node_i );
 

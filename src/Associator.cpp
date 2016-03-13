@@ -138,6 +138,103 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
 
 // -----------------------------------------------------------------------------------------------
 
+double Associator::associateFancy(const AssociatedMeasurement& graph_positions, const Measurement& measurement, AssociatedMeasurement& resulting_associations)
+{
+
+    // ------------------------------
+    // ------------------------------
+    // BASE CASE
+    // ------------------------------
+    // ------------------------------
+
+    if ( measurement.points.size() == 0 )
+    {
+        resulting_associations.measurement.frame_id = measurement.frame_id;
+        resulting_associations.measurement.time_stamp = measurement.time_stamp;
+        return 0.0;
+    }
+
+
+    // ------------------------------
+    // ------------------------------
+    // RECURSIVE CASE
+    // ------------------------------
+    // ------------------------------
+
+    // Take a measurement point from the measurement to associate
+    geo::Vec3d cur_measurement_pt = measurement.points.back();
+    Measurement reduced_measurement = measurement;
+    reduced_measurement.points.pop_back();
+
+
+    // Hypothesize that the measurement point does not associate at all
+    // ------------------------------
+
+    // NOT SURE IF THIS PART IS STILL VALID...
+
+    // Give this the highest possible cost, so that a better association is always preferred
+    double local_cost = max_association_dist_sq_;
+
+    // Copy all graph positions (because nothing was associated, all of them are passed to the next recursion)
+    AssociatedMeasurement reduced_graph_positions;
+    reduced_graph_positions = graph_positions;
+    AssociatedMeasurement associations;
+
+    // Calculate further associations and set this association and its cost as the benchmark for other associations
+    double best_cost = local_cost + associateFancy( reduced_graph_positions, reduced_measurement, associations );
+    resulting_associations = associations;
+
+    // ... UP TO HERE.
+
+
+    // Hypothesize association with every graph node
+    // ------------------------------
+
+    // THIS IS GOING TO TAKE MUCH LONGER BECAUSE I'M NOT REJECTING ANY HYPOTHESIS (FOR EXAMPLE BASED ON A MAX ASSOCIATION DISTANCE)
+
+    int best_node = -1;
+
+    for ( int i = 0; i < graph_positions.measurement.points.size(); i++ )
+    {
+        // create a new measurement for the graph positions reduced by the locally hypothesized node
+        reduced_graph_positions = graph_positions;
+        reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
+        reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
+
+        // Calculate further associations given current hypothesis
+        AssociatedMeasurement associations;
+        double further_cost = associateFancy(reduced_graph_positions, reduced_measurement, associations);
+
+        // Calculate local cost using most recend parent positions (use position from associations if possible, otherwise use calculated position from graph_positions)
+        double local_cost = 0;
+
+        double total_cost = further_cost + local_cost;
+
+        // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
+        if ( total_cost < best_cost )
+        {
+            best_cost = total_cost;
+            resulting_associations = associations;
+            best_node = graph_positions.nodes[i];
+        }
+    }
+
+
+    // Check what was the best solution
+    // ------------------------------
+
+    // If best node was set, there was a good association, so store that in the resulting associations
+    if ( best_node > -1 )
+    {
+        resulting_associations.measurement.points.push_back(cur_measurement_pt);
+        resulting_associations.nodes.push_back(best_node);
+    }
+
+    return best_cost;
+}
+
+// -----------------------------------------------------------------------------------------------
+
 void Associator::nearestNeighbor( const Measurement& measurement, const std::vector<geo::Vec3d> prediction )
 {
     for ( std::vector<geo::Vec3d>::const_iterator it_m = measurement.points.begin(); it_m != measurement.points.end(); ++it_m )

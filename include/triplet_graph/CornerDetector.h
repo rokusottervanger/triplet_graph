@@ -32,7 +32,8 @@ private:
 
     double jump_size_;
     double step_dist_;
-    float corner_threshold_;
+    double corner_threshold_;
+    double variance_;
 
 };
 
