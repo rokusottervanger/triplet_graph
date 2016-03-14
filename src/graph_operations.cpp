@@ -331,7 +331,7 @@ void associate(Graph &graph,
     associations.nodes.clear();
     associations.measurement.points.clear();
 
-    associator.getAssociations(measurement, associations, goal_node_i);
+    associator.getAssociations(graph, measurement, associations, goal_node_i);
     associator.getPath(path);
     associator.getUnassociatedPoints(unassociated);
 

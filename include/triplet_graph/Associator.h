@@ -21,7 +21,7 @@ public:
     void setAssociations(const AssociatedMeasurement& associations);
     void setGraph(const Graph& graph);
 
-    bool getAssociations(const Measurement &measurement, AssociatedMeasurement& associations, const int goal_node_i );
+    bool getAssociations(const Graph &graph, const Measurement &measurement, AssociatedMeasurement& associations, const int goal_node_i );
     bool getUnassociatedPoints( Measurement& unassociated_points );
     bool getPath(Path& path);
 
@@ -39,6 +39,7 @@ private:
     double associateFancy(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
     void nearestNeighbor( const Measurement& measurement, const std::vector<geo::Vec3d> prediction );
     Graph getObjectSubgraph(const Graph &graph, const int node_i );
+    geo::Vec3d getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, int node_i);
 
 
 };

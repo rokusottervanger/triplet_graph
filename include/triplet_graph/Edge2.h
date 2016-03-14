@@ -17,8 +17,12 @@ public:
     inline bool operator== (Edge2 e) { return e.A == A && e.B == B || e.A == B && e.B == A; }
 
     int A, B; // node indices
+
     double l; // length
+    double variance; // variance in length TODO: Is this the right value to store in an edge? Math!!!
+
     bool rigid; // denotes whether or not the distance is fixed in the real world (connected nodes are part of the same rigid object)
+
 
     bool deleted;
 
