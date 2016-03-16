@@ -18,8 +18,8 @@ public:
 
     int A, B; // node indices
 
-    double l; // length
-    double variance; // variance in length TODO: Is this the right value to store in an edge? Math!!!
+    double l; // length (nominal value)
+    double std_dev; // standard deviation in length
 
     bool rigid; // denotes whether or not the distance is fixed in the real world (connected nodes are part of the same rigid object)
 

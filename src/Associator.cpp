@@ -163,8 +163,10 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
 
     // Take a measurement point from the measurement to associate
     geo::Vec3d cur_measurement_pt = measurement.points.back();
+    double cur_measurement_std_dev = measurement.uncertainties.back();
     Measurement reduced_measurement = measurement;
     reduced_measurement.points.pop_back();
+    reduced_measurement.uncertainties.pop_back();
 
 
     // Hypothesize that the measurement point does not associate at all
@@ -190,7 +192,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     // Hypothesize association with every graph node
     // ------------------------------
 
-    // THIS IS GOING TO TAKE MUCH LONGER BECAUSE I'M NOT REJECTING ANY HYPOTHESES (FOR EXAMPLE BASED ON A MAX ASSOCIATION DISTANCE)
+    // THIS IS GOING TO TAKE MUCH LONGER BECAUSE I'M NOT REJECTING ANY HYPOTHESES (FOR EXAMPLE BASED ON A MAX ASSOCIATION DISTANCE) BEFORE MAKING THE RECURSIVE CALL
 
     int best_node = -1;
 
@@ -230,20 +232,22 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         double l_1_m = v_1_m.length();
         double l_2_m = v_2_m.length();
 
-        // Calculate the strain on the edges
-        double e1 = (l_1_m - edge_1.l)/edge_1.l;
-        double e2 = (l_2_m - edge_2.l)/edge_2.l;
+        // Calculate the elongation of the edges
+        double e1 = l_1_m - edge_1.l;
+        double e2 = l_2_m - edge_2.l;
 
-        // Calculate the stress using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
-        // TODO: Use some statistical distance measure here, considering the edge model as well as the sensor model.
-        double s1 = e1 / edge_1.variance; // TODO: variance may be equal to zero for rigid objects, so take into account sensor noise as well!!!
-        double s2 = e2 / edge_2.variance; // TODO: should not be variance, but something normalized with the mean
+        // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
+        double s1 = e1 / ( edge_1.std_dev + cur_measurement_std_dev );
+        double s2 = e2 / ( edge_2.std_dev + cur_measurement_std_dev );
 
+        // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
         geo::Vec3d dir_1 = v_1_m/l_1_m;
         geo::Vec3d dir_2 = v_2_m/l_2_m;
 
+        // Calculate the resulting 'force' on the node
         double local_cost = (s1*dir_1 + s2*dir_2).length();
 
+        // Calculate the total force needed for the currently assumed associations
         double total_cost = further_cost + local_cost;
 
         // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
