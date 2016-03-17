@@ -17,7 +17,7 @@ bool CornerDetector::configure(tue::Configuration &config)
     config.value("corner_threshold", corner_threshold_);
     config.value("step_size", step_dist_);
     config.value("jump_size", jump_size_);
-    config.value("sensor_noise_variance", variance_);
+    config.value("sensor_noise_std_dev", std_dev_);
 
     if ( config.readGroup("visualization"))
     {
@@ -168,7 +168,7 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
         if ( corner_index > 0 )
         {
             measurement.points.push_back(c_corner);
-            measurement.uncertainties.push_back(variance_);
+            measurement.uncertainties.push_back(std_dev_);
 
             measurement.line_list.push_back(A);
             measurement.line_list.push_back(B);

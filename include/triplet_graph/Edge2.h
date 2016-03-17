@@ -10,8 +10,8 @@ struct Edge2
 {
     friend class Graph;
 public:
-    Edge2(const int& node1, const int& node2, const double& length):
-        A(node1), B(node2), l(length), deleted(false){}
+    Edge2(const int node1, const int node2, const double length, const double stddev):
+        A(node1), B(node2), l(length), deleted(false), std_dev(stddev) {}
 
     // Two edges are equal if they connect the same nodes
     inline bool operator== (Edge2 e) { return e.A == A && e.B == B || e.A == B && e.B == A; }

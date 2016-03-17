@@ -34,9 +34,9 @@ int Graph::addNode(const std::string& id)
 
 // -----------------------------------------------------------------------------------------------
 
-int Graph::addEdge2(const int node1, const int node2, const double& length)
+int Graph::addEdge2(const int node1, const int node2, const double length, const double std_dev)
 {
-    Edge2 edge2(node1, node2, length);
+    Edge2 edge2(node1, node2, length, std_dev);
 
     int i = nodes_[node1].edgeByPeer(node2);
 
@@ -285,6 +285,9 @@ void Graph::setEdgeLength(const int i, const double l)
 void Graph::setEdgeRigid(const int i)
 {
     edges_[i].rigid = true;
+
+    // TODO: Magic number!
+    edges_[i].std_dev = 0.001;
 }
 
 // -----------------------------------------------------------------------------------------------

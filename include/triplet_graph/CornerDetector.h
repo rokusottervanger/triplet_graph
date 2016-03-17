@@ -33,7 +33,7 @@ private:
     double jump_size_;
     double step_dist_;
     double corner_threshold_;
-    double variance_;
+    double std_dev_;
 
 };
 

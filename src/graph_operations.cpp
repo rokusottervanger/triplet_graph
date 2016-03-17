@@ -41,18 +41,18 @@ bool configure(Graph& g, tue::Configuration &config)
  * Configure a graph using a tue::Configuration
  */
 {
-    if (config.readArray("nodes"))
+    if ( config.readArray("nodes") )
     {
-        while (config.nextArrayItem())
+        while ( config.nextArrayItem() )
         {
             // Check for the 'enabled' field. If it exists and the value is 0, omit this object. This allows
             // the user to easily enable and disable certain objects with one single flag.
             int enabled;
-            if (config.value("enabled", enabled, tue::OPTIONAL) && !enabled)
+            if ( config.value("enabled", enabled, tue::OPTIONAL) && !enabled )
                 continue;
 
             std::string id;
-            if (!config.value("id", id))
+            if ( !config.value("id", id) )
             {
                 std::cout << "\033[31m" << "[GRAPH] ERROR! Node config has no id" << "\033[0m" << std::endl;
                 continue;
@@ -68,12 +68,13 @@ bool configure(Graph& g, tue::Configuration &config)
         return false;
     }
 
-    if (config.readArray("edges"))
+    if ( config.readArray("edges") )
     {
-        while(config.nextArrayItem())
+        while ( config.nextArrayItem() )
         {
             int n1, n2;
             std::string id1, id2;
+
             if ( config.value("n1", id1) && config.value("n2", id2))
             {
                 n1 = findNodeByID(g,id1);
@@ -90,9 +91,14 @@ bool configure(Graph& g, tue::Configuration &config)
             else
             {
                 double length;
-                if (config.value("length", length, tue::REQUIRED))
+                if ( config.value("length", length, tue::REQUIRED) )
                 {
-                    g.addEdge2(n1,n2,length);
+                    double std_dev = 0.2;
+                    if ( !config.value("std_dev", std_dev, tue::REQUIRED) )
+                    {
+                        std::cout << "[GRAPH] WARNING! No edge std dev defined in config. You're probably using an old config file. Using " << std_dev << " m as default" << std::endl;
+                    }
+                    g.addEdge2(n1,n2,length, std_dev);
                 }
                 else
                 {
@@ -109,13 +115,13 @@ bool configure(Graph& g, tue::Configuration &config)
         return false;
     }
 
-    if (config.readArray("triplets"))
+    if ( config.readArray("triplets") )
     {
         while(config.nextArrayItem())
         {
             int n1, n2, n3;
             std::string id1, id2, id3;
-            if ( config.value("n1", id1) && config.value("n2", id2) && config.value("n3", id3))
+            if ( config.value("n1", id1) && config.value("n2", id2) && config.value("n3", id3) )
             {
                 n1 = findNodeByID(g,id1);
                 n2 = findNodeByID(g,id2);
@@ -319,7 +325,7 @@ void associate(Graph &graph,
  */
 {
     // If no points to associate, just return
-    if (measurement.points.size() == 0 )
+    if ( measurement.points.size() == 0 )
         return;
 
     Associator associator;
@@ -368,7 +374,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
             geo::Vec3d d21 = pt2 - pt1;
             double length = d21.length();
 
-            if (length == 0)
+            if ( length == 0 )
                 std::cout << "\033[31m" << "[GRAPH] updateGraph: ERROR Edge length is zero" << "\033[0m" << std::endl;
 
             // If edge exists...
@@ -387,7 +393,9 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
             else
             {
                 // add it to the graph
-                e = graph.addEdge2(n1, n2, length );
+                // TODO: Magic number! Make default standard deviation configurable
+                double default_std_dev = 0.2;
+                e = graph.addEdge2(n1, n2, length, default_std_dev);
             }
 
             edges = graph.getEdge2s();
@@ -500,7 +508,9 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
             // Calculate vector between current new point and current associated point
             geo::Vec3d d21 = pt2 - pt1;
 
-            graph.addEdge2(n1, n2, d21.length() );
+            // TODO: Magic number! Make default standard deviation configurable
+            double default_std_dev = 0.2;
+            graph.addEdge2(n1, n2, d21.length(), default_std_dev );
 
             int k = 0;
             for ( std::vector<int>::const_iterator it_3 = associations.nodes.begin(); it_3 != it_2; ++it_3 )

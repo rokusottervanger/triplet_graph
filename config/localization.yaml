@@ -1,6 +1,6 @@
 corner_detector:
     laser_topic: "/amigo/base_laser/scan"
-    sensor_noise_variance: 0.05
+    sensor_noise_std_dev: 0.05
     corner_threshold: 0.08
     step_size: 0.2
     frame_id: "/amigo/base_laser"

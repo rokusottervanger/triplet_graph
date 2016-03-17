@@ -33,7 +33,7 @@ public:
 
     int addNode(const std::string &id);
 
-    int addEdge2(const int n1, const int n2, const double& length);
+    int addEdge2(const int n1, const int n2, const double length, const double std_dev);
 
     int addEdge3(const int, const int, const int);
 
