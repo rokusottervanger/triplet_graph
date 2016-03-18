@@ -141,6 +141,8 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
 double Associator::associateFancy( const AssociatedMeasurement& graph_positions, const Measurement& measurement, AssociatedMeasurement& resulting_associations)
 {
 
+    double max_no_std_devs = 1.0;
+
     // ------------------------------
     // ------------------------------
     // BASE CASE
@@ -174,8 +176,8 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
 
     // NOT SURE IF THIS PART IS STILL VALID...
 
-    // Give this the highest possible cost, so that a better association is always preferred
-    double local_cost = max_association_dist_sq_; // TODO: This needs to be updated to a threshold on the statistical distance measure used in the for-loop
+    // This sets the threshold for association
+    double local_cost = max_no_std_devs; // TODO: This needs to be updated to a threshold on the statistical distance measure used in the for-loop
 
     // Copy all graph positions (because nothing was associated, all of them are passed to the next recursion)
     AssociatedMeasurement reduced_graph_positions;
@@ -203,10 +205,8 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
         reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
 
-        // Calculate further associations given current hypothesis
-        AssociatedMeasurement associations;
-        double further_cost = associateFancy( reduced_graph_positions, reduced_measurement, associations );
-
+        // Calculate cost of hypothesized association
+        // ------------------------------
         // Calculate local cost using most recent parent positions (use position from associations if possible, otherwise use calculated position from graph_positions)
 
         // Get parent nodes from path
@@ -214,48 +214,65 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         int parent_1_i = path_.parent_tree[path_index].first;
         int parent_2_i = path_.parent_tree[path_index].second;
 
-        // Get edge lengths of current graph node to its parents in the path
-        std::vector<Edge2> edges = graph_ptr_->getEdge2s();
-        Graph::const_iterator node_it = graph_ptr_->begin()+graph_positions.nodes[i];
-        Edge2 edge_1 = edges[ node_it->edgeByPeer(parent_1_i) ];
-        Edge2 edge_2 = edges[ node_it->edgeByPeer(parent_2_i) ];
-
-        // Get the most recent positions of the parent nodes (either the predicted position or the hypothesized associated measurement point),
-        geo::Vec3d parent_1_pos = getMostRecentNodePosition(associations, graph_positions, parent_1_i);
-        geo::Vec3d parent_2_pos = getMostRecentNodePosition(associations, graph_positions, parent_2_i);
-
-        // calculate the vector between the current measurement point and the node's parents
-        geo::Vec3d v_1_m = cur_measurement_pt - parent_1_pos;
-        geo::Vec3d v_2_m = cur_measurement_pt - parent_2_pos;
-
-        // and calculate the lengths of those vectors
-        double l_1_m = v_1_m.length();
-        double l_2_m = v_2_m.length();
-
-        // Calculate the elongation of the edges
-        double e1 = l_1_m - edge_1.l;
-        double e2 = l_2_m - edge_2.l;
-
-        // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
-        double s1 = e1 / ( edge_1.std_dev + cur_measurement_std_dev );
-        double s2 = e2 / ( edge_2.std_dev + cur_measurement_std_dev );
-
-        // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
-        geo::Vec3d dir_1 = v_1_m/l_1_m;
-        geo::Vec3d dir_2 = v_2_m/l_2_m;
-
-        // Calculate the resulting 'force' on the node
-        double local_cost = (s1*dir_1 + s2*dir_2).length();
-
-        // Calculate the total force needed for the currently assumed associations
-        double total_cost = further_cost + local_cost;
-
-        // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
-        if ( total_cost < best_cost )
+        // If root node, calculation goes differently
+        if ( parent_1_i == -1 || parent_2_i == -1 )
         {
-            best_cost = total_cost;
-            resulting_associations = associations;
-            best_node = graph_positions.nodes[i];
+//            TODO: take into account odom error when trying to associate root nodes
+//            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length()/(cur_measurement_std_dev + odom_covariance * cur_measurement_pt.normalized());
+            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length()/cur_measurement_std_dev;
+        }
+        else
+        {
+            // TODO: Make sure that triplets are also satisfied in association!!!
+            // Get edge lengths of current graph node to its parents in the path
+            std::vector<Edge2> edges = graph_ptr_->getEdge2s();
+            Graph::const_iterator node_it = graph_ptr_->begin()+graph_positions.nodes[i];
+            Edge2 edge_1 = edges[ node_it->edgeByPeer(parent_1_i) ];
+            Edge2 edge_2 = edges[ node_it->edgeByPeer(parent_2_i) ];
+
+            // Get the most recent positions of the parent nodes (either the predicted position or the hypothesized associated measurement point),
+            geo::Vec3d parent_1_pos = getMostRecentNodePosition(associations, graph_positions, parent_1_i);
+            geo::Vec3d parent_2_pos = getMostRecentNodePosition(associations, graph_positions, parent_2_i);
+
+            // calculate the vector between the current measurement point and the node's parents
+            geo::Vec3d v_1_m = cur_measurement_pt - parent_1_pos;
+            geo::Vec3d v_2_m = cur_measurement_pt - parent_2_pos;
+
+            // and calculate the lengths of those vectors
+            double l_1_m = v_1_m.length();
+            double l_2_m = v_2_m.length();
+
+            // Calculate the elongation of the edges
+            double e1 = l_1_m - edge_1.l;
+            double e2 = l_2_m - edge_2.l;
+
+            // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
+            double cur_measurement_std_dev_sq = cur_measurement_std_dev*cur_measurement_std_dev;
+            double s1 = e1*e1 / ( edge_1.std_dev*edge_1.std_dev + cur_measurement_std_dev_sq );
+            double s2 = e2*e2 / ( edge_2.std_dev*edge_2.std_dev + cur_measurement_std_dev_sq );
+
+            // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
+            geo::Vec3d dir_1 = v_1_m/l_1_m;
+            geo::Vec3d dir_2 = v_2_m/l_2_m;
+
+            // Calculate the resulting 'force' on the node
+            local_cost = (s1*dir_1 + s2*dir_2).length();
+
+        }
+
+        // Only if local cost is lower than the threshold for the total cost, proceed with further associations
+        if ( local_cost < max_no_std_devs )
+        {
+            // Calculate the total force needed for the currently assumed associations
+            double total_cost = local_cost + associateFancy( reduced_graph_positions, reduced_measurement, associations );
+
+            // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
+            if ( total_cost < best_cost )
+            {
+                best_cost = total_cost;
+                resulting_associations = associations;
+                best_node = graph_positions.nodes[i];
+            }
         }
     }
 
@@ -322,7 +339,8 @@ geo::Vec3d Associator::getMostRecentNodePosition(const AssociatedMeasurement& as
     if ( node_it == associations.nodes.end() )
     {
         int index = std::find(graph_positions.nodes.begin(),graph_positions.nodes.end(),node_i) - graph_positions.nodes.begin();
-        return graph_positions.nodes[index]; // TODO: Klopt niet, want index verschuift per generatie, je moet zoeken naar de parent node! twee woorden negen letters
+
+        return graph_positions.measurement.points[index]; // TODO: twee woorden negen letters
     }
     else
     {
@@ -331,38 +349,6 @@ geo::Vec3d Associator::getMostRecentNodePosition(const AssociatedMeasurement& as
 
 }
 
-// -----------------------------------------------------------------------------------------------
-
-Graph Associator::getObjectSubgraph( const Graph& graph, const int node_i )
-{
-    // THIS FUNCTION MAY RESULT IN A GRAPH WITHOUT EDGE3S!!!
-    Graph object;
-
-    std::ostringstream node_id;
-    node_id << node_i;
-    object.addNode(node_id.str());
-
-    std::vector<Node> nodes = graph.getNodes();
-    Node base_node = nodes[node_i];
-    std::vector<int> peers = base_node.getPeers();
-
-    std::vector<Edge2> edges = graph.getEdge2s();
-    std::vector<Edge3> trips = graph.getEdge3s();
-
-    for ( std::vector<int>::const_iterator it = peers.begin(); it != peers.end(); ++it )
-    {
-        int e = base_node.edgeByPeer(*it);
-        if ( edges[e].rigid )
-        {
-            std::ostringstream peer_id;
-            peer_id << *it;
-            object.addNode(peer_id.str());
-            object.addEdge2(node_i,*it,edges[e].l);
-        }
-    }
-
-    return object;
-}
 
 // -----------------------------------------------------------------------------------------------
 
@@ -382,18 +368,21 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
     // Calculate the positions of graph nodes on the path
     // TODO: These positions are not all necessary anymore using the fancy association, I believe...
     calculatePositions( *graph_ptr_, positions, path_ );
-    AssociatedMeasurement graph_positions;
-    graph_positions.measurement.frame_id   = measurement.frame_id;
-    graph_positions.measurement.time_stamp = measurement.time_stamp;
-    graph_positions.measurement.points     = positions;
+    AssociatedMeasurement path_positions;
+    path_positions.measurement.frame_id = measurement.frame_id;
+    path_positions.measurement.time_stamp = measurement.time_stamp;
 
-    for ( int i = 0; i < graph_positions.measurement.points.size(); i++ )
+    for ( int i = 1; i <= path_.size(); ++i )
     {
-        graph_positions.nodes.push_back(i);
+        // Calculate index in path
+        int index = path_.size()-i; // Assumes order in path!!!!!!!
+
+        path_positions.nodes.push_back(path_[index]);
+        path_positions.measurement.points.push_back(positions[path_[index]]);
     }
 
     // Call the recursive association algorithm
-    associateFancy( graph_positions, measurement, associations );
+    associateFancy( path_positions, measurement, associations );
 
     associated_ = true;
 
