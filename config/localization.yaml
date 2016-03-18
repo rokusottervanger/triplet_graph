@@ -6,7 +6,7 @@ corner_detector:
     frame_id: "/amigo/base_laser"
     jump_size: 0.10
     visualization:
-        lifetime: 0.1
+        lifetime: 0.5
         points:
             name: "corners"
             color: {r: 0, g: 1, b: 0}
@@ -15,6 +15,7 @@ corner_detector:
             color: {r: 0, g: 1, b: 1}
 association:
     max_association_distance: 0.20
+    max_no_std_devs: 1.0
 odom_tracker:
     map_frame: "map"
     odom_frame: "amigo/odom"
@@ -26,7 +27,7 @@ initial_pose:
     - position: {x: 0.12, y: 0.50}
       node: 5
 visualization:
-    lifetime: 0.1
+    lifetime: 0.5
     points:
         name: "graph_nodes"
         color: {r: 1, g: 0, b: 0}

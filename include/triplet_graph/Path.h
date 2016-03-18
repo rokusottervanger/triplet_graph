@@ -2,6 +2,7 @@
 #define GRAPH_MAP_PATH_H_
 
 #include <vector>
+#include <map>
 #include <string>
 #include <iostream>
 
@@ -16,6 +17,7 @@ public:
 
     std::vector< std::pair< int, int > > parent_tree;
     std::vector< double > costs;
+    std::map<int,int> node_indices;
 };
 
 }

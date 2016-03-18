@@ -34,11 +34,13 @@ private:
     bool associated_;
     double max_association_dist_;
     double max_association_dist_sq_;
+    double max_no_std_devs_;
 
     double associate(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
     double associateFancy(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
-    void nearestNeighbor( const Measurement& measurement, const std::vector<geo::Vec3d> prediction );
     geo::Vec3d getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, int node_i);
+
+    int calls_;
 
 
 };

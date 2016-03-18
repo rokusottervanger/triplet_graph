@@ -5,6 +5,8 @@
 #include "triplet_graph/graph_operations.h"
 #include "triplet_graph/PathFinder.h"
 
+#include "tue/profiling/timer.h"
+
 namespace triplet_graph
 {
 
@@ -17,6 +19,7 @@ bool Associator::configure(tue::Configuration config)
     if ( config.readGroup("association") )
     {
         config.value("max_association_distance", max_association_dist_ );
+        config.value("max_no_std_devs", max_no_std_devs_ );
         config.endGroup();
     }
     else
@@ -41,12 +44,14 @@ void Associator::setAssociations(const AssociatedMeasurement& associations)
 void Associator::setGraph(const Graph& graph)
 {
     graph_ptr_ = &graph;
+    associated_ = false;
 }
 
 // -----------------------------------------------------------------------------------------------
 
 double Associator::associate(const AssociatedMeasurement& graph_positions, const Measurement& measurement, AssociatedMeasurement& resulting_associations)
 {
+    calls_++;
 
     // ------------------------------
     // ------------------------------
@@ -72,12 +77,14 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
     geo::Vec3d cur_measurement_pt = measurement.points.back();
     Measurement reduced_measurement = measurement;
     reduced_measurement.points.pop_back();
+    reduced_measurement.uncertainties.pop_back();
+
 
 
     // Hypothesize that the measurement point does not associate at all
     // ------------------------------
 
-    // Give this the highest possible cost, so that a better association is always preferred
+    // This sets the threshold for association
     double local_cost = max_association_dist_sq_;
 
     // Copy all graph positions (because nothing was associated, all of them are passed to the next recursion)
@@ -88,6 +95,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
     // Calculate further associations and set this association and its cost as the benchmark for other associations
     double best_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, associations );
     resulting_associations = associations;
+
 
 
     // Hypothesize association with every graph node
@@ -140,8 +148,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
 
 double Associator::associateFancy( const AssociatedMeasurement& graph_positions, const Measurement& measurement, AssociatedMeasurement& resulting_associations)
 {
-
-    double max_no_std_devs = 1.0;
+    calls_++;
 
     // ------------------------------
     // ------------------------------
@@ -171,13 +178,12 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     reduced_measurement.uncertainties.pop_back();
 
 
+
     // Hypothesize that the measurement point does not associate at all
     // ------------------------------
 
-    // NOT SURE IF THIS PART IS STILL VALID...
-
     // This sets the threshold for association
-    double local_cost = max_no_std_devs; // TODO: This needs to be updated to a threshold on the statistical distance measure used in the for-loop
+    double local_cost = max_no_std_devs_;
 
     // Copy all graph positions (because nothing was associated, all of them are passed to the next recursion)
     AssociatedMeasurement reduced_graph_positions;
@@ -188,29 +194,22 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     double best_cost = local_cost + associateFancy( reduced_graph_positions, reduced_measurement, associations );
     resulting_associations = associations;
 
-    // ... UP TO HERE.
 
 
     // Hypothesize association with every graph node
     // ------------------------------
 
-    // THIS IS GOING TO TAKE MUCH LONGER BECAUSE I'M NOT REJECTING ANY HYPOTHESES (FOR EXAMPLE BASED ON A MAX ASSOCIATION DISTANCE) BEFORE MAKING THE RECURSIVE CALL
-
     int best_node = -1;
 
     for ( int i = 0; i < graph_positions.measurement.points.size(); i++ )
     {
-        // create a new measurement for the graph positions reduced by the locally hypothesized node
-        reduced_graph_positions = graph_positions;
-        reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
-        reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
 
         // Calculate cost of hypothesized association
         // ------------------------------
         // Calculate local cost using most recent parent positions (use position from associations if possible, otherwise use calculated position from graph_positions)
 
-        // Get parent nodes from path
-        int path_index = std::find( path_.begin(), path_.end(), graph_positions.nodes[i] ) - path_.begin(); // TODO: twee woorden negen letters
+        // Get parent nodes from path (graph_positions is constructed in the order of the path, but nodes are removed in recursion)
+        int path_index = path_.node_indices[graph_positions.nodes[i]];
         int parent_1_i = path_.parent_tree[path_index].first;
         int parent_2_i = path_.parent_tree[path_index].second;
 
@@ -260,10 +259,17 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
 
         }
 
+
         // Only if local cost is lower than the threshold for the total cost, proceed with further associations
-        if ( local_cost < max_no_std_devs )
+        if ( local_cost < max_no_std_devs_ )
         {
+            // create a new measurement for the graph positions reduced by the locally hypothesized node
+            reduced_graph_positions = graph_positions;
+            reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
+            reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
+
             // Calculate the total force needed for the currently assumed associations
+            AssociatedMeasurement associations;
             double total_cost = local_cost + associateFancy( reduced_graph_positions, reduced_measurement, associations );
 
             // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
@@ -290,45 +296,6 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     return best_cost;
 }
 
-// -----------------------------------------------------------------------------------------------
-
-void Associator::nearestNeighbor( const Measurement& measurement, const std::vector<geo::Vec3d> prediction )
-{
-    for ( std::vector<geo::Vec3d>::const_iterator it_m = measurement.points.begin(); it_m != measurement.points.end(); ++it_m )
-    {
-        double best_dist_sq = 1.0e9;
-        int best_guess = -1;
-        geo::Vec3d best_pos;
-        double max_dist_sq = max_association_dist_ * max_association_dist_;
-
-        // Go through nodes in path (nodes to be associated from far to close) to check if one associates with the measured point
-        for ( Path::iterator it_p = path_.begin(); it_p != path_.end(); ++it_p )
-        {
-            int i = *it_p;
-            double dx_sq = (*it_m - prediction[i]).length2();
-            if ( dx_sq < max_dist_sq )
-            {
-                if ( dx_sq < best_dist_sq )
-                {
-                    best_dist_sq = dx_sq;
-                    best_pos = *it_m;
-                    best_guess = i;
-                }
-            }
-        }
-
-        // Check if an association is made, and if so, push it into associations
-        if ( best_guess > -1 )
-        {
-            associations_.nodes.push_back(best_guess);
-            associations_.measurement.points.push_back(best_pos);
-        }
-        else
-        {
-            unassociated_points_.points.push_back(*it_m);
-        }
-    }
-}
 
 // -----------------------------------------------------------------------------------------------
 
@@ -354,6 +321,8 @@ geo::Vec3d Associator::getMostRecentNodePosition(const AssociatedMeasurement& as
 
 bool Associator::getAssociations( const Graph& graph, const Measurement& measurement, AssociatedMeasurement& associations, const int goal_node_i )
 {
+    calls_ = 0;
+
     // Find a path through the graph starting from the associated nodes
     PathFinder pathFinder( *graph_ptr_, associations_.nodes );
     pathFinder.findPath( goal_node_i, path_ );
@@ -381,10 +350,18 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
         path_positions.measurement.points.push_back(positions[path_[index]]);
     }
 
-    // Call the recursive association algorithm
+    tue::Timer timer;
+    timer.start();
+
+    // Call the recursive association algorithms
+//    associate( path_positions, measurement, associations );
     associateFancy( path_positions, measurement, associations );
 
+    std::cout << "Association time: " << timer.getElapsedTimeInMilliSec() << std::endl;
+
     associated_ = true;
+
+    std::cout << "number of (recursive) function calls: " << calls_ << std::endl;
 
     return true;
 }
