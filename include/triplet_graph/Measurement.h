@@ -19,7 +19,6 @@ struct Measurement
     std::vector<double> uncertainties; // Uncertainties corresponding to points TODO: fill this when calculating positions in graph and using sensor model in corner detector!
     std::string frame_id;
 
-    void pop_back(){ points.pop_back(); uncertainties.pop_back(); }
 };
 
 // -----------------------------------------------------------------------------------------------
@@ -31,8 +30,6 @@ struct AssociatedMeasurement
 
     // A vector of node indices to which the measurement is associated (index of point in measurement is the same as index of node number in nodes)
     std::vector<int> nodes;
-
-    void pop_back(){ measurement.pop_back(); nodes.pop_back(); }
 };
 
 Measurement operator*(const geo::Transform& lhs, const Measurement& rhs);
