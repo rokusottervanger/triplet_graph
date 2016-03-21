@@ -114,6 +114,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
             // create a new measurement for the graph positions reduced by the locally hypothesized node
             reduced_graph_positions = graph_positions;
             reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
+            reduced_graph_positions.node_indices.erase(reduced_graph_positions.nodes[i]);
             reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
 
             // Calculate further associations given current hypothesis
@@ -138,6 +139,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
     if ( best_node > -1 )
     {
         resulting_associations.measurement.points.push_back(cur_measurement_pt);
+        resulting_associations.node_indices[best_node] = resulting_associations.nodes.size();
         resulting_associations.nodes.push_back(best_node);
     }
 
@@ -162,6 +164,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         resulting_associations.measurement.time_stamp = measurement.time_stamp;
         return 0.0;
     }
+
 
 
     // ------------------------------
@@ -226,6 +229,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             // Get edge lengths of current graph node to its parents in the path
             std::vector<Edge2> edges = graph_ptr_->getEdge2s();
             Graph::const_iterator node_it = graph_ptr_->begin()+graph_positions.nodes[i];
+
             Edge2 edge_1 = edges[ node_it->edgeByPeer(parent_1_i) ];
             Edge2 edge_2 = edges[ node_it->edgeByPeer(parent_2_i) ];
 
@@ -259,18 +263,21 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
 
         }
 
-
         // Only if local cost is lower than the threshold for the total cost, proceed with further associations
         if ( local_cost < max_no_std_devs_ )
         {
+
             // create a new measurement for the graph positions reduced by the locally hypothesized node
             reduced_graph_positions = graph_positions;
             reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
+            reduced_graph_positions.node_indices.erase(reduced_graph_positions.nodes[i]);
             reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
+
 
             // Calculate the total force needed for the currently assumed associations
             AssociatedMeasurement associations;
             double total_cost = local_cost + associateFancy( reduced_graph_positions, reduced_measurement, associations );
+
 
             // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
             if ( total_cost < best_cost )
@@ -278,6 +285,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
                 best_cost = total_cost;
                 resulting_associations = associations;
                 best_node = graph_positions.nodes[i];
+
             }
         }
     }
@@ -290,6 +298,8 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     if ( best_node > -1 )
     {
         resulting_associations.measurement.points.push_back(cur_measurement_pt);
+        resulting_associations.measurement.uncertainties.push_back(cur_measurement_std_dev);
+        resulting_associations.node_indices[best_node] = resulting_associations.nodes.size();
         resulting_associations.nodes.push_back(best_node);
     }
 
@@ -301,17 +311,19 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
 
 geo::Vec3d Associator::getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, int node_i)
 {
-    std::vector<int>::const_iterator node_it = std::find(associations.nodes.begin(),associations.nodes.end(),node_i); // TODO: twee woorden negen letters
+    std::map<int,int>::const_iterator index_it = associations.node_indices.find(node_i);
 
-    if ( node_it == associations.nodes.end() )
+    if ( index_it == associations.node_indices.end() )
     {
-        int index = std::find(graph_positions.nodes.begin(),graph_positions.nodes.end(),node_i) - graph_positions.nodes.begin();
+        index_it = graph_positions.node_indices.find(node_i);
+        const int index = index_it->second;
 
-        return graph_positions.measurement.points[index]; // TODO: twee woorden negen letters
+        return graph_positions.measurement.points[ index ];
     }
     else
     {
-        return associations.measurement.points[ node_it-associations.nodes.begin() ];
+        const int index = index_it->second;
+        return associations.measurement.points[ index ];
     }
 
 }
@@ -346,6 +358,7 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
         // Calculate index in path
         int index = path_.size()-i; // Assumes order in path!!!!!!!
 
+        path_positions.node_indices[path_[index]] = path_positions.nodes.size();
         path_positions.nodes.push_back(path_[index]);
         path_positions.measurement.points.push_back(positions[path_[index]]);
     }

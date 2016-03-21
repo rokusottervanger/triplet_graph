@@ -41,6 +41,8 @@ int main(int argc, char** argv)
     triplet_graph::OdomTracker odomTracker;
     triplet_graph::Visualizer visualizer;
 
+    std::string sensor_frame_id;
+
 
     // - - - - - - - - - - - - - - - - - -
     // Configure corner detection
@@ -50,6 +52,13 @@ int main(int argc, char** argv)
         std::cout << "Configuring corner detector..." << std::endl;
         if ( !cornerDetector.configure(config) )
             return -1;
+
+        if ( !config.value("frame_id", sensor_frame_id) )
+        {
+            std::cout << "\033[31m" << "No frame_id found in corner_detector config" << "\033[0m" << std::endl;
+            return -1;
+        }
+
         std::cout << "Done!" << std::endl << std::endl;
         config.endGroup();
     }
@@ -136,6 +145,7 @@ int main(int argc, char** argv)
         {
             int node;
             config.value("node",node);
+            old_associations.node_indices[node] = old_associations.nodes.size();
             old_associations.nodes.push_back(node);
 
             double x,y;

@@ -30,6 +30,8 @@ struct AssociatedMeasurement
 
     // A vector of node indices to which the measurement is associated (index of point in measurement is the same as index of node number in nodes)
     std::vector<int> nodes;
+
+    std::map<int,int> node_indices;
 };
 
 Measurement operator*(const geo::Transform& lhs, const Measurement& rhs);

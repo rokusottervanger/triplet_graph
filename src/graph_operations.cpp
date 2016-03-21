@@ -335,6 +335,7 @@ void associate(Graph &graph,
     associator.setAssociations(associations);
 
     associations.nodes.clear();
+    associations.node_indices.clear();
     associations.measurement.points.clear();
 
     associator.getAssociations(graph, measurement, associations, goal_node_i);
@@ -544,6 +545,7 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
         }
 
         // Add newly found point to associations
+        associations.node_indices[n1] = associations.nodes.size();
         associations.nodes.push_back(n1);
         associations.measurement.points.push_back(pt1);
     }
@@ -561,7 +563,7 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
  * performed twice, so minimize use of this.
  */
 {
-    std::vector<geo::Vec3d> positions(graph.size());\
+    std::vector<geo::Vec3d> positions(graph.size());
     for ( unsigned int i = 0; i < associations.nodes.size(); ++i )
     {
         positions[associations.nodes[i]] = associations.measurement.points[i];
@@ -592,6 +594,7 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
         }
 
         vis_measurement.measurement.points.push_back(positions[node_i]);
+        vis_measurement.node_indices[node_i] = vis_measurement.nodes.size();
         vis_measurement.nodes.push_back(node_i);
     }
 
