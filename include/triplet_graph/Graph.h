@@ -56,6 +56,7 @@ public:
     std::vector<Edge2> getEdge2s() const {return edges_;}
     std::vector<Edge3> getEdge3s() const {return triplets_;}
 
+    // -----------------------------------------------------------------------------------------------
 
     // TODO: implement iterators for edges and triplets
     class NodeIterator : public std::iterator<std::forward_iterator_tag, Node>
@@ -112,6 +113,61 @@ public:
     inline const_iterator end() const { return const_iterator(nodes_.end());}
 
     inline int size() const { return nodes_.size() - deleted_nodes_.size(); }
+
+    // -----------------------------------------------------------------------------------------------
+
+    class Edge2Iterator : public std::iterator<std::forward_iterator_tag, Edge2>
+    {
+        public:
+
+            Edge2Iterator(const std::vector<Edge2>& v) : it_(v.begin()), it_end_(v.end())
+            {
+                // Skip possible deleted edges at the beginning
+                while(it_ != it_end_ && it_->deleted)
+                    ++it_;
+            }
+
+            Edge2Iterator(const Edge2Iterator& it) : it_(it.it_) {}
+
+            Edge2Iterator(const std::vector<Edge2>::const_iterator& it) : it_(it) {}
+
+            Edge2Iterator& operator++()
+            {
+                // Increase iterator and skip possible zero-entities (deleted entities)
+                do { ++it_; if (it_ == it_end_) break; } while ( it_->deleted);
+                return *this;
+            }
+
+            Edge2Iterator operator++(int) { Edge2Iterator tmp(*this); operator++(); return tmp; }
+
+            bool operator==(const Edge2Iterator& rhs) { return it_ == rhs.it_; }
+
+            bool operator!=(const Edge2Iterator& rhs) { return it_ != rhs.it_; }
+
+            const Edge2& operator*() { return *it_; }
+
+            int operator-(const Edge2Iterator& rhs) { return it_ - rhs.it_; }
+
+            Edge2Iterator operator+=(const int offset) {
+                it_ += offset;
+                return it_;
+            }
+
+            friend Edge2Iterator operator+(Edge2Iterator it, const int offset) { return it+=offset; }
+
+            const Edge2* operator->() const { return &*it_; }
+
+        private:
+
+            std::vector<Edge2>::const_iterator it_;
+            std::vector<Edge2>::const_iterator it_end_;
+    };
+
+    typedef Edge2Iterator const_edge2_iterator;
+
+    inline const_edge2_iterator beginEdges() const { return const_edge2_iterator(edges_); }
+
+    inline const_edge2_iterator endEdges() const { return const_edge2_iterator(edges_.end());}
 
 };
 
