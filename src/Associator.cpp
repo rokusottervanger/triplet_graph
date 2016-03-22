@@ -5,8 +5,6 @@
 #include "triplet_graph/graph_operations.h"
 #include "triplet_graph/PathFinder.h"
 
-#include "tue/profiling/timer.h"
-
 namespace triplet_graph
 {
 
@@ -227,11 +225,10 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         {
             // TODO: Make sure that triplets are also satisfied in association!!!
             // Get edge lengths of current graph node to its parents in the path
-            std::vector<Edge2> edges = graph_ptr_->getEdge2s();
             Graph::const_iterator node_it = graph_ptr_->begin()+graph_positions.nodes[i];
 
-            Edge2 edge_1 = edges[ node_it->edgeByPeer(parent_1_i) ];
-            Edge2 edge_2 = edges[ node_it->edgeByPeer(parent_2_i) ];
+            Graph::const_edge2_iterator edge_1_it = graph_ptr_->beginEdges() + node_it->edgeByPeer(parent_1_i);
+            Graph::const_edge2_iterator edge_2_it = graph_ptr_->beginEdges() + node_it->edgeByPeer(parent_2_i);
 
             // Get the most recent positions of the parent nodes (either the predicted position or the hypothesized associated measurement point),
             geo::Vec3d parent_1_pos = getMostRecentNodePosition(associations, graph_positions, parent_1_i);
@@ -246,13 +243,14 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             double l_2_m = v_2_m.length();
 
             // Calculate the elongation of the edges
-            double e1 = l_1_m - edge_1.l;
-            double e2 = l_2_m - edge_2.l;
+            double e1 = l_1_m - edge_1_it->l;
+            double e2 = l_2_m - edge_2_it->l;
 
             // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
             double cur_measurement_std_dev_sq = cur_measurement_std_dev*cur_measurement_std_dev;
-            double s1 = e1*e1 / ( edge_1.std_dev*edge_1.std_dev + cur_measurement_std_dev_sq );
-            double s2 = e2*e2 / ( edge_2.std_dev*edge_2.std_dev + cur_measurement_std_dev_sq );
+
+            double s1 = e1*e1 / ( edge_1_it->std_dev*edge_1_it->std_dev + cur_measurement_std_dev_sq );
+            double s2 = e2*e2 / ( edge_2_it->std_dev*edge_2_it->std_dev + cur_measurement_std_dev_sq );
 
             // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
             geo::Vec3d dir_1 = v_1_m/l_1_m;
@@ -260,7 +258,6 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
 
             // Calculate the resulting 'force' on the node
             local_cost = (s1*dir_1 + s2*dir_2).length();
-
         }
 
         // Only if local cost is lower than the threshold for the total cost, proceed with further associations
@@ -361,16 +358,12 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
         path_positions.node_indices[path_[index]] = path_positions.nodes.size();
         path_positions.nodes.push_back(path_[index]);
         path_positions.measurement.points.push_back(positions[path_[index]]);
+        path_positions.measurement.uncertainties.push_back(path_.costs[index]);
     }
-
-    tue::Timer timer;
-    timer.start();
 
     // Call the recursive association algorithms
 //    associate( path_positions, measurement, associations );
     associateFancy( path_positions, measurement, associations );
-
-    std::cout << "Association time: " << timer.getElapsedTimeInMilliSec() << std::endl;
 
     associated_ = true;
 

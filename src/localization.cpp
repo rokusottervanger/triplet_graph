@@ -259,8 +259,6 @@ int main(int argc, char** argv)
         // Proceed using latest associations that led to localization
         associations = old_associations;
 
-        std::vector<triplet_graph::Edge2> edges = graph.getEdge2s();
-
 
         // - - - - - - - - - - - - - - - - - -
         // Spin ros and sleep
