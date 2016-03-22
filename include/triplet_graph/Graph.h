@@ -52,9 +52,9 @@ public:
     void flipTriplet(const int i);
 
     // TODO: This still contains the deleted nodes, edges and triplets!
-    std::vector<Node> getNodes() const {return nodes_;}
-    std::vector<Edge2> getEdge2s() const {return edges_;}
-    std::vector<Edge3> getEdge3s() const {return triplets_;}
+    std::vector<Node> getNodes() const {return nodes_;} // TODO: make sure this is never used anymore!
+    std::vector<Edge2> getEdge2s() const {return edges_;} // TODO: make sure this is never used anymore!
+    std::vector<Edge3> getEdge3s() const {return triplets_;} // TODO: add Edge3 iterator and make sure this is never used anymore!
 
     // -----------------------------------------------------------------------------------------------
 

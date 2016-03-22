@@ -362,8 +362,30 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
     }
 
     // Call the recursive association algorithms
-//    associate( path_positions, measurement, associations );
-    associateFancy( path_positions, measurement, associations );
+    // Nearest neighbor association
+    associate( path_positions, measurement, associations );
+
+    Measurement reduced_measurement = measurement;
+
+    for ( int i = 0; i < associations.nodes.size(); ++i )
+    {
+        int node = associations.nodes[i];
+        int path_index = path_positions.node_indices[node];
+
+        path_positions.measurement.points.erase( path_positions.measurement.points.begin() + path_index );
+        path_positions.measurement.uncertainties.erase( path_positions.measurement.uncertainties.begin() + path_index );
+        path_positions.nodes.erase( path_positions.nodes.begin() + path_index );
+        path_positions.node_indices.erase(node);
+
+        geo::Vec3d point = associations.measurement.points[i];
+        std::vector<geo::Vec3d>::iterator m_it = std::find( reduced_measurement.points.begin(), reduced_measurement.points.end(), point);
+        reduced_measurement.points.erase(m_it);
+        reduced_measurement.uncertainties.erase(reduced_measurement.uncertainties.begin()+ (reduced_measurement.points.end() - m_it));
+
+    }
+
+    // Edge tension association
+    associateFancy( path_positions, reduced_measurement, associations );
 
     associated_ = true;
 
