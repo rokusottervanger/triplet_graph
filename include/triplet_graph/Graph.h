@@ -169,6 +169,61 @@ public:
 
     inline const_edge2_iterator endEdges() const { return const_edge2_iterator(edges_.end());}
 
+    // -----------------------------------------------------------------------------------------------
+
+    class Edge3Iterator : public std::iterator<std::forward_iterator_tag, Edge3>
+    {
+        public:
+
+            Edge3Iterator(const std::vector<Edge3>& v) : it_(v.begin()), it_end_(v.end())
+            {
+                // Skip possible deleted edges at the beginning
+                while(it_ != it_end_ && it_->deleted)
+                    ++it_;
+            }
+
+            Edge3Iterator(const Edge3Iterator& it) : it_(it.it_) {}
+
+            Edge3Iterator(const std::vector<Edge3>::const_iterator& it) : it_(it) {}
+
+            Edge3Iterator& operator++()
+            {
+                // Increase iterator and skip possible zero-entities (deleted entities)
+                do { ++it_; if (it_ == it_end_) break; } while ( it_->deleted);
+                return *this;
+            }
+
+            Edge3Iterator operator++(int) { Edge3Iterator tmp(*this); operator++(); return tmp; }
+
+            bool operator==(const Edge3Iterator& rhs) { return it_ == rhs.it_; }
+
+            bool operator!=(const Edge3Iterator& rhs) { return it_ != rhs.it_; }
+
+            const Edge3& operator*() { return *it_; }
+
+            int operator-(const Edge3Iterator& rhs) { return it_ - rhs.it_; }
+
+            Edge3Iterator operator+=(const int offset) {
+                it_ += offset;
+                return it_;
+            }
+
+            friend Edge3Iterator operator+(Edge3Iterator it, const int offset) { return it+=offset; }
+
+            const Edge3* operator->() const { return &*it_; }
+
+        private:
+
+            std::vector<Edge3>::const_iterator it_;
+            std::vector<Edge3>::const_iterator it_end_;
+    };
+
+    typedef Edge3Iterator const_edge3_iterator;
+
+    inline const_edge3_iterator beginTriplets() const { return const_edge3_iterator(triplets_); }
+
+    inline const_edge3_iterator endTriplets() const { return const_edge3_iterator(triplets_.end());}
+
 };
 
 }
