@@ -302,9 +302,7 @@ void Graph::setEdgeRigid(const int n1, const int n2)
 
 void Graph::flipTriplet(const int i)
 {
-    int tmp = triplets_[i].B;
-    triplets_[i].B = triplets_[i].C;
-    triplets_[i].C = tmp;
+    triplets_[i] = triplets_[i].flip();
 }
 
 }
