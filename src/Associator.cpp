@@ -230,6 +230,8 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             Graph::const_edge2_iterator edge_1_it = graph_ptr_->beginEdges() + node_it->edgeByPeer(parent_1_i);
             Graph::const_edge2_iterator edge_2_it = graph_ptr_->beginEdges() + node_it->edgeByPeer(parent_2_i);
 
+            Graph::const_edge3_iterator trip_it = graph_ptr_->beginTriplets() + edge_1_it->tripletByNode(parent_2_i);
+
             // Get the most recent positions of the parent nodes (either the predicted position or the hypothesized associated measurement point),
             geo::Vec3d parent_1_pos = getMostRecentNodePosition(associations, graph_positions, parent_1_i);
             geo::Vec3d parent_2_pos = getMostRecentNodePosition(associations, graph_positions, parent_2_i);
@@ -237,6 +239,19 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             // calculate the vector between the current measurement point and the node's parents
             geo::Vec3d v_1_m = cur_measurement_pt - parent_1_pos;
             geo::Vec3d v_2_m = cur_measurement_pt - parent_2_pos;
+
+            // Check if hypothesis satisfies triplet:
+            // calculate the cross product of the vectors to the node's parents
+            double sign = v_1_m.cross(v_2_m).z;
+
+            // create a dummy triplet from the current point and its parents
+            Edge3 t(graph_positions.nodes[i],parent_1_i,parent_2_i);
+
+            if ( sign < 0 && t == *trip_it || sign > 0 && t.flip() == *trip_it )
+            {
+                continue;
+            }
+
 
             // and calculate the lengths of those vectors
             double l_1_m = v_1_m.length();
@@ -249,7 +264,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
             double cur_measurement_std_dev_sq = cur_measurement_std_dev*cur_measurement_std_dev;
 
-            double s1 = e1*e1 / ( edge_1_it->std_dev*edge_1_it->std_dev + cur_measurement_std_dev_sq );
+            double s1 = e1*e1 / ( edge_1_it->std_dev*edge_1_it->std_dev + cur_measurement_std_dev_sq ); // TODO: define std dev as relative to the length of an edge?
             double s2 = e2*e2 / ( edge_2_it->std_dev*edge_2_it->std_dev + cur_measurement_std_dev_sq );
 
             // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
