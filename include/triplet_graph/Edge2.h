@@ -29,8 +29,6 @@ public:
     int getOtherNode(const int n) const;
     int tripletByNode(const int n) const;
 
-    // TODO: Uncertainty
-
 private:
 
     std::map< int, int> triplet_by_node_; // map from node indices the shared triplet of the three nodes

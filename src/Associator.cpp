@@ -223,7 +223,6 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         }
         else
         {
-            // TODO: Make sure that triplets are also satisfied in association!!!
             // Get edge lengths of current graph node to its parents in the path
             Graph::const_iterator node_it = graph_ptr_->begin()+graph_positions.nodes[i];
 
@@ -248,10 +247,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             Edge3 t(graph_positions.nodes[i],parent_1_i,parent_2_i);
 
             if ( sign < 0 && t == *trip_it || sign > 0 && t.flip() == *trip_it )
-            {
-                continue;
-            }
-
+                continue; // TODO: Verify that this works!
 
             // and calculate the lengths of those vectors
             double l_1_m = v_1_m.length();
@@ -264,8 +260,11 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
             double cur_measurement_std_dev_sq = cur_measurement_std_dev*cur_measurement_std_dev;
 
-            double s1 = e1*e1 / ( edge_1_it->std_dev*edge_1_it->std_dev + cur_measurement_std_dev_sq ); // TODO: define std dev as relative to the length of an edge?
-            double s2 = e2*e2 / ( edge_2_it->std_dev*edge_2_it->std_dev + cur_measurement_std_dev_sq );
+            double stddev1 = edge_1_it->std_dev * edge_1_it->l;
+            double stddev2 = edge_2_it->std_dev * edge_2_it->l;
+
+            double s1 = e1*e1 / ( stddev1*stddev1 + cur_measurement_std_dev_sq );
+            double s2 = e2*e2 / ( stddev2*stddev2 + cur_measurement_std_dev_sq );
 
             // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
             geo::Vec3d dir_1 = v_1_m/l_1_m;
