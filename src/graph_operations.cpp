@@ -93,10 +93,10 @@ bool configure(Graph& g, tue::Configuration &config)
                 double length;
                 if ( config.value("length", length, tue::REQUIRED) )
                 {
-                    double std_dev = 0.2;
+                    double std_dev = 0.1;
                     if ( !config.value("std_dev", std_dev, tue::REQUIRED) )
                     {
-                        std::cout << "[GRAPH] WARNING! No edge std dev defined in config. You're probably using an old config file. Using " << std_dev << " m as default" << std::endl;
+                        std::cout << "[GRAPH] WARNING! No edge std dev defined in config. You're probably using an old config file. Using " << std_dev << " % of edge length as default" << std::endl;
                     }
                     g.addEdge2(n1,n2,length, std_dev);
                 }
