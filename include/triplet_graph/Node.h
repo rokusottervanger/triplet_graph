@@ -12,7 +12,7 @@ class Node
 {
     friend class Graph;
 public:
-    Node(std::string id = generateId() ):id(id){}
+    Node(std::string id = generateId() ):id(id), deleted(false){}
 
     static std::string generateId();
 
@@ -29,6 +29,7 @@ public:
     void addTriplet(const int triplet);
     void addEdge(const int edge);
 
+    bool deleted;
 // TODO:
 //    void deleteTriplet(const int triplet);
 //    void deleteEdge(const int edge);

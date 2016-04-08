@@ -19,7 +19,7 @@ public:
 
     // -----------------------------------------------------------------------------------------------
 
-    inline int getThirdNode(const int node1, const int node2)
+    inline int getThirdNode(const int node1, const int node2) const
     {
         if ( A == node1 && B == node2 )
             return C;

@@ -191,8 +191,8 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
  * and must contain at least the positions of the root nodes of the given path.
  */
 {
-    std::vector<Edge2> edges = graph.getEdge2s();
-    std::vector<Edge3> triplets = graph.getEdge3s();
+//    std::vector<Edge2> edges = graph.getEdge2s();
+//    std::vector<Edge3> triplets = graph.getEdge3s();
 
     // Calculate positions of nodes that are to be associated
     for ( int i = 1; i <= path.size(); ++i )
@@ -215,25 +215,37 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         int parents_edge_i = (graph.begin() + parent1_i)->edgeByPeer(parent2_i);
         if ( parents_edge_i == -1 )
         {
-            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! No edge connects parents " << parent1_i << " and " << parent2_i << ". This is never supposed to happen!" << "\033[0m" << std::endl;
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! No edge connects parents " << parent1_i << " and " << parent2_i << ". This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
 
         // Get triplet that connects parents' edge with new node
-        int triplet_i = edges[parents_edge_i].tripletByNode(node_i);
+        Graph::const_edge2_iterator parents_edge_it = graph.beginEdges() + parents_edge_i;
+        if ( parents_edge_it->deleted )
+        {
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted edge in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
+            return;
+        }
+
+        int triplet_i = parents_edge_it->tripletByNode(node_i);
         if ( triplet_i == -1 )
         {
-            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! No triplet connects node " << node_i << " with its parents " << parent1_i << " and " << parent2_i << ". This is never supposed to happen!" << "\033[0m" << std::endl;
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! No triplet connects node " << node_i << " with its parents " << parent1_i << " and " << parent2_i << ". This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
 
         // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
         // If clockwise (wrong direction) swap parent nodes.
-        Edge3 trip = triplets[triplet_i];
+        Graph::const_edge3_iterator trip_it = graph.beginTriplets() + triplet_i;
+        if ( trip_it->deleted )
+        {
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted triplet in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
+            return;
+        }
 
-        if ( parent1_i == trip.B && parent2_i == trip.A ||
-             parent1_i == trip.A && parent2_i == trip.C ||
-             parent1_i == trip.C && parent2_i == trip.B ) // TODO: make this nicer?
+        if ( parent1_i == trip_it->B && parent2_i == trip_it->A ||
+             parent1_i == trip_it->A && parent2_i == trip_it->C ||
+             parent1_i == trip_it->C && parent2_i == trip_it->B ) // TODO: make this nicer?
         {
             int tmp = parent1_i;
             parent1_i = parent2_i;
@@ -243,24 +255,34 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         int edge_1_i = (graph.begin() + parent1_i)->edgeByPeer(node_i);
         if ( edge_1_i == -1 )
         {
-            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
 
         int edge_2_i = (graph.begin() + parent2_i)->edgeByPeer(node_i);
         if ( edge_2_i == -1 )
         {
-            std::cout << "\033[31m" << "[GRAPH] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
 
-        Edge2 edge_1 = edges[edge_1_i];
-        Edge2 edge_2 = edges[edge_2_i];
-        Edge2 parents_edge = edges[parents_edge_i];
+        Graph::const_edge2_iterator edge_1_it = graph.beginEdges() + edge_1_i;
+        if ( edge_1_it->deleted )
+        {
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted edge in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
+            return;
+        }
 
-        double l1 = edge_1.l;
-        double l2 = edge_2.l;
-        double l3 = parents_edge.l;
+        Graph::const_edge2_iterator edge_2_it = graph.beginEdges() + edge_2_i;
+        if ( edge_2_it->deleted )
+        {
+            std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted edge in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
+            return;
+        }
+
+        double l1 = edge_1_it->l;
+        double l2 = edge_2_it->l;
+        double l3 = parents_edge_it->l;
 
         // I'm gonna need the squares of two of those lengths
         double l1_sq = l1*l1;
@@ -271,7 +293,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         double k = sqrt(l1_sq - s*s);
 
         // Define the triangle frame and espress the position of the new node in the sensor frame
-        geo::Vec3d base_x = (positions[parent2_i] - positions[parent1_i])/edges[parents_edge_i].l;
+        geo::Vec3d base_x = (positions[parent2_i] - positions[parent1_i])/l3;
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
 
         positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
@@ -354,20 +376,26 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
  * points to the existing graph.
  */
 {
-    std::vector<Edge2> edges = graph.getEdge2s();
-    std::vector<Edge3> triplets = graph.getEdge3s();
+//    std::vector<Edge2> edges = graph.getEdge2s();
+//    std::vector<Edge3> triplets = graph.getEdge3s();
 
     int i = 0;
     for ( std::vector<int>::const_iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
     {
         int n1 = *it_1;
-        Node node1 = graph.getNodes()[n1];
+
+        Graph::const_iterator node1_it = graph.begin() + *it_1;
+        if ( node1_it->deleted )
+        {
+            std::cout << "\033[31m" << "[updateGraph] ERROR! Bug! There's a deleted node in the associations. This is never supposed to happen!" << "\033[0m" << std::endl;
+            return;
+        }
 
         int j = 0;
         for ( std::vector<int>::const_iterator it_2 = associations.nodes.begin(); it_2 != it_1; ++it_2 )
         {
             int n2 = *it_2;
-            int e = node1.edgeByPeer(n2);
+            int e = node1_it->edgeByPeer(n2);
 
             // Calculate vector between measured points
             geo::Vec3d pt1 = associations.measurement.points[i];
@@ -399,14 +427,18 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
                 e = graph.addEdge2(n1, n2, length, default_std_dev);
             }
 
-            edges = graph.getEdge2s();
-            Edge2 edge1 = edges[e];
+            Graph::const_edge2_iterator edge_1_it = graph.beginEdges() + e;
+            if ( edge_1_it->deleted )
+            {
+                std::cout << "\033[31m" << "[updateGraph] ERROR! Bug! There's a deleted edge stored in the connected nodes. This is never supposed to happen!" << "\033[0m" << std::endl;
+                return;
+            }
 
             int k = 0;
             for ( std::vector<int>::const_iterator it_3 = associations.nodes.begin(); it_3 != it_2; ++it_3 )
             {
                 int n3 = *it_3;
-                int t = edge1.tripletByNode(n3);
+                int t = edge_1_it->tripletByNode(n3);
 
                 // Get the third measurement point
                 geo::Vec3d pt3 = associations.measurement.points[k];
@@ -423,12 +455,17 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
                     if ( update_lengths )
                     {
                         // get a copy of the triplet.
-                        Edge3 triplet = triplets[t];
+                        Graph::const_edge3_iterator trip_it = graph.beginTriplets() + t;
+                        if ( trip_it->deleted )
+                        {
+                            std::cout << "\033[31m" << "[updateGraph] ERROR! Bug! There's a deleted edge in an edge's list of triplets. This is never supposed to happen!" << "\033[0m" << std::endl;
+                            return;
+                        }
 
                         // If order of nodes n1, n2 and n2 is the same as in triplet...
-                        if ( n1 == triplet.A && n2 == triplet.B && n3 == triplet.C ||
-                             n1 == triplet.B && n2 == triplet.C && n3 == triplet.A ||
-                             n1 == triplet.C && n2 == triplet.A && n3 == triplet.B ) // TODO: make this nicer?
+                        if ( n1 == trip_it->A && n2 == trip_it->B && n3 == trip_it->C ||
+                             n1 == trip_it->B && n2 == trip_it->C && n3 == trip_it->A ||
+                             n1 == trip_it->C && n2 == trip_it->A && n3 == trip_it->B ) // TODO: make this nicer?
                         {
                             // check if that order is clockwise, and if it is...
                             if ( sign < 0 )
@@ -620,9 +657,8 @@ void save(const Graph &graph, const std::string &filename)
     }
     config.endArray();
 
-    std::vector<Edge2> edges = graph.getEdge2s();
     config.writeArray("edges");
-    for ( std::vector<Edge2>::const_iterator it = edges.begin(); it != edges.end(); ++it )
+    for ( Graph::const_edge2_iterator it = graph.beginEdges(); it != graph.endEdges(); ++it )
     {
         config.addArrayItem();
         config.setValue("n1",s+(graph.begin() + it->A)->id+s);
@@ -632,9 +668,8 @@ void save(const Graph &graph, const std::string &filename)
     }
     config.endArray();
 
-    std::vector<Edge3> triplets = graph.getEdge3s();
     config.writeArray("triplets");
-    for ( std::vector<Edge3>::const_iterator it = triplets.begin(); it != triplets.end(); ++it )
+    for ( Graph::const_edge3_iterator it = graph.beginTriplets(); it != graph.endTriplets(); ++it )
     {
         config.addArrayItem();
         config.setValue("n1",s+(graph.begin() + it->A)->id+s);
@@ -644,7 +679,7 @@ void save(const Graph &graph, const std::string &filename)
     }
     config.endArray();
 
-    std::cout << "Writing " << graph.size() << " nodes, " << edges.size() << " edges and " << triplets.size() << " triplets to " << filename.c_str() << std::endl;
+    std::cout << "Writing " << graph.size() << " nodes, " << graph.numEdges() << " edges and " << graph.numTriplets() << " triplets to " << filename.c_str() << std::endl;
 
     // Convert config to yaml string and write to file.
     std::ofstream file;

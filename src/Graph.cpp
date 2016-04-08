@@ -157,7 +157,7 @@ void Graph::deleteNode(const int i)
         deleteEdge2(*it);
     }
 
-    nodes_[i] = Node("");
+    nodes_[i].deleted = true;
     deleted_nodes_.push_back(i);
     std::cout << "Deleted node " << i << std::endl;
     std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted nodes is not completely implemented yet!" << "\033[0m" << std::endl;
@@ -269,7 +269,6 @@ void Graph::deleteEdge3(const int i)
     triplets_[i].deleted = true;
     deleted_triplets_.push_back(i);
     std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted triplets is not completely implemented yet!" << "\033[0m" << std::endl;
-    // TODO: make sure that triplet cannot be found in graph anymore after deletion (using triplet iterator?)
     // TODO: Why would you want to do this? And does that mean that you want to remove the involved edges as well?
 }
 

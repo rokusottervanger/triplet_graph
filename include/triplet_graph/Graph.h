@@ -52,9 +52,9 @@ public:
     void flipTriplet(const int i);
 
     // TODO: This still contains the deleted nodes, edges and triplets!
-    std::vector<Node> getNodes() const {return nodes_;} // TODO: make sure this is never used anymore!
-    std::vector<Edge2> getEdge2s() const {return edges_;} // TODO: make sure this is never used anymore!
-    std::vector<Edge3> getEdge3s() const {return triplets_;} // TODO: add Edge3 iterator and make sure this is never used anymore!
+//    std::vector<Node> getNodes() const {return nodes_;} // TODO: make sure this is never used anymore!
+//    std::vector<Edge2> getEdge2s() const {return edges_;} // TODO: make sure this is never used anymore!
+//    std::vector<Edge3> getEdge3s() const {return triplets_;} // TODO: add Edge3 iterator and make sure this is never used anymore!
 
     // -----------------------------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ public:
             NodeIterator(const std::vector<Node>& v) : it_(v.begin()), it_end_(v.end())
             {
                 // Skip possible deleted nodes at the beginning
-                while(it_ != it_end_ && it_->id == "")
+                while(it_ != it_end_ && it_->deleted)
                     ++it_;
             }
 
@@ -77,7 +77,7 @@ public:
             NodeIterator& operator++()
             {
                 // Increase iterator and skip possible zero-entities (deleted entities)
-                do { ++it_; if (it_ == it_end_) break; } while ( it_->id == "");
+                do { ++it_; if (it_ == it_end_) break; } while ( it_->deleted);
                 return *this;
             }
 
@@ -169,6 +169,8 @@ public:
 
     inline const_edge2_iterator endEdges() const { return const_edge2_iterator(edges_.end());}
 
+    inline int numEdges() const { return edges_.size() - deleted_edges_.size(); }
+
     // -----------------------------------------------------------------------------------------------
 
     class Edge3Iterator : public std::iterator<std::forward_iterator_tag, Edge3>
@@ -188,8 +190,8 @@ public:
 
             Edge3Iterator& operator++()
             {
-                // Increase iterator and skip possible zero-entities (deleted entities)
-                do { ++it_; if (it_ == it_end_) break; } while ( it_->deleted);
+                // Increase iterator and skip any deleted entities
+                do { ++it_; if (it_ == it_end_) break; } while ( it_->deleted );
                 return *this;
             }
 
@@ -223,6 +225,8 @@ public:
     inline const_edge3_iterator beginTriplets() const { return const_edge3_iterator(triplets_); }
 
     inline const_edge3_iterator endTriplets() const { return const_edge3_iterator(triplets_.end());}
+
+    inline int numTriplets() const { return triplets_.size() - deleted_triplets_.size(); }
 
 };
 

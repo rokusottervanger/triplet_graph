@@ -23,7 +23,6 @@ public:
 
     bool rigid; // denotes whether or not the distance is fixed in the real world (connected nodes are part of the same rigid object)
 
-
     bool deleted;
 
     int getOtherNode(const int n) const;

@@ -220,12 +220,21 @@ int main(int argc, char** argv)
         // Check if localization was succesful
         if ( associations.nodes.size() >= 2 )
         {
-            std::vector<triplet_graph::Node> nodes = graph.getNodes();
+            triplet_graph::Graph::const_iterator node_it = graph.begin();
+
             for ( std::vector<int>::iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
             {
                 for ( std::vector<int>::iterator it_2 = it_1+1 ; it_2 != associations.nodes.end(); ++it_2 )
                 {
-                    int num_of_common_trips = nodes[*it_1].tripletsByPeer(*it_2).size();
+                    node_it = graph.begin() + *it_1;
+                    if ( node_it->deleted )
+                    {
+                        std::cout << "\033[31m" << "[localization] ERROR! Bug! One of the associated nodes is a deleted node. This is never supposed to happen!" << "\033[0m" << std::endl;
+                        return -1;
+                    }
+
+                    int num_of_common_trips = node_it->tripletsByPeer(*it_2).size();
+
                     if ( num_of_common_trips > 0 )
                     {
                         localized = true;

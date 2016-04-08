@@ -102,13 +102,12 @@ double PathFinder::findPath(const int target_node, Path& path)
         std::cout << "Calculating path to all nodes" << std::endl;
 
     // get a copy of the nodes, edges and triplets in the graph
-    std::vector<Node>  nodes    = graph_->getNodes();
-    std::vector<Edge2> edges    = graph_->getEdge2s();
-    std::vector<Edge3> triplets = graph_->getEdge3s();
+//    std::vector<Node>  nodes    = graph_->getNodes();
+//    std::vector<Edge2> edges    = graph_->getEdge2s();
+//    std::vector<Edge3> triplets = graph_->getEdge3s();
 
     // Track visited edges and triplets
-    std::vector<double> es(edges.size(),1e38);
-    std::vector<double> ts(triplets.size(),1e38);
+    std::vector<double> es(graph_->numEdges(),1e38);
 
     /* The priority queue holds couples of nodes (edges) to be handled, sorted by
      * the sum of the cost to get to those nodes. The cost to get to the first
@@ -129,7 +128,12 @@ double PathFinder::findPath(const int target_node, Path& path)
                     std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
                 else
                 {
-                    int edge = nodes[*it_1].edgeByPeer(*it_2);
+                    Graph::const_iterator node_it = graph_->begin() + *it_1;
+                    if ( node_it->deleted )
+                        std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
+                        continue;
+
+                    int edge = node_it->edgeByPeer(*it_2);
                     if ( edge == -1 )
                     {
                         std::cout << "[FIND_PATH] Warning! Edge between nodes " << *it_1 << " and " << *it_2 << " does not exist!" << std::endl;
@@ -167,8 +171,13 @@ double PathFinder::findPath(const int target_node, Path& path)
         if ( es[u] == -1 )
             continue;
 
+        Graph::const_edge2_iterator edge_it = graph_->beginEdges() + u;
+        if ( edge_it->deleted )
+            std::cout << "[FIND_PATH] Warning! Skipping deleted edge" << std::endl;
+            continue;
+
         // When the target is reached in current edge's A or B node, trace back path
-        if ( target_node != -1 && (edges[u].A == target_node || edges[u].B == target_node))
+        if ( target_node != -1 && (edge_it->A == target_node || edge_it->B == target_node))
         {
             tracePath(target_node, path);
 
@@ -176,7 +185,7 @@ double PathFinder::findPath(const int target_node, Path& path)
             return ns_[target_node];
         }
 
-        std::vector<int> common_triplets = nodes[edges[u].A].tripletsByPeer(edges[u].B);
+        std::vector<int> common_triplets = (graph_->begin() + edge_it->A)->tripletsByPeer(edge_it->B);
 
         if ( common_triplets.size() == 0 )
             std::cout << "Did not find any common triplets" << std::endl;
@@ -185,14 +194,25 @@ double PathFinder::findPath(const int target_node, Path& path)
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
         {
             // Retrieve the right node from the triplet.
-            int v = triplets[*t_it].getThirdNode(edges[u].A,edges[u].B);
+            Graph::const_edge3_iterator trip_it = graph_->beginTriplets() + *t_it;
+            if ( trip_it->deleted )
+                std::cout << "[FIND_PATH] Warning! Skipping deleted triplet" << std::endl;
+                continue;
+
+            int v = trip_it->getThirdNode(edge_it->A,edge_it->B);
+
+            Graph::const_iterator node_it = graph_->begin() + v;
+            if ( node_it->deleted )
+                std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
+                continue;
 
             // TODO: Better weight calculation
             // Check triangle inequality!
             double w;
-            double l1 = edges[u].l;
-            double l2 = edges[nodes[v].edgeByPeer(edges[u].A)].l;
-            double l3 = edges[nodes[v].edgeByPeer(edges[u].B)].l;
+            double l1 = edge_it->l;
+            double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;
+            double l3 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;
+
             double p  = ( l1 + l2 + l3 )/2.0;
             if ( (p-l1)*(p-l2)*(p-l3) < 0 )
             {
@@ -205,15 +225,16 @@ double PathFinder::findPath(const int target_node, Path& path)
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
-            double new_cost = ns_[edges[u].A] + ns_[edges[u].B] + w; // TODO: Now taking sum of node costs plus new cost, is this what I want?
+            double new_cost = ns_[edge_it->A] + ns_[edge_it->B] + w; // TODO: Now taking sum of node costs plus new cost, is this what I want?
             if (ns_[v] > new_cost)
             {
                 ns_[v] = new_cost;
 
                 // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
-                for ( std::vector<int>::iterator e_it = nodes[v].edges.begin(); e_it !=nodes[v].edges.end(); ++e_it )
+                for ( std::vector<int>::const_iterator e_it = node_it->edges.begin(); e_it !=node_it->edges.end(); ++e_it )
                 {
-                    int neighbor = edges[*e_it].getOtherNode(v);
+//                    int neighbor = edges[*e_it].getOtherNode(v);
+                    int neighbor = (graph_->beginEdges() + *e_it)->getOtherNode(v);
 
                     // if neighbor is not visited yet, add it to queue
                     if ( ns_[neighbor] < 1e38 )
@@ -255,7 +276,7 @@ void PathFinder::tracePath(const int target_node, Path& path)
 {
     std::priority_queue<CostInt, std::vector<CostInt>, std::less<CostInt> > trace;
 
-    std::vector<Edge2> edges = graph_->getEdge2s();
+//    std::vector<Edge2> edges = graph_->getEdge2s();
 
     bool add_all;
 
@@ -291,11 +312,16 @@ void PathFinder::tracePath(const int target_node, Path& path)
         if ( visited != -1 )
         {
             // Don't add source nodes (cost == 0) to trace
-            int na = edges[e].A;
+            Graph::const_edge2_iterator edge_it = graph_->beginEdges() + e;
+            if ( edge_it->deleted )
+                std::cout << "[FIND_PATH] Warning! Skipping deleted edge" << std::endl;
+                continue;
+
+            int na = edge_it->A;
             if ( ns_[na] != 0 && !add_all )
                 trace.push(CostInt(ns_[na],na));
 
-            int nb = edges[e].B;
+            int nb = edge_it->B;
             if ( ns_[nb] != 0 && !add_all )
                 trace.push(CostInt(ns_[nb],nb));
 
