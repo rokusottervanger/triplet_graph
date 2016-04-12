@@ -276,9 +276,12 @@ int main(int argc, char** argv)
 
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
 
+        std::cout << "\nGraph visualization:" << std::endl;
+        visualizer.publish(triplet_graph::generateVisualization(graph,associations));
+
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
-        visualizer.publish(triplet_graph::generateVisualization(graph,associations));
+
 
         loop_rate.sleep();
     }
