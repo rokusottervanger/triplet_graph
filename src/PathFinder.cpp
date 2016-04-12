@@ -130,8 +130,10 @@ double PathFinder::findPath(const int target_node, Path& path)
                 {
                     Graph::const_iterator node_it = graph_->begin() + *it_1;
                     if ( node_it->deleted )
+                    {
                         std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
                         continue;
+                    }
 
                     int edge = node_it->edgeByPeer(*it_2);
                     if ( edge == -1 )
