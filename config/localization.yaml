@@ -15,7 +15,7 @@ corner_detector:
             color: {r: 0, g: 1, b: 1}
 association:
     max_association_distance: 0.10
-    max_no_std_devs: 2.0
+    max_no_std_devs: 0.1
 odom_tracker:
     map_frame: "map"
     odom_frame: "amigo/odom"
