@@ -175,8 +175,10 @@ double PathFinder::findPath(const int target_node, Path& path)
 
         Graph::const_edge2_iterator edge_it = graph_->beginEdges() + u;
         if ( edge_it->deleted )
+        {
             std::cout << "[FIND_PATH] Warning! Skipping deleted edge" << std::endl;
             continue;
+        }
 
         // When the target is reached in current edge's A or B node, trace back path
         if ( target_node != -1 && (edge_it->A == target_node || edge_it->B == target_node))
@@ -198,15 +200,19 @@ double PathFinder::findPath(const int target_node, Path& path)
             // Retrieve the right node from the triplet.
             Graph::const_edge3_iterator trip_it = graph_->beginTriplets() + *t_it;
             if ( trip_it->deleted )
+            {
                 std::cout << "[FIND_PATH] Warning! Skipping deleted triplet" << std::endl;
                 continue;
+            }
 
             int v = trip_it->getThirdNode(edge_it->A,edge_it->B);
 
             Graph::const_iterator node_it = graph_->begin() + v;
             if ( node_it->deleted )
+            {
                 std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
                 continue;
+            }
 
             // TODO: Better weight calculation
             // Check triangle inequality!
@@ -316,8 +322,10 @@ void PathFinder::tracePath(const int target_node, Path& path)
             // Don't add source nodes (cost == 0) to trace
             Graph::const_edge2_iterator edge_it = graph_->beginEdges() + e;
             if ( edge_it->deleted )
+            {
                 std::cout << "[FIND_PATH] Warning! Skipping deleted edge" << std::endl;
                 continue;
+            }
 
             int na = edge_it->A;
             if ( ns_[na] != 0 && !add_all )
