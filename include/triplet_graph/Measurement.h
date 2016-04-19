@@ -31,6 +31,7 @@ struct AssociatedMeasurement
     // A vector of node indices to which the measurement is associated (index of point in measurement is the same as index of node number in nodes)
     std::vector<int> nodes;
 
+    // node_indices maps the node indices in the graph to indices of that node in the measurement and the nodes vector
     std::map<int,int> node_indices;
 };
 
