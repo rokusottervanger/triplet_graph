@@ -174,6 +174,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     // Take a measurement point from the measurement to associate
     geo::Vec3d cur_measurement_pt = measurement.points.back();
     double cur_measurement_std_dev = measurement.uncertainties.back();
+    double cur_measurement_std_dev_sq = cur_measurement_std_dev*cur_measurement_std_dev;
     Measurement reduced_measurement = measurement;
     reduced_measurement.points.pop_back();
     reduced_measurement.uncertainties.pop_back();
@@ -217,9 +218,13 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         // If root node, calculation goes differently
         if ( parent_1_i == -1 || parent_2_i == -1 )
         {
-//            TODO: take into account odom error when trying to associate root nodes
-//            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length()/(cur_measurement_std_dev + odom_covariance * cur_measurement_pt.normalized());
-            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length()/cur_measurement_std_dev;
+            // Use the difference vector between the current point and the predicted position of the current node,
+            // and calculate the local cost of reassociating the node with the current point using the same edge
+            // stretch method as in the non-root node case, only without the edge error (but later including an
+            // odometry error model).
+            // TODO: take into account odom error when trying to associate root nodes
+            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length2()/cur_measurement_std_dev_sq;
+//            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length2()/(cur_measurement_std_dev + odom_covariance * cur_measurement_pt.normalized());
         }
         else
         {
@@ -258,7 +263,6 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             double e2 = l_2_m - edge_2_it->l;
 
             // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
-            double cur_measurement_std_dev_sq = cur_measurement_std_dev*cur_measurement_std_dev;
 
             double stddev1 = edge_1_it->std_dev * edge_1_it->l;
             double stddev2 = edge_2_it->std_dev * edge_2_it->l;
@@ -374,7 +378,6 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
     }
 
     // Call the recursive association algorithms
-    // Nearest neighbor association
     associateFancy( path_positions, measurement, associations );
 
     associated_ = true;
