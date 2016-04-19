@@ -302,7 +302,7 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(Graph &graph,
+void associate(const Graph &graph,
                const Measurement &measurement,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
@@ -326,7 +326,7 @@ void associate(Graph &graph,
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(Graph &graph,
+void associate(const Graph &graph,
                const Measurement &measurement,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
@@ -359,8 +359,10 @@ void associate(Graph &graph,
     associations.nodes.clear();
     associations.node_indices.clear();
     associations.measurement.points.clear();
+    associations.measurement.uncertainties.clear();
 
     associator.getAssociations(graph, measurement, associations, goal_node_i);
+
     associator.getPath(path);
     associator.getUnassociatedPoints(unassociated);
 

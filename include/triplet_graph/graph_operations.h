@@ -19,14 +19,14 @@ void setRigidEdges(Graph &graph, const std::vector<int>& nodes);
 
 void calculatePositions(const Graph& graph, std::vector<geo::Vec3d>& positions, const Path& path);
 
-void associate( Graph &graph,
+void associate( const Graph &graph,
                 const Measurement &measurement,
                 AssociatedMeasurement &associations,
                 Measurement &unassociated,
                 const int goal_node_i,
                 tue::Configuration& config);
 
-void associate( Graph &graph,
+void associate( const Graph &graph,
                 const Measurement &measurement,
                 AssociatedMeasurement &associations,
                 Measurement &unassociated,
