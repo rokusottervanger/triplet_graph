@@ -219,9 +219,9 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         if ( parent_1_i == -1 || parent_2_i == -1 )
         {
             // Use the difference vector between the current point and the predicted position of the current node,
-            // and calculate the local cost of reassociating the node with the current point using the same edge
+            // and calculate the local cost of associating the node with the current point using the same edge
             // stretch method as in the non-root node case, only without the edge error (but later including an
-            // odometry error model).
+            // odometry error model), the edge being the distance from the sensor.
             // TODO: take into account odom error when trying to associate root nodes
             local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length2()/cur_measurement_std_dev_sq;
 //            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length2()/(cur_measurement_std_dev + odom_covariance * cur_measurement_pt.normalized());
@@ -353,6 +353,8 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
     PathFinder pathFinder( *graph_ptr_, associations_.nodes );
     pathFinder.findPath( goal_node_i, path_ );
 
+    std::cout << "[ASSOCIATOR]: path_:\n" << path_ << std::endl;
+
     // Put the known positions (from given associations) in the positions vector
     std::vector<geo::Vec3d> positions( graph_ptr_->size() );
     for ( int i = 0; i < associations_.nodes.size(); i++ )
@@ -366,6 +368,7 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
     path_positions.measurement.frame_id = measurement.frame_id;
     path_positions.measurement.time_stamp = measurement.time_stamp;
 
+    std::cout << "[ASSOCIATOR]: Path positions: " << std::endl;
     for ( int i = 1; i <= path_.size(); ++i )
     {
         // Calculate index in path
@@ -375,10 +378,19 @@ bool Associator::getAssociations( const Graph& graph, const Measurement& measure
         path_positions.nodes.push_back(path_[index]);
         path_positions.measurement.points.push_back(positions[path_[index]]);
         path_positions.measurement.uncertainties.push_back(path_.costs[index]);
+
+        std::cout << "[ASSOCIATOR]: Node " << path_positions.nodes.back() << " has position " << path_positions.measurement.points.back() << std::endl;
     }
 
     // Call the recursive association algorithms
     associateFancy( path_positions, measurement, associations );
+
+//    for ( std::vector<int>::const_iterator it = associations.nodes.begin(); it != associations.nodes.end(); ++it )
+    for ( int i = 0; i < associations.nodes.size(); ++i )
+    {
+        std::cout << "[ASSOCIATOR]: Associating node " << associations.nodes[i] << " with point at " << associations.measurement.points[i] << std::endl;
+    }
+    std::cout << std::endl;
 
     associated_ = true;
 
