@@ -6,7 +6,7 @@ corner_detector:
     frame_id: "/amigo/base_laser"
     jump_size: 0.10
     visualization:
-        lifetime: 0.1
+        lifetime: 0
         points:
             name: "corners"
             color: {r: 0, g: 1, b: 0}
@@ -27,7 +27,7 @@ initial_pose:
     - position: {x: 0.12, y: 0.50}
       node: 5
 visualization:
-    lifetime: 0.1
+    lifetime: 0
     points:
         name: "graph_nodes"
         color: {r: 1, g: 0, b: 0}

@@ -9,6 +9,17 @@
 #include <tue/profiling/timer.h>
 #include <tue/config/configuration.h>
 
+// debugging
+#include <iostream>
+#include <csignal>
+
+void signalHandler( int signum )
+{
+    std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+    exit(signum);
+}
+
 int main(int argc, char** argv)
 {
     // - - - - - - - - - - - - - - - - - -
@@ -256,8 +267,8 @@ int main(int argc, char** argv)
         std::cout << "path.size() = " << path.size() << std::endl;
         std::cout << "graph.size() = " << graph.size() << std::endl;
 
-//        if ( loop > 1 && measurement.points.size() > 0 && graph.size() != path.size())
-//            return -1;
+        std::cout << "\nVisualization of node positions as calculated in association..." << std::endl;
+        visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
 
         // If successful, store the associations for the next run
         if ( localized )
@@ -272,18 +283,18 @@ int main(int argc, char** argv)
         // - - - - - - - - - - - - - - - - - -
         // Spin ros and sleep
 
-        ros::spinOnce();
-
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
 
-        std::cout << "\nGraph visualization:" << std::endl;
-        visualizer.publish(triplet_graph::generateVisualization(graph,associations));
+        signal(SIGINT, signalHandler);
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
+//        loop_rate.sleep();
 
+        getchar();
 
-        loop_rate.sleep();
+        ros::spinOnce();
+
     }
 }
 
