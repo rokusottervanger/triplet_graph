@@ -366,7 +366,7 @@ void associate(const Graph &graph,
     associator.getPath(path);
     associator.getUnassociatedPoints(unassociated);
 
-    std::cout << "Found path: " << path << std::endl;
+//    std::cout << "Found path: " << path << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -593,7 +593,7 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
 // -----------------------------------------------------------------------------------------------
 
 // TODO: Implement caching pathfinder and positions data so that path and graph node positions are not calculated twice.
-AssociatedMeasurement generateVisualization(const Graph& graph, const AssociatedMeasurement& associations)
+AssociatedMeasurement generateVisualization(const Graph& graph, const AssociatedMeasurement& associations, const Path& path)
 /**
  * Generates an associated measurement (list of points with corresponding node names)
  * given a graph and at least two given associations, which can be used to visualize
@@ -608,9 +608,9 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
         positions[associations.nodes[i]] = associations.measurement.points[i];
     }
 
-    PathFinder pathFinder(graph, associations.nodes);
-    Path path;
-    pathFinder.findPath(-1,path);
+//    PathFinder pathFinder(graph, associations.nodes);
+//    Path path;
+//    pathFinder.findPath(-1,path);
 
     calculatePositions(graph, positions, path);
 
