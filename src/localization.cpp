@@ -214,7 +214,7 @@ int main(int argc, char** argv)
         // Update position using odom data
 
         std::cout << "Getting odom delta" << std::endl;
-        odomTracker.getDelta(delta,measurement.time_stamp);
+        odomTracker.getDelta(delta,measurement.time_stamp); // TODO: make sure odom error is added to measurement error somewhere around here
 
         old_associations = delta.inverse() * old_associations;
         associations = old_associations;
@@ -227,6 +227,8 @@ int main(int argc, char** argv)
 
         std::cout << "Trying to associate..." << std::endl;
         triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, config );
+
+        visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
 
         // Check if localization was succesful
         if ( associations.nodes.size() >= 2 )
@@ -267,8 +269,17 @@ int main(int argc, char** argv)
         std::cout << "path.size() = " << path.size() << std::endl;
         std::cout << "graph.size() = " << graph.size() << std::endl;
 
-        std::cout << "\nVisualization of node positions as calculated in association..." << std::endl;
-        visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
+        signal(SIGINT, signalHandler);
+
+        std::cout << "\nVisualization of association input graph..." << std::endl;
+
+        getchar();
+
+        std::cout << "\nVisualization of association output graph..." << std::endl;
+
+        triplet_graph::Path path2;
+
+        visualizer.publish(triplet_graph::generateVisualization(graph, associations, path2));
 
         // If successful, store the associations for the next run
         if ( localized )
@@ -285,7 +296,6 @@ int main(int argc, char** argv)
 
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
 
-        signal(SIGINT, signalHandler);
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 

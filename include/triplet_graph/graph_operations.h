@@ -38,7 +38,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
 
 void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations);
 
-AssociatedMeasurement generateVisualization(const Graph& graph, const AssociatedMeasurement& associations, const Path &path);
+AssociatedMeasurement generateVisualization(const Graph& graph, const AssociatedMeasurement& associations, Path &path);
 
 void save(const Graph &graph, const std::string &filename);
 

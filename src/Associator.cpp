@@ -179,7 +179,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     reduced_measurement.points.pop_back();
     reduced_measurement.uncertainties.pop_back();
 
-
+    std::cout << "\nConsidering point " << cur_measurement_pt << " for association with" << std::endl;
 
     // Hypothesize that the measurement point does not associate at all
     // ------------------------------
@@ -192,10 +192,13 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     reduced_graph_positions = graph_positions;
     AssociatedMeasurement associations;
 
+    std::cout << " no node," << std::endl;
+
     // Calculate further associations and set this association and its cost as the benchmark for other associations
     double best_cost = local_cost + associateFancy( reduced_graph_positions, reduced_measurement, associations );
-    resulting_associations = associations;
+    std::cout << "proceeding with " << cur_measurement_pt << " for association with" << std::endl;
 
+    resulting_associations = associations;
 
 
     // Hypothesize association with every graph node
@@ -231,6 +234,8 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             // Get edge lengths of current graph node to its parents in the path
             Graph::const_iterator node_it = graph_ptr_->begin()+graph_positions.nodes[i];
 
+            std::cout << " node " << graph_positions.nodes[i] << " which should be at " << graph_positions.measurement.points[i] << std::endl;
+
             Graph::const_edge2_iterator edge_1_it = graph_ptr_->beginEdges() + node_it->edgeByPeer(parent_1_i);
             Graph::const_edge2_iterator edge_2_it = graph_ptr_->beginEdges() + node_it->edgeByPeer(parent_2_i);
 
@@ -262,6 +267,9 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             double e1 = l_1_m - edge_1_it->l;
             double e2 = l_2_m - edge_2_it->l;
 
+            std::cout << "  stored edge lengths: l1 = " << edge_1_it->l << ", l2 = " << edge_2_it->l << std::endl;
+            std::cout << "  calcld edge lengths: l1 = " << l_1_m << ", l2 = " << l_2_m << std::endl;
+
             // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
 
             double stddev1 = edge_1_it->std_dev * edge_1_it->l;
@@ -281,7 +289,7 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
         // Only if local cost is lower than the threshold for the total cost, proceed with further associations
         if ( local_cost < max_no_std_devs_ )
         {
-
+            std::cout << "   resulting cost is " << local_cost << " < " << max_no_std_devs_ << std::endl;
             // create a new measurement for the graph positions reduced by the locally hypothesized node
             reduced_graph_positions = graph_positions;
             reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
@@ -293,17 +301,21 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             AssociatedMeasurement associations;
             double total_cost = local_cost + associateFancy( reduced_graph_positions, reduced_measurement, associations );
 
+            std::cout << "   resulting total cost of association: " << total_cost << std::endl;
 
             // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
             if ( total_cost < best_cost )
             {
+                std::cout << "    best resulting total cost so far" << std::endl;
                 best_cost = total_cost;
                 resulting_associations = associations;
                 best_node = graph_positions.nodes[i];
 
             }
+            std::cout << "proceeding with " << cur_measurement_pt << " for association with" << std::endl;
         }
     }
+    std::cout << "that's it for this point" << std::endl;
 
 
     // Check what was the best solution
@@ -312,12 +324,20 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
     // If best node was set, there was a good association, so store that in the resulting associations
     if ( best_node > -1 )
     {
+        std::cout << "picking node " << best_node << " for association" << std::endl;
         resulting_associations.measurement.points.push_back(cur_measurement_pt);
         resulting_associations.measurement.uncertainties.push_back(cur_measurement_std_dev);
         resulting_associations.node_indices[best_node] = resulting_associations.nodes.size();
         resulting_associations.nodes.push_back(best_node);
     }
 
+    std::cout << "Associations so far: " << std::endl;
+    for ( std::vector<int>::const_iterator it = resulting_associations.nodes.begin(); it != resulting_associations.nodes.end(); ++it )
+    {
+        std::cout << *it << ", ";
+    }
+    std::cout << std::endl;
+    std::cout << "return!\n" << std::endl;
     return best_cost;
 }
 
@@ -337,6 +357,7 @@ geo::Vec3d Associator::getMostRecentNodePosition(const AssociatedMeasurement& as
     }
     else
     {
+        std::cout << " but associations were assumed for the parents" << std::endl;
         const int index = index_it->second;
         return associations.measurement.points[ index ];
     }
