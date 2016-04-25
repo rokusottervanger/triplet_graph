@@ -22,10 +22,14 @@ odom_tracker:
     base_link_frame: "amigo/base_laser"
 graph_filename: "robotics_testlab_B_partly.yaml"
 initial_pose:
-    - position: {x: 2.11, y: -0.76}
-      node: 2
-    - position: {x: 0.12, y: 0.50}
-      node: 5
+    # - position: {x: 2.11, y: -0.76}
+    #   node: 2
+    # - position: {x: 0.12, y: 0.50}
+    #   node: 5
+    - position: {x: 1.31, y: -0.95}
+      node: 0
+    - position: {x: 1.76, y: -2.10}
+      node: 7
 visualization:
     lifetime: 0
     points:
