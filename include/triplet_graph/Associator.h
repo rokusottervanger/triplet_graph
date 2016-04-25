@@ -26,6 +26,7 @@ public:
     bool getPath(Path& path);
 
 private:
+    Measurement measurement_;
     Measurement unassociated_points_;
     AssociatedMeasurement associations_;
     const Graph* graph_ptr_;
@@ -38,7 +39,7 @@ private:
 
     double associate(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
     double associateFancy(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
-    geo::Vec3d getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, int node_i);
+    geo::Vec3d getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, int node_i, const std::string &indent);
 
     int calls_;
 
