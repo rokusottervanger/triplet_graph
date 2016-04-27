@@ -6,7 +6,7 @@ corner_detector:
     frame_id: "/amigo/base_laser"
     jump_size: 0.10
     visualization:
-        lifetime: 0
+        lifetime: 0.1
         points:
             name: "corners"
             color: {r: 0, g: 1, b: 0}
@@ -22,16 +22,12 @@ odom_tracker:
     base_link_frame: "amigo/base_laser"
 graph_filename: "robotics_testlab_B_partly.yaml"
 initial_pose:
-    # - position: {x: 2.11, y: -0.76}
-    #   node: 2
-    # - position: {x: 0.12, y: 0.50}
-    #   node: 5
-    - position: {x: 1.31, y: -0.95}
-      node: 0
-    - position: {x: 1.76, y: -2.10}
-      node: 7
+    - position: {x: 2.11, y: -0.76}
+      node: 2
+    - position: {x: 0.12, y: 0.50}
+      node: 5
 visualization:
-    lifetime: 0
+    lifetime: 0.1
     points:
         name: "graph_nodes"
         color: {r: 1, g: 0, b: 0}
