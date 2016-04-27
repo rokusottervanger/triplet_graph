@@ -112,7 +112,16 @@ double Associator::associate(const AssociatedMeasurement& graph_positions, const
             // create a new measurement for the graph positions reduced by the locally hypothesized node
             reduced_graph_positions = graph_positions;
             reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
+            reduced_graph_positions.measurement.uncertainties.erase(reduced_graph_positions.measurement.uncertainties.begin()+i);
             reduced_graph_positions.node_indices.erase(reduced_graph_positions.nodes[i]);
+            // TODO: hack, fix more elegantly (?)
+            for ( std::map<int,int>::iterator it = reduced_graph_positions.node_indices.begin(); it != reduced_graph_positions.node_indices.end(); ++it )
+            {
+                if ( it->second > i )
+                {
+                    it->second -= 1;
+                }
+            }
             reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
 
             // Calculate further associations given current hypothesis
@@ -302,9 +311,17 @@ double Associator::associateFancy( const AssociatedMeasurement& graph_positions,
             // create a new measurement for the graph positions reduced by the locally hypothesized node
             reduced_graph_positions = graph_positions;
             reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
+            reduced_graph_positions.measurement.uncertainties.erase(reduced_graph_positions.measurement.uncertainties.begin()+i);
             reduced_graph_positions.node_indices.erase(reduced_graph_positions.nodes[i]);
+            // TODO: hack, fix more elegantly (?)
+            for ( std::map<int,int>::iterator it = reduced_graph_positions.node_indices.begin(); it != reduced_graph_positions.node_indices.end(); ++it )
+            {
+                if ( it->second > i )
+                {
+                    it->second -= 1;
+                }
+            }
             reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
-
 
             // Calculate the total force needed for the currently assumed associations
             AssociatedMeasurement associations;
