@@ -271,11 +271,11 @@ int main(int argc, char** argv)
 
         signal(SIGINT, signalHandler);
 
-        std::cout << "\nVisualization of association input graph..." << std::endl;
+//        std::cout << "\nVisualization of association input graph..." << std::endl;
 
-        getchar();
+//        getchar();
 
-        std::cout << "\nVisualization of association output graph..." << std::endl;
+//        std::cout << "\nVisualization of association output graph..." << std::endl;
 
         triplet_graph::Path path2;
 
@@ -299,9 +299,9 @@ int main(int argc, char** argv)
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
-//        loop_rate.sleep();
+        loop_rate.sleep();
 
-        getchar();
+//        getchar();
 
         ros::spinOnce();
 
