@@ -7,6 +7,7 @@
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/Path.h"
 #include "triplet_graph/Graph.h"
+#include "triplet_graph/CostCalculator.h"
 
 namespace triplet_graph
 {
@@ -32,13 +33,16 @@ private:
     const Graph* graph_ptr_;
     Path path_;
 
+    std::vector<CostCalculator> costCalculators_;
+    std::vector<double> max_assoc_dists_;
+
     bool associated_;
-    double max_association_dist_;
+//    double max_association_dist_;
     double max_association_dist_sq_;
     double max_no_std_devs_;
 
-    double associate(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
-    double associateFancy(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
+    double associate(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations, const CostCalculator& costCalculator);
+//    double associateFancy(const AssociatedMeasurement &graph_positions, const Measurement &measurement, AssociatedMeasurement& resulting_associations);
     geo::Vec3d getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, int node_i);
 
     int calls_;
