@@ -98,8 +98,6 @@ double PathFinder::findPath(const int target_node, Path& path)
         tracePath(target_node, path);
         return ns_[target_node];
     }
-    else
-        std::cout << "Calculating path to all nodes" << std::endl;
 
     // get a copy of the nodes, edges and triplets in the graph
 //    std::vector<Node>  nodes    = graph_->getNodes();

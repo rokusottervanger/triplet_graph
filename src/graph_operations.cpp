@@ -361,7 +361,7 @@ void associate(const Graph &graph,
     associations.measurement.points.clear();
     associations.measurement.uncertainties.clear();
 
-    associator.getAssociations(graph, measurement, associations, goal_node_i);
+    associator.getAssociations(measurement, associations, goal_node_i);
 
     associator.getPath(path);
     associator.getUnassociatedPoints(unassociated);
