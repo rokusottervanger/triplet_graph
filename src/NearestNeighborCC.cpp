@@ -16,8 +16,7 @@ double NearestNeighborCC::calculateCost(const Graph& graph,
                                         const AssociatedMeasurement& input_associations,
                                         Path& path) const
 {
-     // TODO: This is only the squared euclidian distance, go for something like mahalanobis.
-    return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2();
+    return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length() / cur_measurement_std_dev;
 }
 
 }
