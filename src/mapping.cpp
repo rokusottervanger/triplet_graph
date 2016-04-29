@@ -9,6 +9,8 @@
 #include <tue/profiling/timer.h>
 #include <tue/config/configuration.h>
 
+// TODO: update mapping now that localization is working!
+
 int main(int argc, char** argv)
 {
     // - - - - - - - - - - - - - - - - - -
@@ -251,8 +253,6 @@ int main(int argc, char** argv)
 
         // - - - - - - - - - - - - - - - - - -
         // Visualize graph
-
-        // TODO: Make function to easily visualize entire graph
 
         // Calculate positions again to visualize them in rviz:
 //        std::vector<geo::Vec3d> positions(graph.size());

@@ -9,7 +9,7 @@
 namespace triplet_graph
 {
 
-// TODO: Rename this. In graph theory this is not a path, but a directed subgraph with two sources and one sink.
+// todo: Rename this. In graph theory this is not a path, but a directed subgraph with two sources and one sink.
 class Path: public std::vector<int>
 {
 public:

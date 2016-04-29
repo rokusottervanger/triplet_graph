@@ -25,7 +25,7 @@ private:
 
     std::string map_frame_id_;
     std::string odom_frame_id_;
-    std::string base_link_frame_id_;
+    std::string sensor_frame_id_;
 
     tf::TransformListener* tf_listener_;
 

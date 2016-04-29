@@ -9,8 +9,6 @@
 #include <tue/profiling/timer.h>
 #include <tue/config/configuration.h>
 
-// debugging
-#include <iostream>
 #include <csignal>
 
 void signalHandler( int signum )
@@ -175,7 +173,7 @@ int main(int argc, char** argv)
 
             old_associations.append(point, std_dev, node);
         }
-        old_associations.measurement.frame_id = "/amigo/base_laser"; // TODO: hack!
+        old_associations.measurement.frame_id = sensor_frame_id;
         old_associations.measurement.time_stamp = ros::Time::now();
         config.endArray();
     }
@@ -220,7 +218,11 @@ int main(int argc, char** argv)
         // Update position using odom data
 
         std::cout << "Getting odom delta" << std::endl;
-        odomTracker.getDelta(delta,measurement.time_stamp); // TODO: make sure odom error is added to measurement error somewhere around here
+        odomTracker.getDelta(delta,measurement.time_stamp);
+        /* todo: use some odom error model. Don't just add it to the measurement error, because
+         * measurement error is random for every point in a measurement, odom error is random
+         * for every measurement, but constant over the points in one measurement!
+         */
 
         old_associations = delta.inverse() * old_associations;
         associations = old_associations;

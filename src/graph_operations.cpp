@@ -181,9 +181,6 @@ void setRigidEdges(Graph &graph, const std::vector<int>& nodes)
 
 // -----------------------------------------------------------------------------------------------
 
-// TODO: make more efficient! Calculates positions from scratch every iteration,
-// while it would be much more efficient to cache those and transform them to the
-// pose of the new measurement
 void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurement& positions)
 /**
  * Given a graph, a path and a sparse vector of positions, calculates the positions of
@@ -244,7 +241,7 @@ void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurem
 
         if ( parent1_i == trip_it->B && parent2_i == trip_it->A ||
              parent1_i == trip_it->A && parent2_i == trip_it->C ||
-             parent1_i == trip_it->C && parent2_i == trip_it->B ) // TODO: make this nicer?
+             parent1_i == trip_it->C && parent2_i == trip_it->B )
         {
             int tmp = parent1_i;
             parent1_i = parent2_i;

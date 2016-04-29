@@ -98,6 +98,8 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
     // - - - - - - - - - - - - - - - - - -
     // Find corners
 
+    // TODO: in a blocks world, some jumps can also be considered corners.
+
     double step_dist_sq_ = step_dist_*step_dist_;   // squared step size in meters
     int step_size = 0;                          // step size in number of beams
 

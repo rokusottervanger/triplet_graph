@@ -22,9 +22,8 @@ association:
     # max_association_distance: 0.10
     # max_no_std_devs: 1
 odom_tracker:
-    map_frame: "map"
     odom_frame: "amigo/odom"
-    base_link_frame: "amigo/base_laser"
+    sensor_frame_id: "amigo/base_laser"
 graph_filename: "robotics_testlab_B_partly.yaml"
 initial_pose:
     - position: {x: 2.11, y: -0.76}

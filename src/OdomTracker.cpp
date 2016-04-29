@@ -16,9 +16,8 @@ OdomTracker::~OdomTracker()
 
 bool OdomTracker::configure(tue::Configuration &config)
 {
-    config.value("map_frame", map_frame_id_);
     config.value("odom_frame", odom_frame_id_);
-    config.value("base_link_frame", base_link_frame_id_);
+    config.value("sensor_frame", sensor_frame_id_);
 
     if (config.hasError())
     {
@@ -36,9 +35,9 @@ bool OdomTracker::configure(tue::Configuration &config)
 
 void OdomTracker::getDelta(geo::Transform& movement, const ros::Time& time)
 {
-    if (!tf_listener_->waitForTransform(odom_frame_id_, base_link_frame_id_, time, ros::Duration(1.0)))
+    if (!tf_listener_->waitForTransform(odom_frame_id_, sensor_frame_id_, time, ros::Duration(1.0)))
     {
-        ROS_WARN_STREAM("[ODOM TRACKER] Cannot get transform from '" << odom_frame_id_ << "' to '" << base_link_frame_id_ << "'.");
+        ROS_WARN_STREAM("[ODOM TRACKER] Cannot get transform from '" << odom_frame_id_ << "' to '" << sensor_frame_id_ << "'.");
         movement = geo::Transform::identity();
         return;
     }
@@ -49,7 +48,7 @@ void OdomTracker::getDelta(geo::Transform& movement, const ros::Time& time)
     {
         tf::StampedTransform odom_to_base_link_tf;
 
-        tf_listener_->lookupTransform(odom_frame_id_, base_link_frame_id_, time, odom_to_base_link_tf);
+        tf_listener_->lookupTransform(odom_frame_id_, sensor_frame_id_, time, odom_to_base_link_tf);
 
         geo::convert(odom_to_base_link_tf, odom_to_base_link);
 

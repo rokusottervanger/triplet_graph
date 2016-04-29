@@ -31,10 +31,9 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         // Use the difference vector between the current point and the predicted position of the current node,
         // and calculate the local cost of associating the node with the current point using the same edge
         // stretch method as in the non-root node case, only without the edge error (but later including an
-        // odometry error model), the edge being the distance from the sensor.
+        // odometry error model).
         // TODO: take into account odom error when trying to associate root nodes
         return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2()/cur_measurement_std_dev_sq;
-//            local_cost = (cur_measurement_pt - graph_positions.measurement.points[i]).length2()/(cur_measurement_std_dev + odom_covariance * cur_measurement_pt.normalized());
     }
     else
     {
@@ -62,7 +61,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         Edge3 t(graph_positions.nodes[node_index],parent_1_i,parent_2_i);
 
         if ( sign < 0 && t == *trip_it || sign > 0 && t.flip() == *trip_it )
-            return -1.0; // TODO: Verify that this works!
+            return -1.0; // todo: this is very strict. Flat triplets may sometimes invert. How to handle that?
 
         // and calculate the lengths of those vectors
         double l_1_m = v_1_m.length();
@@ -72,7 +71,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         double e1 = l_1_m - edge_1_it->l;
         double e2 = l_2_m - edge_2_it->l;
 
-        // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement TODO: Is this a mathematically correct way to do this???
+        // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement. todo: Check the math on this
         double stddev1 = edge_1_it->std_dev * edge_1_it->l;
         double stddev2 = edge_2_it->std_dev * edge_2_it->l;
 

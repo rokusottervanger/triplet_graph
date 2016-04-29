@@ -15,7 +15,7 @@ struct Measurement
 {
     ros::Time time_stamp;
     std::vector<geo::Vec3d> points;
-    std::vector<geo::Vec3d> line_list; // TODO: remove this?
+    std::vector<geo::Vec3d> line_list; // todo: remove this?
     std::vector<double> uncertainties;
     std::string frame_id;
 

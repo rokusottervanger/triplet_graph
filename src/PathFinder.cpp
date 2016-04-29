@@ -33,44 +33,14 @@ double PathFinder::findPath(Path &path)
 
 // -----------------------------------------------------------------------------------------------
 
-double weighting1(double l_pp, double l_pc1, double l_pc2)
-/* Weighting function for triangles. Uses the lengths of the triangle's edges
+double PathFinder::weighting(double l3, double l1, double l2)
+/** Weighting function for triangles. Uses the lengths of the triangle's edges
  * to calculate the cost of using this triangle to calculate the position of
  * the child node. The first length connects the parent nodes, the other two
  * connect the child node to its respective parents.
- * This function uses the ratio between the two child edge lengths and twice
- * the parent edge length.
- */
-{
-    double AR = ( l_pc1 + l_pc2 )/( 2*l_pp );
-    return AR + 1/AR;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-double weighting2(double l_pp, double l_pc1, double l_pc2)
-/* Weighting function for triangles. Uses the lengths of the triangle's edges
- * to calculate the cost of using this triangle to calculate the position of
- * the child node. The first length connects the parent nodes, the other two
- * connect the child node to its respective parents.
- * This function uses the ratio between the largest and smallest edge
- * lengths.
- */
-{
-    double skewness = std::max(std::max(l_pp,l_pc1),l_pc2)/std::min(std::min(l_pp,l_pc1),l_pc2);
-    return skewness;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-// TODO: Check if i'm using the right lengths at the right places!!!!
-double weighting3(double l3, double l1, double l2)
-/* Weighting function for triangles. Uses the lengths of the triangle's edges
- * to calculate the cost of using this triangle to calculate the position of
- * the child node. The first length connects the parent nodes, the other two
- * connect the child node to its respective parents.
- * This function uses the ratio between the largest and smallest edge
- * lengths.
+ * This function uses the error propagation formula for propagation of errors
+ * in the edges to the error in the position of the node.
+ * TODO: Also use the std dev of the edges in this calculation.
  */
 {
     double l1_sq = l1*l1;
@@ -98,11 +68,6 @@ double PathFinder::findPath(const int target_node, Path& path)
         tracePath(target_node, path);
         return ns_[target_node];
     }
-
-    // get a copy of the nodes, edges and triplets in the graph
-//    std::vector<Node>  nodes    = graph_->getNodes();
-//    std::vector<Edge2> edges    = graph_->getEdge2s();
-//    std::vector<Edge3> triplets = graph_->getEdge3s();
 
     // Track visited edges and triplets
     std::vector<double> es(graph_->numEdges(),1e38);
@@ -212,7 +177,6 @@ double PathFinder::findPath(const int target_node, Path& path)
                 continue;
             }
 
-            // TODO: Better weight calculation
             // Check triangle inequality!
             double w;
             double l1 = edge_it->l;
@@ -226,12 +190,12 @@ double PathFinder::findPath(const int target_node, Path& path)
             }
             else
             {
-                w = weighting3(l1,l2,l3);
+                w = weighting(l1,l2,l3);
             }
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
-            double new_cost = ns_[edge_it->A] + ns_[edge_it->B] + w; // TODO: Now taking sum of node costs plus new cost, is this what I want?
+            double new_cost = ns_[edge_it->A] + ns_[edge_it->B] + w; // New cost is sum of (squared) parent node costs plus (squared) step cost
             if (ns_[v] > new_cost)
             {
                 ns_[v] = new_cost;
@@ -239,7 +203,6 @@ double PathFinder::findPath(const int target_node, Path& path)
                 // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
                 for ( std::vector<int>::const_iterator e_it = node_it->edges.begin(); e_it !=node_it->edges.end(); ++e_it )
                 {
-//                    int neighbor = edges[*e_it].getOtherNode(v);
                     int neighbor = (graph_->beginEdges() + *e_it)->getOtherNode(v);
 
                     // if neighbor is not visited yet, add it to queue
@@ -261,18 +224,6 @@ double PathFinder::findPath(const int target_node, Path& path)
     tracePath(target_node,path);
     all_done_ = true;
 
-//    std::cout << "Prevs_:" << std::endl;
-//    for ( unsigned int i = 0; i < prevs_.size(); ++i )
-//    {
-//        std::cout << prevs_[i] << std::endl;
-//    }
-
-//    std::cout << std::endl << "ns_:" << std::endl;
-//    for ( unsigned int i = 0; i < ns_.size(); ++i )
-//    {
-//        std::cout << ns_[i] << std::endl;
-//    }
-
     return 0;
 }
 
@@ -281,8 +232,6 @@ double PathFinder::findPath(const int target_node, Path& path)
 void PathFinder::tracePath(const int target_node, Path& path)
 {
     std::priority_queue<CostInt, std::vector<CostInt>, std::less<CostInt> > trace;
-
-//    std::vector<Edge2> edges = graph_->getEdge2s();
 
     bool add_all;
 

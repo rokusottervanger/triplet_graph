@@ -204,7 +204,6 @@ void Graph::deleteEdge2(const int i)
     edges_[i].deleted = true;
     deleted_edges_.push_back(i);
     std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted edges is not completely implemented yet!" << "\033[0m" << std::endl;
-    // TODO: make sure that edge cannot be found in graph anymore after deletion (using edge iterator?)
 }
 
 // -----------------------------------------------------------------------------------------------
