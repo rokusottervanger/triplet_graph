@@ -36,7 +36,7 @@ void associate( const Graph &graph,
 
 void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool update_lengths=false);
 
-void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations);
+void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations, const double edge_std_dev);
 
 AssociatedMeasurement generateVisualization(const Graph& graph, const AssociatedMeasurement& associations, Path &path);
 

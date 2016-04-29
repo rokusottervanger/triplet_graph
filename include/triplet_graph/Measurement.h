@@ -16,13 +16,17 @@ struct Measurement
     ros::Time time_stamp;
     std::vector<geo::Vec3d> points;
     std::vector<geo::Vec3d> line_list; // TODO: remove this?
-    std::vector<double> uncertainties; // Uncertainties corresponding to points TODO: fill this when calculating positions in graph and using sensor model in corner detector!
+    std::vector<double> uncertainties;
     std::string frame_id;
+
+    void append( const geo::Vec3d& point, const double uncertainty);
+    void erase( const int index );
+    void clear();
 
 };
 
 // -----------------------------------------------------------------------------------------------
-// TODO: inherit from instead of contain measurement?
+
 struct AssociatedMeasurement
 {
     // A measurement containing all associated points
@@ -33,6 +37,11 @@ struct AssociatedMeasurement
 
     // node_indices maps the node indices in the graph to indices of that node in the measurement and the nodes vector
     std::map<int,int> node_indices;
+
+    void append( const geo::Vec3d& point, const double uncertainty, const int node );
+    void erase( const int index );
+    void clear();
+
 };
 
 Measurement operator*(const geo::Transform& lhs, const Measurement& rhs);

@@ -356,10 +356,7 @@ void associate(const Graph &graph,
     associator.setGraph(graph);
     associator.setAssociations(associations);
 
-    associations.nodes.clear();
-    associations.node_indices.clear();
-    associations.measurement.points.clear();
-    associations.measurement.uncertainties.clear();
+    associations.clear();
 
     associator.getAssociations(measurement, associations, goal_node_i);
 
@@ -509,7 +506,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
 
 // -----------------------------------------------------------------------------------------------
 
-void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations)
+void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasurement &associations, const double edge_std_dev)
 /**
  * Function to extend an existing graph using a measurement of
  * unassociated points and the associated measurement from the same
@@ -528,6 +525,7 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
         return;
 
     // Add unassociated nodes
+    int i = 0;
     for ( std::vector<geo::Vec3d>::const_iterator it = unassociated.points.begin(); it != unassociated.points.end(); ++it )
     {
         int n1 = graph.addNode(Node::generateId());
@@ -548,9 +546,7 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
             // Calculate vector between current new point and current associated point
             geo::Vec3d d21 = pt2 - pt1;
 
-            // TODO: Magic number! Make default standard deviation configurable
-            double default_std_dev = 0.2;
-            graph.addEdge2(n1, n2, d21.length(), default_std_dev );
+            graph.addEdge2(n1, n2, d21.length(), edge_std_dev );
 
             int k = 0;
             for ( std::vector<int>::const_iterator it_3 = associations.nodes.begin(); it_3 != it_2; ++it_3 )
@@ -584,9 +580,9 @@ void extendGraph(Graph &graph, const Measurement &unassociated, AssociatedMeasur
         }
 
         // Add newly found point to associations
-        associations.node_indices[n1] = associations.nodes.size();
-        associations.nodes.push_back(n1);
-        associations.measurement.points.push_back(pt1);
+        associations.append(pt1, unassociated.uncertainties[i], n1);
+
+        ++i;
     }
 }
 
@@ -634,9 +630,7 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
             vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
         }
 
-        vis_measurement.measurement.points.push_back(positions[node_i]);
-        vis_measurement.node_indices[node_i] = vis_measurement.nodes.size();
-        vis_measurement.nodes.push_back(node_i);
+        vis_measurement.append(positions[node_i], 0.0, node_i);
     }
 
     return vis_measurement;

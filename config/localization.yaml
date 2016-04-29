@@ -29,8 +29,10 @@ graph_filename: "robotics_testlab_B_partly.yaml"
 initial_pose:
     - position: {x: 2.11, y: -0.76}
       node: 2
+      std_dev: 0.05
     - position: {x: 0.12, y: 0.50}
       node: 5
+      std_dev: 0.05
 visualization:
     lifetime: 0.1
     points:

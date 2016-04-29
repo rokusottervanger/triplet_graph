@@ -136,55 +136,34 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
     // Copy all graph positions (because nothing was associated, all of them are passed to the next recursion)
     AssociatedMeasurement reduced_graph_positions = graph_positions;
-    AssociatedMeasurement hyp_associations = input_associations;
 
     // Calculate further associations and set this association and its cost as the benchmark for other associations
-    double best_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, hyp_associations, cost_calculator, max_no_std_devs );
+    double best_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, associations, cost_calculator, max_no_std_devs );
 
 
     // Hypothesize association with every graph node
-    // ------------------------------
 
     int best_node = -1;
 
     for ( int i = 0; i < graph_positions.measurement.points.size(); i++ )
     {
 
-        // Calculate cost of hypothesized association
-        // ------------------------------
-        // Calculate local cost using most recent parent positions (use position from associations if possible, otherwise use calculated position from graph_positions)
-
+        // Calculate cost of single hypothesized association
         local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, graph_positions, i, input_associations, path_);
 
         if ( local_cost == -1.0 )
             continue;
 
         // Only if local cost is lower than the threshold for the total cost, proceed with further associations
-        if ( local_cost < max_no_std_devs )
+        if ( local_cost < max_no_std_devs && local_cost < best_cost )
         {
-
             // Add association to progressing hypothesis (which is passed on to further recursions)
             AssociatedMeasurement prog_associations = input_associations;
-
-            prog_associations.measurement.points.push_back(cur_measurement_pt);
-            prog_associations.measurement.uncertainties.push_back(cur_measurement_std_dev);
-            prog_associations.node_indices[graph_positions.nodes[i]] = prog_associations.nodes.size();
-            prog_associations.nodes.push_back(graph_positions.nodes[i]);
-
+            prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[i]);
 
             // create a new measurement for the graph positions reduced by the locally hypothesized node
             reduced_graph_positions = graph_positions;
-            reduced_graph_positions.measurement.points.erase(reduced_graph_positions.measurement.points.begin()+i);
-            reduced_graph_positions.measurement.uncertainties.erase(reduced_graph_positions.measurement.uncertainties.begin()+i);
-            reduced_graph_positions.nodes.erase(reduced_graph_positions.nodes.begin()+i);
-            for ( std::map<int,int>::iterator it = reduced_graph_positions.node_indices.begin(); it != reduced_graph_positions.node_indices.end(); ++it )
-            {
-                if ( it->second > i )
-                {
-                    it->second -= 1; // TODO: hack, fix more elegantly (?)
-                }
-            }
-
+            reduced_graph_positions.erase(i);
 
             // Calculate the total force needed for the currently assumed associations and resulting best associations
             double total_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs );
@@ -193,14 +172,12 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
             if ( total_cost < best_cost )
             {
                 best_cost = total_cost;
-                hyp_associations = prog_associations;
+                associations = prog_associations;
                 best_node = graph_positions.nodes[i];
 
             }
         }
     }
-
-    associations = hyp_associations; // TODO: maybe this distinction is not necessary, check that, because it's an extra copy.
 
     return best_cost;
 }
@@ -210,15 +187,11 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
 bool Associator::getAssociations( const Measurement& measurement, AssociatedMeasurement& associations, const int goal_node_i )
 {
-    calls_ = 0;
-
     measurement_ = measurement;
 
     // Find a path through the graph starting from the associated nodes
     PathFinder pathFinder( *graph_ptr_, associations_.nodes );
     pathFinder.findPath( goal_node_i, path_ );
-
-    std::cout << "[ASSOCIATOR]: path_:\n" << path_ << std::endl;
 
     // Put the known positions (from given associations) in the positions vector
     std::vector<geo::Vec3d> positions( graph_ptr_->size() );
@@ -229,6 +202,8 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
 
     // Calculate the positions of graph nodes on the path
     calculatePositions( *graph_ptr_, positions, path_ );
+
+    // Assemble an AssociatedMeasurement with calculated positions of graph nodes along the path.
     AssociatedMeasurement path_positions;
     path_positions.measurement.frame_id = measurement.frame_id;
     path_positions.measurement.time_stamp = measurement.time_stamp;
@@ -236,19 +211,15 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     for ( int i = 1; i <= path_.size(); ++i )
     {
         // Calculate index in path
-        int index = path_.size()-i; // Assumes order in path!!!!!!!
-
-        path_positions.node_indices[path_[index]] = path_positions.nodes.size();
-        path_positions.nodes.push_back(path_[index]);
-        path_positions.measurement.points.push_back(positions[path_[index]]);
-        path_positions.measurement.uncertainties.push_back(path_.costs[index]);
+        int index = path_.size()-i; // Assumes order in path!
+        path_positions.append(positions[path_[index]], path_.costs[index], path_[index]);
     }
 
     if ( !costCalculators_.size() )
     {
         std::cout << "\033[31m" << "[ASSOCIATOR] GetAssociations: No cost calculator modules available!" << "\033[0m" << std::endl;
     }
-//    for ( std::vector<boost::shared_ptr<CostCalculator> >::const_iterator it = costCalculators_.begin(); it != costCalculators_.end(); ++it )
+
     for ( int i = 0; i < costCalculators_.size(); ++i )
     {
         // Call the recursive association algorithms
@@ -257,8 +228,6 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     }
 
     associated_ = true;
-
-    std::cout << "number of (recursive) function calls: " << calls_ << std::endl;
 
     return true;
 }

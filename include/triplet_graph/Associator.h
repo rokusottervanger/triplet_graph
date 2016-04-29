@@ -46,10 +46,6 @@ private:
                      const CostCalculator& cost_calculator,
                      const double max_no_std_devs);
 
-
-    int calls_;
-
-
 };
 
 }

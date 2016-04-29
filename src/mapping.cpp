@@ -112,6 +112,8 @@ int main(int argc, char** argv)
     int target_node = -1;
     int loop = 0;
 
+    double default_edge_std_dev = 0.1; // TODO: Hack! Magic number!
+
     // old_associations are always the latest associations that yield succesful localization
     triplet_graph::AssociatedMeasurement old_associations;
     bool localized = true;
@@ -235,7 +237,7 @@ int main(int argc, char** argv)
 
         std::cout << "Extending graph with " << unassociated_points.points.size() << " nodes..." << std::endl;
 
-        triplet_graph::extendGraph( graph, unassociated_points, associations );
+        triplet_graph::extendGraph( graph, unassociated_points, associations, default_edge_std_dev );
 
         // extendgraph may add nodes to associations, so store those with the latest localizable associations.
         if ( localized || loop <= 2 )

@@ -156,8 +156,6 @@ int main(int argc, char** argv)
         {
             int node;
             config.value("node",node);
-            old_associations.node_indices[node] = old_associations.nodes.size();
-            old_associations.nodes.push_back(node);
 
             double x,y;
             if ( config.readGroup("position") )
@@ -167,10 +165,18 @@ int main(int argc, char** argv)
                 config.endGroup();
             }
             geo::Vec3d point(x,y,0.0);
-            old_associations.measurement.points.push_back(point);
-            old_associations.measurement.frame_id = "/amigo/base_laser"; // TODO: hack!
-            old_associations.measurement.time_stamp = ros::Time::now();
+
+            double std_dev;
+            if ( !config.value("std_dev", std_dev) )
+            {
+                std::cout << "\033[31m" << "[LOCALIZATION]: Error while configuring initial pose. No std_dev given for initial point" << "\033[0m" << std::endl;
+                return -1;
+            }
+
+            old_associations.append(point, std_dev, node);
         }
+        old_associations.measurement.frame_id = "/amigo/base_laser"; // TODO: hack!
+        old_associations.measurement.time_stamp = ros::Time::now();
         config.endArray();
     }
 
