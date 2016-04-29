@@ -73,14 +73,6 @@ bool Associator::configure(tue::Configuration config)
 
 // -----------------------------------------------------------------------------------------------
 
-void Associator::setAssociations(const AssociatedMeasurement& associations)
-{
-    associations_ = associations;
-    associated_ = false;
-}
-
-// -----------------------------------------------------------------------------------------------
-
 void Associator::setGraph(const Graph& graph)
 {
     graph_ptr_ = &graph;
@@ -96,8 +88,6 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
                               const double max_no_std_devs )
 {
     AssociatedMeasurement input_associations = associations;
-
-    calls_++;
 
 
     // ------------------------------
@@ -187,33 +177,17 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
 bool Associator::getAssociations( const Measurement& measurement, AssociatedMeasurement& associations, const int goal_node_i )
 {
-    measurement_ = measurement;
+    unassociated_points_ = measurement;
 
     // Find a path through the graph starting from the associated nodes
-    PathFinder pathFinder( *graph_ptr_, associations_.nodes );
+    PathFinder pathFinder( *graph_ptr_, associations.nodes );
     pathFinder.findPath( goal_node_i, path_ );
 
-    // Put the known positions (from given associations) in the positions vector
-    std::vector<geo::Vec3d> positions( graph_ptr_->size() );
-    for ( int i = 0; i < associations_.nodes.size(); i++ )
-    {
-        positions[ associations_.nodes[i] ] = associations_.measurement.points[i];
-    }
-
     // Calculate the positions of graph nodes on the path
-    calculatePositions( *graph_ptr_, positions, path_ );
+    AssociatedMeasurement path_positions = associations;
+    calculatePositions( *graph_ptr_, path_, path_positions );
 
-    // Assemble an AssociatedMeasurement with calculated positions of graph nodes along the path.
-    AssociatedMeasurement path_positions;
-    path_positions.measurement.frame_id = measurement.frame_id;
-    path_positions.measurement.time_stamp = measurement.time_stamp;
-
-    for ( int i = 1; i <= path_.size(); ++i )
-    {
-        // Calculate index in path
-        int index = path_.size()-i; // Assumes order in path!
-        path_positions.append(positions[path_[index]], path_.costs[index], path_[index]);
-    }
+    associations.clear();
 
     if ( !costCalculators_.size() )
     {
@@ -223,8 +197,8 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     for ( int i = 0; i < costCalculators_.size(); ++i )
     {
         // Call the recursive association algorithms
-        associate( path_positions, measurement, associations, *costCalculators_[i], max_assoc_dists_[i]);
-        // TODO: reduce measurement with the associated points path positions with the associated nodes before calling associate again.
+        associate( path_positions, unassociated_points_, associations, *costCalculators_[i], max_assoc_dists_[i]);
+        // TODO: reduce unassociated_points with the associated points path positions with the associated nodes before calling associate again.
     }
 
     associated_ = true;

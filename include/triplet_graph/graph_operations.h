@@ -17,7 +17,7 @@ bool load(Graph &g, std::string filename);
 
 void setRigidEdges(Graph &graph, const std::vector<int>& nodes);
 
-void calculatePositions(const Graph& graph, std::vector<geo::Vec3d>& positions, const Path& path);
+void calculatePositions(const Graph& graph, const Path& path, AssociatedMeasurement& positions);
 
 void associate( const Graph &graph,
                 const Measurement &measurement,

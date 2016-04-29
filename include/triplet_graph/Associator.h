@@ -21,17 +21,17 @@ public:
 
     bool configure(tue::Configuration config);
 
-    void setAssociations(const AssociatedMeasurement& associations);
     void setGraph(const Graph& graph);
 
     bool getAssociations(const Measurement &measurement, AssociatedMeasurement& associations, const int goal_node_i );
+
     bool getUnassociatedPoints( Measurement& unassociated_points );
+
     bool getPath(Path& path);
 
 private:
     Measurement measurement_;
     Measurement unassociated_points_;
-    AssociatedMeasurement associations_;
     const Graph* graph_ptr_;
     Path path_;
 

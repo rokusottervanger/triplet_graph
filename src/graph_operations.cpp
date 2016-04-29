@@ -184,16 +184,15 @@ void setRigidEdges(Graph &graph, const std::vector<int>& nodes)
 // TODO: make more efficient! Calculates positions from scratch every iteration,
 // while it would be much more efficient to cache those and transform them to the
 // pose of the new measurement
-void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, const Path& path)
+void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurement& positions)
 /**
  * Given a graph, a path and a sparse vector of positions, calculates the positions of
  * all nodes in the path. The vector of positions must be of the same size as the graph
  * and must contain at least the positions of the root nodes of the given path.
+ * TODO: This should really be cleaned up by using exceptions in graph methods instead
+ * of returning -1 and having to check for that all the time...
  */
 {
-//    std::vector<Edge2> edges = graph.getEdge2s();
-//    std::vector<Edge3> triplets = graph.getEdge3s();
-
     // Calculate positions of nodes that are to be associated
     for ( int i = 1; i <= path.size(); ++i )
     {
@@ -293,10 +292,12 @@ void calculatePositions(const Graph &graph, std::vector<geo::Vec3d>& positions, 
         double k = sqrt(l1_sq - s*s);
 
         // Define the triangle frame and espress the position of the new node in the sensor frame
-        geo::Vec3d base_x = (positions[parent2_i] - positions[parent1_i])/l3;
+        geo::Vec3d parent_1_pos = positions.measurement.points[positions.node_indices[parent1_i]];
+        geo::Vec3d parent_2_pos = positions.measurement.points[positions.node_indices[parent2_i]];
+        geo::Vec3d base_x = (parent_2_pos - parent_1_pos)/l3;
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
 
-        positions[node_i] = base_x * s + base_y * k + positions[parent1_i];
+        positions.append(base_x * s + base_y * k + parent_1_pos, 0.0, node_i); // TODO: magic number for position uncertainty. Maybe use the position uncertainty from path in this?
     }
 }
 
@@ -354,9 +355,6 @@ void associate(const Graph &graph,
     associator.configure(config);
 
     associator.setGraph(graph);
-    associator.setAssociations(associations);
-
-    associations.clear();
 
     associator.getAssociations(measurement, associations, goal_node_i);
 
@@ -598,23 +596,15 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
  * performed twice, so minimize use of this.
  */
 {
-    std::vector<geo::Vec3d> positions(graph.size());
-    for ( unsigned int i = 0; i < associations.nodes.size(); ++i )
-    {
-        positions[associations.nodes[i]] = associations.measurement.points[i];
-    }
+    AssociatedMeasurement vis_measurement = associations;
 
     if ( path.size() == 0 )
     {
-        PathFinder pathFinder(graph, associations.nodes);
+        PathFinder pathFinder(graph, vis_measurement.nodes);
         pathFinder.findPath(-1,path);
     }
 
-    calculatePositions(graph, positions, path);
-
-    AssociatedMeasurement vis_measurement;
-    vis_measurement.measurement.frame_id = associations.measurement.frame_id;
-    vis_measurement.measurement.time_stamp = associations.measurement.time_stamp;
+    calculatePositions(graph, path, vis_measurement);
 
     for ( unsigned int i = 0; i < path.size(); ++i )
     {
@@ -624,13 +614,11 @@ AssociatedMeasurement generateVisualization(const Graph& graph, const Associated
 
         if ( parent1_i > -1 && parent2_i > -1 )
         {
-            vis_measurement.measurement.line_list.push_back(positions[node_i]);
-            vis_measurement.measurement.line_list.push_back(positions[parent1_i]);
-            vis_measurement.measurement.line_list.push_back(positions[node_i]);
-            vis_measurement.measurement.line_list.push_back(positions[parent2_i]);
+            vis_measurement.measurement.line_list.push_back(vis_measurement.measurement.points[vis_measurement.node_indices[node_i]]);
+            vis_measurement.measurement.line_list.push_back(vis_measurement.measurement.points[vis_measurement.node_indices[parent1_i]]);
+            vis_measurement.measurement.line_list.push_back(vis_measurement.measurement.points[vis_measurement.node_indices[node_i]]);
+            vis_measurement.measurement.line_list.push_back(vis_measurement.measurement.points[vis_measurement.node_indices[parent2_i]]);
         }
-
-        vis_measurement.append(positions[node_i], 0.0, node_i);
     }
 
     return vis_measurement;
