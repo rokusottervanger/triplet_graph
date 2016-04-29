@@ -9,7 +9,13 @@
 namespace triplet_graph
 {
 
-double EdgeTensionCC::calculateCost(const Graph& graph , const geo::Vec3d& cur_measurement_pt, const double cur_measurement_std_dev, const AssociatedMeasurement& graph_positions, const int node_index, const AssociatedMeasurement& input_associations, Path& path)
+double EdgeTensionCC::calculateCost(const Graph& graph,
+                                    const geo::Vec3d& cur_measurement_pt,
+                                    const double cur_measurement_std_dev,
+                                    const AssociatedMeasurement& graph_positions,
+                                    const int node_index,
+                                    const AssociatedMeasurement& input_associations,
+                                    Path& path) const
 {
     double cur_measurement_std_dev_sq = cur_measurement_std_dev * cur_measurement_std_dev;
 
@@ -84,7 +90,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph , const geo::Vec3d& cur_m
 
 // -----------------------------------------------------------------------------------------------
 
-geo::Vec3d EdgeTensionCC::getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, int node_i)
+geo::Vec3d EdgeTensionCC::getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, const int node_i) const
 {
     std::map<int,int>::const_iterator index_it = associations.node_indices.find(node_i);
 

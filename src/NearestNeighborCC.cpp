@@ -8,11 +8,16 @@
 namespace triplet_graph
 {
 
-double NearestNeighborCC::calculateCost(const Graph& graph , const geo::Vec3d& cur_measurement_pt, const double cur_measurement_std_dev, const AssociatedMeasurement& graph_positions, const int node_index, const AssociatedMeasurement& input_associations, Path& path)
+double NearestNeighborCC::calculateCost(const Graph& graph,
+                                        const geo::Vec3d& cur_measurement_pt,
+                                        const double cur_measurement_std_dev,
+                                        const AssociatedMeasurement& graph_positions,
+                                        const int node_index,
+                                        const AssociatedMeasurement& input_associations,
+                                        Path& path) const
 {
      // TODO: This is only the squared euclidian distance, go for something like mahalanobis.
-    double local_cost = (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2();
-    return local_cost;
+    return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2();
 }
 
 }
