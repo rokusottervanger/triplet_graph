@@ -1,25 +1,33 @@
 corner_detector:
     laser_topic: "/amigo/base_laser/scan"
+    sensor_noise_std_dev: 0.05
     corner_threshold: 0.08
     step_size: 0.2
     frame_id: "/amigo/base_laser"
     jump_size: 0.10
     visualization:
+        lifetime: 0.1
         points:
             name: "corners"
             color: {r: 0, g: 1, b: 0}
         lines:
             name: "corner_lines"
-            color: {r: 0, g: 0, b: 1}
+            color: {r: 0, g: 1, b: 1}
 association:
-    max_association_distance: 0.10
+    # association_modules:
+    #   - type: "nearest_neighbor"
+    #     max_no_std_devs: 0.5
+    #   - type: "edge_tension"
+    #     max_no_std_devs: 1.0
 odom_tracker:
-    map_frame: "map"
     odom_frame: "amigo/odom"
-    base_link_frame: "amigo/base_laser"
-graph_filename: "robotics_testlab_B_out.yaml"
+    sensor_frame: "amigo/base_laser"
+# graph_filename: "robotics_testlab_B_out.yaml"
 visualization:
-    lifetime: 1.0
+    lifetime: 0.1
     points:
         name: "graph_nodes"
         color: {r: 1, g: 0, b: 0}
+    lines:
+        name: "graph_edges"
+        color: {r: 1, g: 1, b: 0}

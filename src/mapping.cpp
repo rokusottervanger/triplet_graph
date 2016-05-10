@@ -9,7 +9,22 @@
 #include <tue/profiling/timer.h>
 #include <tue/config/configuration.h>
 
-// TODO: update mapping now that localization is working!
+#include <csignal>
+#include <sys/stat.h>
+//#include <unistd.h>
+
+void signalHandler( int signum )
+{
+    std::cout << "Interrupt signal (" << signum << ") received.\n";
+
+    exit(signum);
+}
+
+inline bool file_exists(std::string& filename)
+{
+    struct stat buffer;
+    return ( stat(filename.c_str(), &buffer) == 0 );
+}
 
 int main(int argc, char** argv)
 {
@@ -28,7 +43,6 @@ int main(int argc, char** argv)
     }
 
     std::string config_filename = argv[1];
-    std::string graph_filename;
     config.loadFromYAMLFile(config_filename);
 
     if (config.hasError())
@@ -43,6 +57,8 @@ int main(int argc, char** argv)
     triplet_graph::OdomTracker odomTracker;
     triplet_graph::Visualizer visualizer;
 
+    std::string sensor_frame_id;
+
 
     // - - - - - - - - - - - - - - - - - -
     // Configure corner detection
@@ -52,12 +68,19 @@ int main(int argc, char** argv)
         std::cout << "Configuring corner detector..." << std::endl;
         if ( !cornerDetector.configure(config) )
             return -1;
+
+        if ( !config.value("frame_id", sensor_frame_id) )
+        {
+            std::cout << "\033[31m" << "No frame_id found in corner_detector config" << "\033[0m" << std::endl;
+            return -1;
+        }
+
         std::cout << "Done!" << std::endl << std::endl;
         config.endGroup();
     }
     else
     {
-        std::cout << "\033[31m" << "No config found for corner detector nor for a simulator" << "\033[0m" << std::endl;
+        std::cout << "\033[31m" << "No config found for corner detector" << "\033[0m" << std::endl;
         return -1;
     }
 
@@ -74,7 +97,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::cout << "\033[31m" << "[ODOM TRACKER] Configure: No configuration for odom tracker found!" << "\033[0m" << std::endl;
+        std::cout << "\033[31m" << "No configuration for odom tracker found!" << "\033[0m" << std::endl;
         return -1;
     }
 
@@ -89,25 +112,71 @@ int main(int argc, char** argv)
         config.endGroup();
         std::cout << "Done!" << std::endl << std::endl;
     }
-
-
-    // - - - - - - - - - - - - - - - - - -
-    // Configure association
-
-    double max_association_distance;
-
-    if ( config.readGroup("association") )
+    else
     {
-        config.value("max_association_distance", max_association_distance );
-        config.endGroup();
+        std::cout << "No visualizer configuration found" << std::endl;
+    }
+
+    
+    // - - - - - - - - - - - - - - - - - -
+    // Load and configure graph or get a filename
+
+    std::string graph_filename;
+    if ( config.value("graph_filename",graph_filename) )
+    {
+        std::cout << "Loading initial graph from config file..." << std::endl;
+        if ( !triplet_graph::load(graph, graph_filename) )
+        {
+            std::cout << "Failed to load graph" << std::endl;
+            return -1;
+        }
+        std::cout << "Loaded!" << std::endl;
     }
     else
     {
-        std::cout << "\033[31m" << "[ODOM TRACKER] Configure: No configuration for association found!" << "\033[0m" << std::endl;
-        return -1;
-    }
+        std::cout << "No graph_filename defined in config. Please enter a new filename (without extension) for the new graph or just press enter for a default name:" << std::endl;
 
-    config.value("graph_filename",graph_filename);
+        while ( graph_filename.length() == 0 )
+        {
+            std::cin >> graph_filename;
+
+            // If no name is given, generate a default name (non overwriting)
+            if ( graph_filename.length() == 0 )
+            {
+                int i = 0;
+                do
+                {
+                    i++;
+                    std::stringstream ss;
+                    ss << "graph_" << i << ".yaml";
+                    graph_filename = ss.str();
+                } while ( file_exists( graph_filename ) );
+                break;
+            }
+
+            graph_filename.append(".yaml");
+
+            // TODO: Check for file's existance
+//            if ( file_exists(graph_filename) )
+//            {
+//                std::cout << "File already exists, are you sure you want to overwrite the existing file? (y/n)" << std::endl;
+//                char result = 'a';
+//                while ( result != 'y' && result != 'n' )
+//                {
+//                    std::cout << "result = " << result << std::endl;
+//                    scanf("%c\n", &result);
+//                    std::cout << "result = " << result << std::endl;
+//                    if ( result == 'y' )
+//                        break;
+//                    else if ( result == 'n' )
+//                        graph_filename = "";
+//                    else
+//                        std::cout << "Please type 'y' or 'n'..." << std::endl;
+//                }
+//            }
+        }
+
+    }
 
     ros::Rate loop_rate(15);
 

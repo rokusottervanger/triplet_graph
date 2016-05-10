@@ -35,7 +35,6 @@ int main(int argc, char** argv)
     }
 
     std::string config_filename = argv[1];
-    std::string graph_filename;
     config.loadFromYAMLFile(config_filename);
 
     if (config.hasError())
@@ -73,7 +72,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::cout << "\033[31m" << "No config found for corner detector nor for a simulator" << "\033[0m" << std::endl;
+        std::cout << "\033[31m" << "No config found for corner detector" << "\033[0m" << std::endl;
         return -1;
     }
 
@@ -90,7 +89,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::cout << "\033[31m" << "[ODOM TRACKER] Configure: No configuration for odom tracker found!" << "\033[0m" << std::endl;
+        std::cout << "\033[31m" << "No configuration for odom tracker found!" << "\033[0m" << std::endl;
         return -1;
     }
 
@@ -112,25 +111,9 @@ int main(int argc, char** argv)
 
 
     // - - - - - - - - - - - - - - - - - -
-    // Configure association
-
-    double max_association_distance;
-
-    if ( config.readGroup("association") )
-    {
-        config.value("max_association_distance", max_association_distance );
-        config.endGroup();
-    }
-    else
-    {
-        std::cout << "\033[31m" << "[ODOM TRACKER] Configure: No configuration for association found!" << "\033[0m" << std::endl;
-        return -1;
-    }
-
-
-    // - - - - - - - - - - - - - - - - - -
     // Load and configure graph
 
+    std::string graph_filename;
     if ( config.value("graph_filename",graph_filename) )
     {
         std::cout << "Loading graph from config file..." << std::endl;
@@ -140,6 +123,11 @@ int main(int argc, char** argv)
             return -1;
         }
         std::cout << "Loaded!" << std::endl;
+    }
+    else
+    {
+        std::cout << "No graph_filename defined in config" << std::endl;
+        return -1;
     }
 
     // - - - - - - - - - - - - - - - - - -
