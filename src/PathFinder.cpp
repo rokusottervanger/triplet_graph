@@ -177,25 +177,49 @@ double PathFinder::findPath(const int target_node, Path& path)
                 continue;
             }
 
-            // Check triangle inequality!
-            double w;
-            double l1 = edge_it->l;
-            double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;
-            double l3 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;
 
+            double w;
+            double l3 = edge_it->l;                                                     // Edge between parents
+            double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
+            double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
+
+            // Check triangle inequality!
             double p  = ( l1 + l2 + l3 )/2.0;
+            double x;
             if ( (p-l1)*(p-l2)*(p-l3) < 0 )
             {
                 w = 1e38;
             }
             else
             {
-                w = weighting(l1,l2,l3);
+//                w = weighting(l1,l2,l3);
+
+                double l1_sq = l1*l1;
+                double l2_sq = l2*l2;
+                double l3_sq = l3*l3;
+
+                x = (l1_sq-l2_sq+l3_sq)/(2*l3);
+                double x_sq = x*x;
+
+                double dx_sq = l1_sq/l3_sq + l2_sq/l3_sq + 1/4.0;
+                double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
+                double dy_sq = 1/(l1_sq-x_sq) * thing*thing + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq))+x_sq/(l1_sq-x_sq);
+
+                w =  dx_sq+dy_sq;
             }
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
             // of potential nodes to visit and record what the previous node was.
-            double new_cost = ns_[edge_it->A] + ns_[edge_it->B] + w; // New cost is sum of (squared) parent node costs plus (squared) step cost
+//            double new_cost = ns_[edge_it->A] + ns_[edge_it->B] + w; // New cost is sum of (squared) parent node costs plus (squared) step cost
+
+            double a = ns_[edge_it->A];
+            double a_sq = a*a;
+            double b = ns_[edge_it->B];
+            double b_sq = b*b;
+
+            double new_cost = a_sq + (a_sq + b_sq) * l1*l1/(l3*l3) + a_sq*(1-2*x/l3) + w;
+
+
             if (ns_[v] > new_cost)
             {
                 ns_[v] = new_cost;
