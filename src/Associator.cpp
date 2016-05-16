@@ -96,11 +96,17 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     // ------------------------------
     // ------------------------------
 
+    if ( graph_positions.measurement.points.size() == 0 )
+    {
+        associations.measurement.frame_id = measurement.frame_id;
+        associations.measurement.time_stamp = measurement.time_stamp;
+        return measurement.points.size() * max_no_std_devs;
+    }
     if ( measurement.points.size() == 0 )
     {
         associations.measurement.frame_id = measurement.frame_id;
         associations.measurement.time_stamp = measurement.time_stamp;
-        return 0.0;
+        return 0;
     }
 
 
@@ -110,37 +116,30 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     // ------------------------------
     // ------------------------------
 
-    // Take a measurement point from the measurement to associate
-    geo::Vec3d cur_measurement_pt = measurement.points.back();
-    double cur_measurement_std_dev = measurement.uncertainties.back();
-    Measurement reduced_measurement = measurement;
-    reduced_measurement.points.pop_back();
-    reduced_measurement.uncertainties.pop_back();
+    // Take a node from the path to associate a measurement with
+    AssociatedMeasurement reduced_graph_positions = graph_positions;
+    reduced_graph_positions.erase(0);
 
-
-    // Hypothesize that the measurement point does not associate at all
+    // Hypothesize that no point associates with this node
     // ------------------------------
 
-    // This sets the threshold for association
-    double local_cost = max_no_std_devs;
-
-    // Copy all graph positions (because nothing was associated, all of them are passed to the next recursion)
-    AssociatedMeasurement reduced_graph_positions = graph_positions;
+    // Copy all measurement points (because nothing was associated, all of them are passed to the next recursion)
+    Measurement reduced_measurement = measurement;
 
     // Calculate further associations and set this association and its cost as the benchmark for other associations
-    double best_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, associations, cost_calculator, max_no_std_devs );
+    double best_cost = associate( reduced_graph_positions, reduced_measurement, associations, cost_calculator, max_no_std_devs );
 
 
-    // Hypothesize association with every graph node
+    // Hypothesize association with every measured point
     // ------------------------------
 
-    int best_node = -1;
-
-    for ( int i = 0; i < graph_positions.measurement.points.size(); i++ )
+    for ( int i = 0; i < measurement.points.size(); i++ )
     {
+        geo::Vec3d cur_measurement_pt = measurement.points[i];
+        double cur_measurement_std_dev = measurement.uncertainties[i];
 
         // Calculate cost of single hypothesized association
-        local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, graph_positions, i, input_associations, path_);
+        double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, graph_positions, 0, input_associations, path_);
 
         if ( local_cost == -1.0 )
             continue;
@@ -150,11 +149,11 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         {
             // Add association to progressing hypothesis (which is passed on to further recursions)
             AssociatedMeasurement prog_associations = input_associations;
-            prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[i]);
+            prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[0]);
 
-            // create a new measurement for the graph positions reduced by the locally hypothesized node
-            reduced_graph_positions = graph_positions;
-            reduced_graph_positions.erase(i);
+            // create a copy of the measurement reduced by the locally hypothesized point
+            reduced_measurement = measurement;
+            reduced_measurement.erase(i);
 
             // Calculate the total force needed for the currently assumed associations and resulting best associations
             double total_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs );
@@ -164,8 +163,6 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
             {
                 best_cost = total_cost;
                 associations = prog_associations;
-                best_node = graph_positions.nodes[i];
-
             }
         }
     }
