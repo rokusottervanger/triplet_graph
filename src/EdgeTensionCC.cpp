@@ -75,7 +75,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         double stddev1 = edge_1_it->std_dev * edge_1_it->l;
         double stddev2 = edge_2_it->std_dev * edge_2_it->l;
 
-        double s1 = e1*e1 / ( stddev1*stddev1 + cur_measurement_std_dev_sq ); // TODO: include uncertainty in position of parents
+        double s1 = e1*e1 / ( stddev1*stddev1 + cur_measurement_std_dev_sq );
         double s2 = e2*e2 / ( stddev2*stddev2 + cur_measurement_std_dev_sq );
 
         // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
