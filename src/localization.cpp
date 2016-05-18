@@ -226,6 +226,9 @@ int main(int argc, char** argv)
 
         visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
 
+        std::cout << "Path: " << std::endl;
+        std::cout << path << std::endl;
+
         // Check if localization was succesful
         if ( associations.nodes.size() >= 2 )
         {
@@ -295,9 +298,9 @@ int main(int argc, char** argv)
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
-        loop_rate.sleep();
+//        loop_rate.sleep();
 
-//        getchar();
+        getchar();
 
         ros::spinOnce();
 

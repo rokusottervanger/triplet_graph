@@ -1,5 +1,7 @@
 #include "triplet_graph/Associator.h"
 
+#include <queue>
+
 #include "triplet_graph/Graph.h"
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/graph_operations.h"
@@ -82,10 +84,12 @@ void Associator::setGraph(const Graph& graph)
 // -----------------------------------------------------------------------------------------------
 
 double Associator::associate(const AssociatedMeasurement& graph_positions,
-                              const Measurement& measurement,
-                              AssociatedMeasurement& associations,
-                              const CostCalculator& cost_calculator,
-                              const double max_no_std_devs )
+                             const Measurement& measurement,
+                             AssociatedMeasurement& associations,
+                             const CostCalculator& cost_calculator,
+                             const double max_no_std_devs,
+                             const double parents_cost,
+                             bool top_level)
 {
     AssociatedMeasurement input_associations = associations;
 
@@ -120,19 +124,13 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     AssociatedMeasurement reduced_graph_positions = graph_positions;
     reduced_graph_positions.erase(0);
 
+    // Make priority queue of association hypotheses ordered by local cost
+    std::priority_queue<std::pair<double,int>, std::vector< std::pair<double, int> >, std::less<std::pair<double, int> > > Q;
+
     // Hypothesize that no point associates with this node
-    // ------------------------------
-
-    // Copy all measurement points (because nothing was associated, all of them are passed to the next recursion)
-    Measurement reduced_measurement = measurement;
-
-    // Calculate further associations and set this association and its cost as the benchmark for other associations
-    double best_cost = associate( reduced_graph_positions, reduced_measurement, associations, cost_calculator, max_no_std_devs );
-
+    Q.push(std::make_pair(0.0,-1));
 
     // Hypothesize association with every measured point
-    // ------------------------------
-
     for ( int i = 0; i < measurement.points.size(); i++ )
     {
         geo::Vec3d cur_measurement_pt = measurement.points[i];
@@ -141,28 +139,67 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         // Calculate cost of single hypothesized association
         double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, graph_positions, 0, input_associations, path_);
 
+        // TODO: HACK! if a triplet is inverted, it's rejected right away, but this is too
+        // strict for 'flat' triangles. These may sometimes invert due to sensor noise.
         if ( local_cost == -1.0 )
             continue;
 
-        // Only if local cost is lower than the threshold for the total cost, proceed with further associations
-        if ( local_cost < max_no_std_devs && local_cost < best_cost )
+        // Only the hypotheses with a low enough local cost are added to the queue
+        if ( local_cost <= max_no_std_devs )
+            Q.push(std::make_pair(local_cost,i));
+    }
+
+
+    // Calculate consequences for the hypotheses that were good enough to put in the queue
+    double best_cost = 1e308;
+
+    while ( !Q.empty() )
+    {
+        std::pair<double, int> hypothesis = Q.top();
+        Q.pop();
+
+        double cost_so_far = parents_cost + hypothesis.first;
+
+        // If all hypothesized associations so far are more expensive than the best
+        // association cost so far, further hypotheses are only more expensive, so
+        // return this high cost, so that it is not used in higher generations of
+        // the hypothesis tree.
+        if ( cost_so_far > best_association_cost_ )
+            break;
+
+        if ( hypothesis.first > best_cost )
+            break;
+
+        // create a copy of the measurement and associations
+        Measurement reduced_measurement = measurement;
+        AssociatedMeasurement prog_associations = input_associations;
+
+        if ( hypothesis.second != -1 )
         {
-            // Add association to progressing hypothesis (which is passed on to further recursions)
-            AssociatedMeasurement prog_associations = input_associations;
+            geo::Vec3d cur_measurement_pt = measurement.points[hypothesis.second];
+            double cur_measurement_std_dev = measurement.uncertainties[hypothesis.second];
+
+            // If an association is hypothesized, reduce by the locally hypothesized point
+            reduced_measurement.erase(hypothesis.second);
+
+            // And add the association to the associations that are passed on
             prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[0]);
+        }
 
-            // create a copy of the measurement reduced by the locally hypothesized point
-            reduced_measurement = measurement;
-            reduced_measurement.erase(i);
+        // Calculate the total force needed for the currently assumed associations and resulting best associations
+        double total_cost = hypothesis.first + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs, cost_so_far, false );
 
-            // Calculate the total force needed for the currently assumed associations and resulting best associations
-            double total_cost = local_cost + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs );
+        // Store the total cost if it is better than we've seen before
+        if ( total_cost < best_cost )
+        {
+            best_cost = total_cost;
+            associations = prog_associations;
 
-            // Remember the lowest association cost, its resulting associations and the corresponding hypothesis
-            if ( total_cost < best_cost )
+            // If this is the first generation in the hypothesis tree and there is a
+            // new best, store it as the best total association cost.
+            if ( top_level && best_cost < best_association_cost_)
             {
-                best_cost = total_cost;
-                associations = prog_associations;
+                best_association_cost_ = best_cost;
             }
         }
     }
@@ -176,6 +213,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 bool Associator::getAssociations( const Measurement& measurement, AssociatedMeasurement& associations, const int goal_node_i )
 {
     unassociated_points_ = measurement;
+    best_association_cost_ = 1e308;
 
     // Find a path through the graph starting from the associated nodes
     PathFinder pathFinder( *graph_ptr_, associations.nodes );
@@ -202,7 +240,7 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
         }
 
         // Call the recursive association algorithms
-        associate( path_positions, unassociated_points_, associations, *costCalculators_[i], max_assoc_dists_[i]);
+        associate( path_positions, unassociated_points_, associations, *costCalculators_[i], max_assoc_dists_[i], 0.0, true);
 
         std::cout << associations.nodes.size() << " associations found after using costcalculator " << i << std::endl;
     }

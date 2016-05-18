@@ -40,11 +40,15 @@ private:
 
     bool associated_;
 
+    double best_association_cost_;
+
     double associate(const AssociatedMeasurement &graph_positions,
                      const Measurement &measurement,
                      AssociatedMeasurement& resulting_associations,
                      const CostCalculator& cost_calculator,
-                     const double max_no_std_devs);
+                     const double max_no_std_devs,
+                     double parents_cost,
+                     bool top_level);
 
 };
 
