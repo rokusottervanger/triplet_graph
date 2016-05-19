@@ -88,9 +88,13 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
                              AssociatedMeasurement& associations,
                              const CostCalculator& cost_calculator,
                              const double max_no_std_devs,
-                             const double parents_cost,
-                             bool top_level)
+                             const double parents_cost=0.0,
+                             int level=0)
 {
+    std::stringstream indent;
+    while ( indent.str().size() < level*2 )
+        indent << " ";
+
     AssociatedMeasurement input_associations = associations;
 
 
@@ -100,18 +104,31 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     // ------------------------------
     // ------------------------------
 
-    if ( graph_positions.measurement.points.size() == 0 )
-    {
-        associations.measurement.frame_id = measurement.frame_id;
-        associations.measurement.time_stamp = measurement.time_stamp;
-        return measurement.points.size() * max_no_std_devs;
-    }
     if ( measurement.points.size() == 0 )
     {
         associations.measurement.frame_id = measurement.frame_id;
         associations.measurement.time_stamp = measurement.time_stamp;
-        return 0;
+        std::cout << indent.str() << "Returning zero, because measurement is empty" << std::endl;
+        if ( parents_cost < best_association_cost_ )
+            best_association_cost_ = parents_cost;
+
+        return 0.0;
     }
+    if ( graph_positions.measurement.points.size() == 0 )
+    {
+        associations.measurement.frame_id = measurement.frame_id;
+        associations.measurement.time_stamp = measurement.time_stamp;
+        std::cout << indent.str() << "Returning #of remaining points: " << measurement.points.size() << " times max cost, because graph_positions is empty" << std::endl;
+
+        double return_cost = measurement.points.size() * max_no_std_devs;
+        double total_cost = return_cost + parents_cost;
+
+        if ( total_cost < best_association_cost_ )
+            best_association_cost_ = total_cost;
+
+        return return_cost;
+    }
+
 
 
     // ------------------------------
@@ -128,7 +145,17 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     std::priority_queue<std::pair<double,int>, std::vector< std::pair<double, int> >, std::less<std::pair<double, int> > > Q;
 
     // Hypothesize that no point associates with this node
-    Q.push(std::make_pair(0.0,-1));
+    // Calculate the cost of not associating this node (if that leaves more points than nodes, at least one point must be unassociated)
+    int point_surplus = measurement.points.size() - graph_positions.nodes.size();
+    if ( point_surplus > 0 )
+    {
+        std::cout << indent.str() << "Foreseeing a point surplus of " << point_surplus << " if not associating" << std::endl;
+    }
+
+    Q.push(std::make_pair( std::max(point_surplus,0) * max_no_std_devs,-1) );
+//    Q.push(std::make_pair(0.0,-1));
+
+    std::cout << indent.str() << "Calculating costs for associating node " << graph_positions.nodes[0] << std::endl;
 
     // Hypothesize association with every measured point
     for ( int i = 0; i < measurement.points.size(); i++ )
@@ -146,59 +173,80 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
         // Only the hypotheses with a low enough local cost are added to the queue
         if ( local_cost <= max_no_std_devs )
+        {
+            std::cout << indent.str() << "with point " << cur_measurement_pt << " is good enough!" << std::endl;
             Q.push(std::make_pair(local_cost,i));
+        }
     }
 
 
     // Calculate consequences for the hypotheses that were good enough to put in the queue
-    double best_cost = 1e308;
+    double best_cost = 1e20;
 
+    std::cout << indent.str() << "Considering node " << graph_positions.nodes[0] << " for association with" << std::endl;
     while ( !Q.empty() )
     {
         std::pair<double, int> hypothesis = Q.top();
         Q.pop();
 
+        if ( hypothesis.second == -1 )
+            std::cout << indent.str() << "no point (" << hypothesis.first << ")" << std::endl;
+        else
+            std::cout << indent.str() << "point " << measurement.points[hypothesis.second] << " (" << hypothesis.first << ")" << std::endl;
+
         double cost_so_far = parents_cost + hypothesis.first;
+
+        std::cout << indent.str() << "cost_so_far = " << cost_so_far << std::endl;
 
         // If all hypothesized associations so far are more expensive than the best
         // association cost so far, further hypotheses are only more expensive, so
         // return this high cost, so that it is not used in higher generations of
         // the hypothesis tree.
         if ( cost_so_far > best_association_cost_ )
+        {
+            std::cout << indent.str() << "higher than best overall cost. Break!" << std::endl;
             break;
+        }
 
         if ( hypothesis.first > best_cost )
+        {
+            std::cout << indent.str() << "local cost is higher than best further cost. Break!" << std::endl;
             break;
+        }
 
         // create a copy of the measurement and associations
         Measurement reduced_measurement = measurement;
         AssociatedMeasurement prog_associations = input_associations;
 
+        // If association with any point...
         if ( hypothesis.second != -1 )
         {
             geo::Vec3d cur_measurement_pt = measurement.points[hypothesis.second];
             double cur_measurement_std_dev = measurement.uncertainties[hypothesis.second];
 
-            // If an association is hypothesized, reduce by the locally hypothesized point
+            // ...reduce by the locally hypothesized point...
             reduced_measurement.erase(hypothesis.second);
 
-            // And add the association to the associations that are passed on
+            // ...and add the association to the progressing associations.
             prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[0]);
         }
 
-        // Calculate the total force needed for the currently assumed associations and resulting best associations
-        double total_cost = hypothesis.first + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs, cost_so_far, false );
+        // Calculate the sum of the currently hypothesized association and the best associations resulting from the reduced problem
+        double total_cost = hypothesis.first + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs, cost_so_far, level+1 );
+
+        std::cout << indent.str() << "total_cost = " << total_cost << std::endl;
 
         // Store the total cost if it is better than we've seen before
         if ( total_cost < best_cost )
         {
+            std::cout << indent.str() << "Better than before, storing the resulting associations" << std::endl;
             best_cost = total_cost;
             associations = prog_associations;
 
-            // If this is the first generation in the hypothesis tree and there is a
-            // new best, store it as the best total association cost.
-            if ( top_level && best_cost < best_association_cost_)
+            // If this is the first generation in the hypothesis tree, store it as the best total association cost.
+            if ( level == 0 && best_cost < best_association_cost_ )
             {
+                std::cout << indent.str() << "BEST TOTAL COST SO FAR!" << std::endl;
                 best_association_cost_ = best_cost;
             }
         }
@@ -240,7 +288,7 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
         }
 
         // Call the recursive association algorithms
-        associate( path_positions, unassociated_points_, associations, *costCalculators_[i], max_assoc_dists_[i], 0.0, true);
+        associate( path_positions, unassociated_points_, associations, *costCalculators_[i], max_assoc_dists_[i]);
 
         std::cout << associations.nodes.size() << " associations found after using costcalculator " << i << std::endl;
     }

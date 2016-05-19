@@ -48,7 +48,7 @@ private:
                      const CostCalculator& cost_calculator,
                      const double max_no_std_devs,
                      double parents_cost,
-                     bool top_level);
+                     int level);
 
 };
 
