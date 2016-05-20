@@ -166,7 +166,7 @@ int main(int argc, char** argv)
         config.endArray();
     }
 
-    ros::Rate loop_rate(15);
+    ros::Rate loop_rate(5);
 
     int target_node = -1;
 
@@ -225,9 +225,6 @@ int main(int argc, char** argv)
         triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, config );
 
         visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
-
-        std::cout << "Path: " << std::endl;
-        std::cout << path << std::endl;
 
         // Check if localization was succesful
         if ( associations.nodes.size() >= 2 )
