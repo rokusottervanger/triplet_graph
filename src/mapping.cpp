@@ -238,6 +238,8 @@ int main(int argc, char** argv)
         std::cout << "Trying to associate..." << std::endl;
         triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, config);
 
+        visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
+
         // Check if localization was succesful
         if ( associations.nodes.size() >= 2 )
         {
@@ -349,13 +351,15 @@ int main(int argc, char** argv)
         // - - - - - - - - - - - - - - - - - -
         // Spin ros and sleep
 
-        ros::spinOnce();
-
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
         loop_rate.sleep();
+
+        ros::spinOnce();
+
+
     }
 
 
