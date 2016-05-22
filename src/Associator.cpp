@@ -147,17 +147,20 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         geo::Vec3d cur_measurement_pt = measurement.points[i];
         double cur_measurement_std_dev = measurement.uncertainties[i];
 
-        double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, graph_positions, 0, input_associations, path_);
+        double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, 0, input_associations, path_);
 
         double cost_so_far = parents_cost + local_cost;
 
+        std::cout << indent.str() << "with point " << cur_measurement_pt << std::endl;
+        std::cout << indent.str() << "local cost  = " << local_cost << std::endl;
+        std::cout << indent.str() << "cost_so_far = " << cost_so_far << std::endl;
+
         if ( local_cost <= max_no_std_devs &&
-             local_cost != -1.0 &&
+             local_cost != -1.0 &&                      // TODO: floating point equality check, not very elegant...
              cost_so_far < best_association_cost_)
         {
-            std::cout << indent.str() << "with point " << cur_measurement_pt << " is good enough!" << std::endl;
-            std::cout << indent.str() << "local cost  = " << local_cost << std::endl;
-            std::cout << indent.str() << "cost_so_far = " << cost_so_far << std::endl;
+
+            std::cout << indent.str() << "This is good enough!" << std::endl;
             Q.push(std::make_pair(local_cost,i));
         }
     }
@@ -168,7 +171,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
     while ( !Q.empty() )
     {
-        std::cout << indent.str() << "Considering node " << graph_positions.nodes[0] << " for association with" << std::endl;
+        std::cout << indent.str() << "Considering node " << graph_positions.nodes[level] << " for association with" << std::endl;
 
         // Get hypothesis with best cost from queue
         std::pair<double, int> hypothesis = Q.top();
@@ -199,11 +202,12 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         {
             // ...penalize if this results in unassociated points further on
             int point_surplus = measurement.points.size() - reduced_graph_positions.nodes.size();
-            if ( std::max(point_surplus,0) > 0 )
+            if ( point_surplus > 0 )
             {
                 double penalty = point_surplus * max_no_std_devs;
                 if ( penalty + cost_so_far > best_association_cost_ )
                 {
+                    std::cout << indent.str() << "Penalizing for leaving unassociated points: penalty + cost_so_far = " << penalty + cost_so_far << " > " << best_association_cost_ << std::endl;
                     continue;
                 }
             }
@@ -224,6 +228,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         double total_cost = hypothesis.first + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs, cost_so_far, level+1 );
 
         std::cout << indent.str() << "total_cost = " << total_cost << std::endl;
+        std::cout << indent.str() << "best_cost = " << best_cost << std::endl;
 
         if ( total_cost > best_association_cost_ )
         {

@@ -12,12 +12,14 @@ namespace triplet_graph
 double EdgeTensionCC::calculateCost(const Graph& graph,
                                     const geo::Vec3d& cur_measurement_pt,
                                     const double cur_measurement_std_dev,
+                                    const double odom_std_dev,
                                     const AssociatedMeasurement& graph_positions,
                                     const int node_index,
                                     const AssociatedMeasurement& input_associations,
                                     Path& path) const
 {
     double cur_measurement_std_dev_sq = cur_measurement_std_dev * cur_measurement_std_dev;
+    double odom_std_dev_sq = odom_std_dev * odom_std_dev;
 
     // Get parent nodes from path (graph_positions is constructed in the order of the path, but nodes are removed in recursion)
     int node_i = graph_positions.nodes[node_index]; // node index in graph
@@ -33,7 +35,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         // stretch method as in the non-root node case, only without the edge error (but later including an
         // odometry error model).
         // TODO: take into account odom error when trying to associate root nodes
-        return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2()/cur_measurement_std_dev_sq;
+        return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2()/(cur_measurement_std_dev_sq + odom_std_dev_sq);
     }
     else
     {
