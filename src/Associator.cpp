@@ -104,7 +104,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     // BASE CASE
     // ------------------------------
 
-    if ( graph_positions.nodes.size() == 0 )
+    if ( level == graph_positions.nodes.size() )
     {
         double return_cost = measurement.points.size() * max_no_std_devs;
         double total_cost = return_cost + parents_cost;
@@ -131,23 +131,20 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     // RECURSIVE CASE
     // ------------------------------
 
-    AssociatedMeasurement reduced_graph_positions = graph_positions;
-    reduced_graph_positions.erase(0);
-
     std::priority_queue<std::pair<double,int>, std::vector< std::pair<double, int> >, std::greater<std::pair<double, int> > > Q;
 
     // Hypothesize no association
     Q.push(std::make_pair(max_no_std_devs,-1));
 
     // Hypothesize associations with every measurement point, check if they satisfy some constraints
-    std::cout << indent.str() << "Calculating cost of associating node " << graph_positions.nodes[0] << std::endl;
+    std::cout << indent.str() << "Calculating cost of associating node " << graph_positions.nodes[level] << std::endl;
     std::cout << indent.str() << "parents_cost = " << parents_cost << std::endl;
     for ( int i = 0; i < measurement.points.size(); i++ )
     {
         geo::Vec3d cur_measurement_pt = measurement.points[i];
         double cur_measurement_std_dev = measurement.uncertainties[i];
 
-        double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, 0, input_associations, path_);
+        double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, level, input_associations, path_);
 
         double cost_so_far = parents_cost + local_cost;
 
@@ -201,7 +198,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         if ( hypothesis.second == -1 )
         {
             // ...penalize if this results in unassociated points further on
-            int point_surplus = measurement.points.size() - reduced_graph_positions.nodes.size();
+            int point_surplus = measurement.points.size() - (graph_positions.nodes.size() - (associations.nodes.size() + 1));
             if ( point_surplus > 0 )
             {
                 double penalty = point_surplus * max_no_std_devs;
@@ -221,23 +218,23 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
             geo::Vec3d cur_measurement_pt = measurement.points[hypothesis.second];
             double cur_measurement_std_dev = measurement.uncertainties[hypothesis.second];
 
-            prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[0]);
+            prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[level]);
         }
 
         // Calculate the sum of the currently hypothesized association and the best associations resulting from the reduced problem
-        double total_cost = hypothesis.first + associate( reduced_graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs, cost_so_far, level+1 );
+        double total_cost = hypothesis.first + associate( graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs, cost_so_far, level+1 );
 
         std::cout << indent.str() << "total_cost = " << total_cost << std::endl;
         std::cout << indent.str() << "best_cost = " << best_cost << std::endl;
 
-        if ( total_cost > best_association_cost_ )
+        if ( total_cost - best_association_cost_ > 0.00001 )
         {
             std::cout << indent.str() << "Not better than best association cost (" << best_association_cost_ << "), not storing resulting associations" << std::endl;
             continue;
         }
 
         // Store the total cost if it is better than we've seen before
-        if ( total_cost - best_association_cost_ > 0.0001 )
+        if ( total_cost < best_cost )
         {
             std::cout << indent.str() << "Better than before, storing the resulting associations" << std::endl;
             best_cost = total_cost;
