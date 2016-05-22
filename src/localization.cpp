@@ -166,7 +166,7 @@ int main(int argc, char** argv)
         config.endArray();
     }
 
-    ros::Rate loop_rate(5);
+    ros::Rate loop_rate(15);
 
     int target_node = -1;
 
@@ -295,9 +295,9 @@ int main(int argc, char** argv)
 
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
-//        loop_rate.sleep();
+        loop_rate.sleep();
 
-        getchar();
+//        getchar();
 
         ros::spinOnce();
 

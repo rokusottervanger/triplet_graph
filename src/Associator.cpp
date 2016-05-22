@@ -95,9 +95,9 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
                              const double parents_cost=0.0,
                              int level=0)
 {
-    std::stringstream indent;
-    while ( indent.str().size() < level*2 )
-        indent << " ";
+//    std::stringstream indent;
+//    while ( indent.str().size() < level*2 )
+//        indent << " ";
 
     AssociatedMeasurement input_associations = associations;
 
@@ -114,12 +114,12 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
             best_association_cost_ = total_cost;
         }
 
-        std::cout << indent.str() << "Returning " << return_cost << ", because " << measurement.points.size() << " points left" << std::endl;
+//        std::cout << indent.str() << "Returning " << return_cost << ", because " << measurement.points.size() << " points left" << std::endl;
         return return_cost;
     }
     if ( measurement.points.size() == 0 )
     {
-        std::cout << indent.str() << "Returning 0, because measurement is empty" << std::endl;
+//        std::cout << indent.str() << "Returning 0, because measurement is empty" << std::endl;
         if ( parents_cost < best_association_cost_ )
         {
             best_association_cost_ = parents_cost;
@@ -137,8 +137,8 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     Q.push(std::make_pair(max_no_std_devs,-1));
 
     // Hypothesize associations with every measurement point, check if they satisfy some constraints
-    std::cout << indent.str() << "Calculating cost of associating node " << graph_positions.nodes[level] << std::endl;
-    std::cout << indent.str() << "parents_cost = " << parents_cost << std::endl;
+//    std::cout << indent.str() << "Calculating cost of associating node " << graph_positions.nodes[level] << std::endl;
+//    std::cout << indent.str() << "parents_cost = " << parents_cost << std::endl;
     for ( int i = 0; i < measurement.points.size(); i++ )
     {
         geo::Vec3d cur_measurement_pt = measurement.points[i];
@@ -148,16 +148,16 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
         double cost_so_far = parents_cost + local_cost;
 
-        std::cout << indent.str() << "with point " << cur_measurement_pt << std::endl;
-        std::cout << indent.str() << "local cost  = " << local_cost << std::endl;
-        std::cout << indent.str() << "cost_so_far = " << cost_so_far << std::endl;
+//        std::cout << indent.str() << "with point " << cur_measurement_pt << std::endl;
+//        std::cout << indent.str() << "local cost  = " << local_cost << std::endl;
+//        std::cout << indent.str() << "cost_so_far = " << cost_so_far << std::endl;
 
         if ( local_cost <= max_no_std_devs &&
              local_cost != -1.0 &&                      // TODO: floating point equality check, not very elegant...
              cost_so_far < best_association_cost_)
         {
 
-            std::cout << indent.str() << "This is good enough!" << std::endl;
+//            std::cout << indent.str() << "This is good enough!" << std::endl;
             Q.push(std::make_pair(local_cost,i));
         }
     }
@@ -168,7 +168,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
     while ( !Q.empty() )
     {
-        std::cout << indent.str() << "Considering node " << graph_positions.nodes[level] << " for association with" << std::endl;
+//        std::cout << indent.str() << "Considering node " << graph_positions.nodes[level] << " for association with" << std::endl;
 
         // Get hypothesis with best cost from queue
         std::pair<double, int> hypothesis = Q.top();
@@ -179,14 +179,14 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
         double cost_so_far = parents_cost + hypothesis.first;
 
-        if ( hypothesis.second == -1 )
-            std::cout << indent.str() << "no point (" << hypothesis.first << ")" << std::endl;
-        else
-            std::cout << indent.str() << "point " << measurement.points[hypothesis.second] << " (" << hypothesis.first << ")" << std::endl;
+//        if ( hypothesis.second == -1 )
+//            std::cout << indent.str() << "no point (" << hypothesis.first << ")" << std::endl;
+//        else
+//            std::cout << indent.str() << "point " << measurement.points[hypothesis.second] << " (" << hypothesis.first << ")" << std::endl;
 
         if ( hypothesis.first > best_cost )
         {
-            std::cout << indent.str() << "this local cost is higher than best cost. Don't look further!" << std::endl;
+//            std::cout << indent.str() << "this local cost is higher than best cost. Don't look further!" << std::endl;
             break;
         }
 
@@ -204,7 +204,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
                 double penalty = point_surplus * max_no_std_devs;
                 if ( penalty + cost_so_far > best_association_cost_ )
                 {
-                    std::cout << indent.str() << "Penalizing for leaving unassociated points: penalty + cost_so_far = " << penalty + cost_so_far << " > " << best_association_cost_ << std::endl;
+//                    std::cout << indent.str() << "Penalizing for leaving unassociated points: penalty + cost_so_far = " << penalty + cost_so_far << " > " << best_association_cost_ << std::endl;
                     continue;
                 }
             }
@@ -224,19 +224,19 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         // Calculate the sum of the currently hypothesized association and the best associations resulting from the reduced problem
         double total_cost = hypothesis.first + associate( graph_positions, reduced_measurement, prog_associations, cost_calculator, max_no_std_devs, cost_so_far, level+1 );
 
-        std::cout << indent.str() << "total_cost = " << total_cost << std::endl;
-        std::cout << indent.str() << "best_cost = " << best_cost << std::endl;
+//        std::cout << indent.str() << "total_cost = " << total_cost << std::endl;
+//        std::cout << indent.str() << "best_cost = " << best_cost << std::endl;
 
         if ( total_cost - best_association_cost_ > 0.00001 )
         {
-            std::cout << indent.str() << "Not better than best association cost (" << best_association_cost_ << "), not storing resulting associations" << std::endl;
+//            std::cout << indent.str() << "Not better than best association cost (" << best_association_cost_ << "), not storing resulting associations" << std::endl;
             continue;
         }
 
         // Store the total cost if it is better than we've seen before
         if ( total_cost < best_cost )
         {
-            std::cout << indent.str() << "Better than before, storing the resulting associations" << std::endl;
+//            std::cout << indent.str() << "Better than before, storing the resulting associations" << std::endl;
             best_cost = total_cost;
             associations = prog_associations;
         }
