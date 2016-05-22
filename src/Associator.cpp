@@ -237,7 +237,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         }
 
         // Store the total cost if it is better than we've seen before
-        if ( total_cost < best_cost )
+        if ( total_cost - best_association_cost_ > 0.0001 )
         {
             std::cout << indent.str() << "Better than before, storing the resulting associations" << std::endl;
             best_cost = total_cost;
