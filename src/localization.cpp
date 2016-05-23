@@ -25,12 +25,12 @@ int main(int argc, char** argv)
 
     tue::Configuration config;
 
-    ros::init(argc, argv, "laser_processor");
+    ros::init(argc, argv, "localization");
 
     // Parse arguments
     if ( argc < 2 )
     {
-        std::cout << "Usage: \n\n        laser_processor LOCALIZATION_CONFIG.yaml" << std::endl;
+        std::cout << "Usage: \n\n        rosrun triplet_graph localization LOCALIZATION_CONFIG.yaml" << std::endl;
         return 1;
     }
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
 
     if (config.hasError())
     {
-        std::cout << std::endl << "Could not load laser processor configuration file:" << std::endl << std::endl << config.error() << std::endl;
+        std::cout << std::endl << "Could not load localization configuration file:" << std::endl << std::endl << config.error() << std::endl;
         return 1;
     }
 
