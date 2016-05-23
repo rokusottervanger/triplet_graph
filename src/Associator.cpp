@@ -286,7 +286,7 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
         // Reduce unassociated_points with any associated points and path_positions with the associated nodes before calling associate
         for ( int j = 0; j < associations.nodes.size(); ++j )
         {
-            unassociated_points_.points.erase( std::find(unassociated_points_.points.begin(), unassociated_points_.points.end(), associations.measurement.points[i] ) );
+            unassociated_points_.points.erase( std::find(unassociated_points_.points.begin(), unassociated_points_.points.end(), associations.measurement.points[j] ) );
         }
     }
 
