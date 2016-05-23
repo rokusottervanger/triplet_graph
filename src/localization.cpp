@@ -262,20 +262,7 @@ int main(int argc, char** argv)
         }
         done:
 
-        std::cout << "path.size() = " << path.size() << std::endl;
-        std::cout << "graph.size() = " << graph.size() << std::endl;
-
         signal(SIGINT, signalHandler);
-
-//        std::cout << "\nVisualization of association input graph..." << std::endl;
-
-//        getchar();
-
-//        std::cout << "\nVisualization of association output graph..." << std::endl;
-
-        triplet_graph::Path path2;
-
-        visualizer.publish(triplet_graph::generateVisualization(graph, associations, path2));
 
         // If successful, store the associations for the next run
         if ( localized )
@@ -291,14 +278,9 @@ int main(int argc, char** argv)
         // Spin ros and sleep
 
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
-
-
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
         loop_rate.sleep();
-
-//        getchar();
-
         ros::spinOnce();
 
     }

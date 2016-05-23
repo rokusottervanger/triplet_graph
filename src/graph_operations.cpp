@@ -357,8 +357,6 @@ void associate(const Graph &graph,
 
     associator.getPath(path);
     associator.getUnassociatedPoints(unassociated);
-
-//    std::cout << "Found path: " << path << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -370,9 +368,6 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
  * points to the existing graph.
  */
 {
-//    std::vector<Edge2> edges = graph.getEdge2s();
-//    std::vector<Edge3> triplets = graph.getEdge3s();
-
     int i = 0;
     for ( std::vector<int>::const_iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
     {

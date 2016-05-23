@@ -293,12 +293,6 @@ int main(int argc, char** argv)
         }
         done:
 
-        std::cout << "path.size() = " << path.size() << std::endl;
-        std::cout << "graph.size() = " << graph.size() << std::endl;
-
-//        if ( loop > 1 && measurement.points.size() > 0 && graph.size() != path.size())
-//            return -1;
-
         // If successful, store the associations for the next run
         if ( localized )
             old_associations = associations;
@@ -337,32 +331,6 @@ int main(int argc, char** argv)
 
         std::cout << "Done!" << std::endl;
         loop ++;
-
-
-        // - - - - - - - - - - - - - - - - - -
-        // Visualize graph
-
-        // Calculate positions again to visualize them in rviz:
-//        std::vector<geo::Vec3d> positions(graph.size());
-//        for ( int i = 0; i < associations.nodes.size(); ++i )
-//            positions[associations.nodes[i]] = associations.measurement.points[i];
-
-//        calculatePositions(graph, positions, path);
-
-//        // Visualize positions
-//        triplet_graph::Measurement vis_graph;
-//        vis_graph.points = positions;
-//        vis_graph.frame_id = measurement.frame_id;
-//        vis_graph.time_stamp = measurement.time_stamp;
-
-//        std::cout << "positions vector:" << std::endl;
-//        for ( std::vector<geo::Vec3d>::iterator it = positions.begin(); it != positions.end(); ++it )
-//            std::cout << *it << std::endl;
-//        std::cout << std::endl;
-//        std::cout << "Path: " << std::endl;
-//        std::cout << path << std::endl;
-
-//        visualizer.publish(vis_graph);
 
 
         // - - - - - - - - - - - - - - - - - -
