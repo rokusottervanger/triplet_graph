@@ -99,8 +99,6 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 //    while ( indent.str().size() < level*2 )
 //        indent << " ";
 
-    AssociatedMeasurement input_associations = associations;
-
     // BASE CASE
     // ------------------------------
 
@@ -131,20 +129,28 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     // RECURSIVE CASE
     // ------------------------------
 
+    int current_node = graph_positions.nodes[level];
+
+    // If current node is already in the associated nodes, directly call next recursion for next node
+    if ( associations.node_indices.find(current_node) != associations.node_indices.end() )
+    {
+        return associate( graph_positions, measurement, associations, cost_calculator, max_no_std_devs, parents_cost, level+1 );
+    }
+
     std::priority_queue<std::pair<double,int>, std::vector< std::pair<double, int> >, std::greater<std::pair<double, int> > > Q;
 
     // Hypothesize no association
     Q.push(std::make_pair(max_no_std_devs,-1));
 
     // Hypothesize associations with every measurement point, check if they satisfy some constraints
-//    std::cout << indent.str() << "Calculating cost of associating node " << graph_positions.nodes[level] << std::endl;
+//    std::cout << indent.str() << "Calculating cost of associating node " << current_node << std::endl;
 //    std::cout << indent.str() << "parents_cost = " << parents_cost << std::endl;
     for ( int i = 0; i < measurement.points.size(); i++ )
     {
         geo::Vec3d cur_measurement_pt = measurement.points[i];
         double cur_measurement_std_dev = measurement.uncertainties[i];
 
-        double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, level, input_associations, path_);
+        double local_cost = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, level, associations, path_);
 
         double cost_so_far = parents_cost + local_cost;
 
@@ -165,10 +171,11 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
     // Calculate consequences for the hypotheses that were good enough to put in the queue
     double best_cost = 100;
+    AssociatedMeasurement input_associations = associations;
 
     while ( !Q.empty() )
     {
-//        std::cout << indent.str() << "Considering node " << graph_positions.nodes[level] << " for association with" << std::endl;
+//        std::cout << indent.str() << "Considering node " << current_node << " for association with" << std::endl;
 
         // Get hypothesis with best cost from queue
         std::pair<double, int> hypothesis = Q.top();
@@ -218,7 +225,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
             geo::Vec3d cur_measurement_pt = measurement.points[hypothesis.second];
             double cur_measurement_std_dev = measurement.uncertainties[hypothesis.second];
 
-            prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, graph_positions.nodes[level]);
+            prog_associations.append(cur_measurement_pt, cur_measurement_std_dev, current_node);
         }
 
         // Calculate the sum of the currently hypothesized association and the best associations resulting from the reduced problem
