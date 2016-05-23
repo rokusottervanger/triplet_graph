@@ -192,13 +192,7 @@ int main(int argc, char** argv)
                     std::cin.ignore(1,'\n');
                 }
             }
-            std::cout << "gf: " << graph_filename << std::endl;
         }
-
-
-
-        std::cout << "Saving graph as: " << graph_filename << std::endl;
-
     }
 
     ros::Rate loop_rate(15);
