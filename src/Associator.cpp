@@ -271,17 +271,16 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
 
     for ( int i = 0; i < costCalculators_.size(); ++i )
     {
-        // Reduce unassociated_points with any associated points and path_positions with the associated nodes before calling associate
-        for ( int j = 0; j < associations.nodes.size(); ++j )
-        {
-            path_positions.erase( path_positions.node_indices[ associations.nodes[j] ] );
-            unassociated_points_.points.erase( std::find(unassociated_points_.points.begin(), unassociated_points_.points.end(), associations.measurement.points[i] ) );
-        }
-
         // Call the recursive association algorithms
         associate( path_positions, unassociated_points_, associations, *costCalculators_[i], max_assoc_dists_[i], 0.0);
 
         std::cout << associations.nodes.size() << " associations found after using costcalculator " << i << std::endl;
+
+        // Reduce unassociated_points with any associated points and path_positions with the associated nodes before calling associate
+        for ( int j = 0; j < associations.nodes.size(); ++j )
+        {
+            unassociated_points_.points.erase( std::find(unassociated_points_.points.begin(), unassociated_points_.points.end(), associations.measurement.points[i] ) );
+        }
     }
 
     associated_ = true;
