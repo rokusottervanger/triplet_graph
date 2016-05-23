@@ -33,12 +33,12 @@ int main(int argc, char** argv)
 
     tue::Configuration config;
 
-    ros::init(argc, argv, "laser_processor");
+    ros::init(argc, argv, "mapping");
 
     // Parse arguments
     if ( argc < 2 )
     {
-        std::cout << "Usage: \n\n        laser_processor MAPPING_CONFIG.yaml" << std::endl;
+        std::cout << "Usage: \n\n        rosrun triplet_graph mapping MAPPING_CONFIG.yaml" << std::endl;
         return 1;
     }
 
@@ -47,7 +47,7 @@ int main(int argc, char** argv)
 
     if (config.hasError())
     {
-        std::cout << std::endl << "Could not load laser processor configuration file:" << std::endl << std::endl << config.error() << std::endl;
+        std::cout << std::endl << "Could not load mapping configuration file:" << std::endl << std::endl << config.error() << std::endl;
         return 1;
     }
 
@@ -134,14 +134,15 @@ int main(int argc, char** argv)
     }
     else
     {
-        std::cout << "No graph_filename defined in config. Please enter a new filename (without extension) for the new graph or just press enter for a default name:" << std::endl;
+        std::cout << "No graph_filename defined in config." << std::endl;
 
-        while ( graph_filename.length() == 0 )
+        while ( graph_filename.empty() )
         {
-            std::cin >> graph_filename;
+            std::cout << "Please enter a new filename (without extension) for the new graph or just press enter for a default name:" << std::endl;
+            getline(std::cin, graph_filename);
 
             // If no name is given, generate a default name (non overwriting)
-            if ( graph_filename.length() == 0 )
+            if ( graph_filename.empty() )
             {
                 int i = 0;
                 do
@@ -154,27 +155,49 @@ int main(int argc, char** argv)
                 break;
             }
 
+            for(std::string::iterator it = graph_filename.begin(); it != graph_filename.end(); ++it)
+            {
+                if(*it == ' ')
+                {
+                    *it = '_';
+                }
+            }
+
             graph_filename.append(".yaml");
 
-            // TODO: Check for file's existance
-//            if ( file_exists(graph_filename) )
-//            {
-//                std::cout << "File already exists, are you sure you want to overwrite the existing file? (y/n)" << std::endl;
-//                char result = 'a';
-//                while ( result != 'y' && result != 'n' )
-//                {
-//                    std::cout << "result = " << result << std::endl;
-//                    scanf("%c\n", &result);
-//                    std::cout << "result = " << result << std::endl;
-//                    if ( result == 'y' )
-//                        break;
-//                    else if ( result == 'n' )
-//                        graph_filename = "";
-//                    else
-//                        std::cout << "Please type 'y' or 'n'..." << std::endl;
-//                }
-//            }
+            if ( file_exists(graph_filename) )
+            {
+                std::cout << "File '" << graph_filename << "'' already exists, are you sure you want to overwrite the existing file? (y/n)" << std::endl;
+                char input;
+                int ok = 0;
+                while ( !ok )
+                {
+                    std::cin >> input;
+
+                    if (input=='n' || input=='N')
+                    {
+                        graph_filename = "";
+                        std::cout << "Not overwriting" << std::endl;
+                        ok++;
+                    }
+                    else if (input=='Y' || input=='y')
+                    {
+                        std::cout << "Overwriting" << std::endl;
+                        ok++;
+                    }
+                    else
+                    {
+                        std::cout << "Please type 'y' or 'n'..." << std::endl;
+                    }
+                    std::cin.ignore(1,'\n');
+                }
+            }
+            std::cout << "gf: " << graph_filename << std::endl;
         }
+
+
+
+        std::cout << "Saving graph as: " << graph_filename << std::endl;
 
     }
 
