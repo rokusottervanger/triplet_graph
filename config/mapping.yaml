@@ -15,10 +15,10 @@ corner_detector:
             color: {r: 0, g: 1, b: 1}
 association:
     association_modules:
-    #   - type: "nearest_neighbor"
-    #     max_no_std_devs: 0.5
-      - type: "edge_tension"
+      - type: "nearest_neighbor"
         max_no_std_devs: 1.0
+      - type: "edge_tension"
+        max_no_std_devs: 2.0
 odom_tracker:
     odom_frame: "amigo/odom"
     sensor_frame: "amigo/base_laser"
