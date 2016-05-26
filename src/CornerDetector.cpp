@@ -38,6 +38,7 @@ bool CornerDetector::configure(tue::Configuration &config)
 
     // Communication
     sub_scan_ = nh.subscribe<sensor_msgs::LaserScan>(laser_topic, 1, &CornerDetector::scanCallback, this);
+    processed_laser_data_pub_ = nh.advertise<sensor_msgs::LaserScan>("corner_detector/processed_scan", 10, false);
 
     return true;
 }
@@ -89,11 +90,16 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
     {
         float rs = sensor_ranges[i];
         // Get rid of points that are isolated from their neighbours
-        if (std::abs(rs - sensor_ranges[i - 1]) > 0.1 && std::abs(rs - sensor_ranges[i + 1]) > 0.1)  // TODO: magic number
+        if (std::abs(rs - sensor_ranges[i - 1]) > 0.03 && std::abs(rs - sensor_ranges[i + 1]) > 0.03)  // TODO: magic number
         {
             sensor_ranges[i] = sensor_ranges[i - 1];
         }
     }
+
+    sensor_msgs::LaserScan filtered_scan_msg = *scan_msg_;
+    filtered_scan_msg.ranges = sensor_ranges;
+
+    processed_laser_data_pub_.publish(filtered_scan_msg);
 
     // - - - - - - - - - - - - - - - - - -
     // Find corners

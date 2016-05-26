@@ -29,6 +29,7 @@ private:
     geo::LaserRangeFinder lrf_model_;
 
     Visualizer visualizer_;
+    ros::Publisher processed_laser_data_pub_;
 
     double jump_size_;
     double step_dist_;
