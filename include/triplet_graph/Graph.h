@@ -49,6 +49,8 @@ public:
 
     void setEdgeRigid(const int n1, const int n2);
 
+//    void mergeNodes(const int n1, const int n2);
+
     void flipTriplet(const int i);
 
     // -----------------------------------------------------------------------------------------------

@@ -18,7 +18,7 @@ Server::Server(Graph* graph)
 
 bool Server::deleteCallback(Nodes::Request& req, Nodes::Response& res)
 {
-    ROS_WARN_NAMED("Graph Server", "Deleting nodes is not implemented yet");
+    deleteNodes(*graph_ptr_,req.nodes);
     return true;
 }
 

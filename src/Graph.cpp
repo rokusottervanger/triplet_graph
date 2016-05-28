@@ -298,6 +298,21 @@ void Graph::setEdgeRigid(const int n1, const int n2)
 
 // -----------------------------------------------------------------------------------------------
 
+//void Graph::mergeNodes(const int n1, const int n2)
+//{
+//    Node node_1 = nodes_[n1];
+//    Node node_2 = nodes_[n2];
+
+//    for ( std::vector<int>::iterator it = node_1. )
+//    {
+//    }
+
+//    nodes_[n2].deleted = true;
+//    return;
+//}
+
+// -----------------------------------------------------------------------------------------------
+
 void Graph::flipTriplet(const int i)
 {
     triplets_[i] = triplets_[i].flip();

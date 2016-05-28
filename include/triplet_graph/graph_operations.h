@@ -15,6 +15,10 @@ int findNodeByID(const Graph& g, const std::string& id);
 bool configure(Graph &g, tue::Configuration &config);
 bool load(Graph &g, std::string filename);
 
+void deleteNodes(Graph &graph, const std::vector<int>& nodes);
+
+void mergeNodes(Graph &graph, const std::vector<int>& nodes);
+
 void setRigidEdges(Graph &graph, const std::vector<int>& nodes);
 
 void calculatePositions(const Graph& graph, const Path& path, AssociatedMeasurement& positions);

@@ -181,6 +181,27 @@ void setRigidEdges(Graph &graph, const std::vector<int>& nodes)
 
 // -----------------------------------------------------------------------------------------------
 
+//void mergeNodes(Graph &graph, const std::vector<int>& nodes)
+//{
+//    int n1 = nodes.front();
+//    for ( std::vector<int>::const_iterator it1 = nodes.begin()+1; it1 != nodes.end(); ++it1 )
+//    {
+//        graph.mergeNodes(n1,*it);
+//    }
+//}
+
+// -----------------------------------------------------------------------------------------------
+
+void deleteNodes(Graph &graph, const std::vector<int>& nodes)
+{
+    for ( std::vector<int>::const_iterator it = nodes.begin(); it != nodes.end(); ++it )
+    {
+        graph.deleteNode(*it);
+    }
+}
+
+// -----------------------------------------------------------------------------------------------
+
 void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurement& positions)
 /**
  * Given a graph, a path and a sparse vector of positions, calculates the positions of
