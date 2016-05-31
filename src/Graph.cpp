@@ -65,7 +65,7 @@ int Graph::addEdge2(const int node1, const int node2, const double length, const
     nodes_[node2].edge_by_peer_[node1] = i;
     nodes_[node2].peer_by_edge_[i] = node1;
 
-//    std::cout << "\033[31m" << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << "\033[0m" << std::endl;
+//    std::cout <<"[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << "\033[0m" << std::endl;
 
     return i;
 }
@@ -325,21 +325,29 @@ void Graph::mergeNodes(const int n1, const int n2)
             else if ( p1 == p2 )
             {
                 // Edges connect merged nodes to the same peer
-                mergeEdges(*it1, *it2);
+                // TODO: HACK! Should handle this more nicely
+                if ( edges_[*it1].std_dev == edges_[*it2].std_dev )
+                {
+                    edges_[*it1].l = ( edges_[*it1].l + edges_[*it2].l )/2.0;
+                }
+                else if ( edges_[*it1].std_dev > edges_[*it2].std_dev )
+                {
+                    edges_[*it1].l = edges_[*it2].l;
+                }
                 it2 = node_2.edges.erase(it2);
             }
 
             else
-                ++it;
+                ++it2;
         }
     }
 
     // All remaining edges in node 2 must be independent of that in node 1, so add the remaining edges in node 2 to the graph
     for ( std::vector<int>::iterator it = node_2.edges.begin(); it != node_2.edges.end(); ++it )
     {
-        Edge2 e = edges[*it];
+        Edge2 e = edges_[*it];
         deleteEdge2(*it);
-        addEdge2(e.A,e.B,e.l,e.std_dev);
+        addEdge2(n1,e.getOtherNode(n2),e.l,e.std_dev);
     }
 
 
@@ -348,28 +356,86 @@ void Graph::mergeNodes(const int n1, const int n2)
     {
         for ( std::vector<int>::iterator it2 = node_2.triplets.begin(); it2 != node_2.triplets.end(); ++it2 )
         {
-            int e1 = triplets_[*it1];
-            int e2 = triplets_[*it2];
+            Edge3 e1 = triplets_[*it1];
+            Edge3 e2 = triplets_[*it2];
 
-            if ( *it1 == *it2 )
-                // Triplet connects the merged nodes to each other and the same third node
-                deleteEdge3(*it2);
-            else
-                nodes_[n1].edges.push_back(*it2);
+            std::vector<int> s1, s2;
+            s1.push_back(e1.A);
+            s1.push_back(e1.B);
+            s1.push_back(e1.C);
+
+            s2.push_back(e2.A);
+            s2.push_back(e2.B);
+            s2.push_back(e2.C);
+
+            std::vector< int > common;
+            for ( int i = 0; i < 3; ++i )
+            {
+                for ( int j = 0; j < 3; ++j )
+                {
+                    if ( s1[i] == s2[j] )
+                    {
+                        common.push_back(s1[i]);
+                    }
+                }
+            }
+
+            if ( common.size() == 3 )
+            {
+                // All nodes are shared between these points, this triplet becomes unnecessary
+                it2 = node_2.triplets.erase(it2);
+            }
+            else if ( common.size() == 2 )
+            {
+                // Two possible cases:
+                // - triplets contain the merged nodes and each a different third node (both triplets can be deleted);
+                // - triplets share two other nodes (only one is useful)
+                if ( common[0] == n1 && common[1] == n2 ||
+                     common[1] == n1 && common[0] == n2 )
+                {
+                    deleteEdge3(*it1);
+                    deleteEdge3(*it2);
+                    it2 = node_2.edges.erase(it2);
+                }
+                else if ( e1 == e2 )
+                {
+                    deleteEdge3(*it2);
+                    it2 = node_2.edges.erase(it2);
+                }
+                else if ( e1 == e2.flip() )
+                {
+                    std::cout << "\033[31m" << "[MERGE NODES] Warning! Triplets of merged nodes are in conflict. What to do now?" << "\033[0m" << std::endl;
+                }
+                else
+                {
+                    std::cout << "\033[31m" << "[MERGE NODES] Warning! Now what the hell is going wrong in merging nodes?!" << "\033[0m" << std::endl;
+                }
+            }
         }
+    }
+
+    // All remaining triplets in node 2 are now still valid when node 2 is substituted by node 1, so add its remaining triplets to the graph
+    for ( std::vector<int>::iterator it = node_2.triplets.begin(); it != node_2.triplets.end(); ++it )
+    {
+        Edge3 e = triplets_[*it];
+        deleteEdge3(*it);
+
+        int A, B, C;
+        if ( e.A = n2 )
+        { A = n1; B = e.B; C = e.C; }
+        else if ( e.B = n2 )
+        { A = e.A; B = n1; C = e.C; }
+        else if ( e.C = n2 )
+        { A = e.A; B = e.B; C = n1; }
+        else
+            std::cout << "\033[31m" << "[MERGE NODES] Warning! Sanity check. This is not supposed to happen." << "\033[0m" << std::endl;
+
+        addEdge3(A,B,C);
     }
 
     deleteNode(n2);
     return;
 }
-
-void Graph::mergeEdges(const int e1, const int e2)
-{
-    if ( edges_[e1].uncertainty ==
-    return;
-}
-
-// -----------------------------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------------------------
 

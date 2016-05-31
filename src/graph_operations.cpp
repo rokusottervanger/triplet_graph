@@ -181,14 +181,14 @@ void setRigidEdges(Graph &graph, const std::vector<int>& nodes)
 
 // -----------------------------------------------------------------------------------------------
 
-//void mergeNodes(Graph &graph, const std::vector<int>& nodes)
-//{
-//    int n1 = nodes.front();
-//    for ( std::vector<int>::const_iterator it1 = nodes.begin()+1; it1 != nodes.end(); ++it1 )
-//    {
-//        graph.mergeNodes(n1,*it);
-//    }
-//}
+void mergeNodes(Graph &graph, const std::vector<int>& nodes)
+{
+    int n1 = nodes.front();
+    for ( std::vector<int>::const_iterator it = nodes.begin()+1; it != nodes.end(); ++it )
+    {
+        graph.mergeNodes(n1,*it);
+    }
+}
 
 // -----------------------------------------------------------------------------------------------
 

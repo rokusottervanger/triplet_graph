@@ -24,7 +24,8 @@ bool Server::deleteCallback(Nodes::Request& req, Nodes::Response& res)
 
 bool Server::mergeCallback(Nodes::Request& req, Nodes::Response& res)
 {
-    ROS_WARN_NAMED("Graph Server", "Merging nodes is not implemented yet");
+    mergeNodes(*graph_ptr_,req.nodes);
+//    ROS_WARN_NAMED("Graph Server", "Merging nodes is not implemented yet");
     return true;
 }
 
