@@ -203,6 +203,8 @@ void Graph::deleteEdge2(const int i)
 
     edges_[i].deleted = true;
     deleted_edges_.push_back(i);
+
+    // TODO: delete triplets that incorporate the deleted edge!
     std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted edges is not completely implemented yet!" << "\033[0m" << std::endl;
 }
 
@@ -268,7 +270,7 @@ void Graph::deleteEdge3(const int i)
     triplets_[i].deleted = true;
     deleted_triplets_.push_back(i);
     std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted triplets is not completely implemented yet!" << "\033[0m" << std::endl;
-    // TODO: Why would you want to do this? And does that mean that you want to remove the involved edges as well?
+    // TODO: Remove involved edges if no longer part of triplets
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -298,18 +300,76 @@ void Graph::setEdgeRigid(const int n1, const int n2)
 
 // -----------------------------------------------------------------------------------------------
 
-//void Graph::mergeNodes(const int n1, const int n2)
-//{
-//    Node node_1 = nodes_[n1];
-//    Node node_2 = nodes_[n2];
+void Graph::mergeNodes(const int n1, const int n2)
+{
+    // Make copies of nodes 1 and 2
+    Node node_1 = nodes_[n1];
+    Node node_2 = nodes_[n2];
 
-//    for ( std::vector<int>::iterator it = node_1. )
-//    {
-//    }
+    // Find common edges and remove them from the copy of node 2
+    for ( std::vector<int>::iterator it1 = node_1.edges.begin(); it1 != node_1.edges.end(); ++it1 )
+    {
+        std::vector<int>::iterator it2 = node_2.edges.begin();
+        while ( it2 != node_2.edges.end() )
+        {
+            int p1 = edges_[*it1].getOtherNode(n1);
+            int p2 = edges_[*it2].getOtherNode(n2);
 
-//    nodes_[n2].deleted = true;
-//    return;
-//}
+            if ( *it1 == *it2 )
+            {
+                // Edge connects the merged nodes to each other
+                deleteEdge2(*it1);
+                it2 = node_2.edges.erase(it2);
+            }
+
+            else if ( p1 == p2 )
+            {
+                // Edges connect merged nodes to the same peer
+                mergeEdges(*it1, *it2);
+                it2 = node_2.edges.erase(it2);
+            }
+
+            else
+                ++it;
+        }
+    }
+
+    // All remaining edges in node 2 must be independent of that in node 1, so add the remaining edges in node 2 to the graph
+    for ( std::vector<int>::iterator it = node_2.edges.begin(); it != node_2.edges.end(); ++it )
+    {
+        Edge2 e = edges[*it];
+        deleteEdge2(*it);
+        addEdge2(e.A,e.B,e.l,e.std_dev);
+    }
+
+
+    // Find common triplets in node 1 and 2 and remove them from the copy of node 2
+    for ( std::vector<int>::iterator it1 = node_1.triplets.begin(); it1 != node_1.triplets.end(); ++it1 )
+    {
+        for ( std::vector<int>::iterator it2 = node_2.triplets.begin(); it2 != node_2.triplets.end(); ++it2 )
+        {
+            int e1 = triplets_[*it1];
+            int e2 = triplets_[*it2];
+
+            if ( *it1 == *it2 )
+                // Triplet connects the merged nodes to each other and the same third node
+                deleteEdge3(*it2);
+            else
+                nodes_[n1].edges.push_back(*it2);
+        }
+    }
+
+    deleteNode(n2);
+    return;
+}
+
+void Graph::mergeEdges(const int e1, const int e2)
+{
+    if ( edges_[e1].uncertainty ==
+    return;
+}
+
+// -----------------------------------------------------------------------------------------------
 
 // -----------------------------------------------------------------------------------------------
 
