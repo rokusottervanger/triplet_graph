@@ -11,6 +11,7 @@ namespace triplet_graph
 
 int Graph::addNode(const std::string& id)
 {
+    std::cout << "[GRAPH] Adding node with id: '" << id << "'" << std::endl;
     Node node(id);
 
     int i;
@@ -27,7 +28,7 @@ int Graph::addNode(const std::string& id)
         deleted_nodes_.pop_back();
     }
 
-    //    std::cout << "[GRAPH] Added node with id: '" << id << "'" << std::endl;
+    std::cout << "[GRAPH] Added node with id: '" << id << "' at " << i << std::endl;
 
     return i;
 }
@@ -36,6 +37,8 @@ int Graph::addNode(const std::string& id)
 
 int Graph::addEdge2(const int node1, const int node2, const double length, const double std_dev)
 {
+    std::cout << "[GRAPH] Adding edge between node " << node1 << " and node " << node2 << std::endl;
+
     Edge2 edge2(node1, node2, length, std_dev);
 
     // Check if edge already exists
@@ -50,6 +53,7 @@ int Graph::addEdge2(const int node1, const int node2, const double length, const
             edges_[i].l = length;
             edges_[i].std_dev = std_dev;
         }
+        std::cout << "[GRAPH] Edge2 between node " << node1 << " and node " << node2 << " already existed" << std::endl;
         return i;
     }
 
@@ -76,7 +80,7 @@ int Graph::addEdge2(const int node1, const int node2, const double length, const
     nodes_[node2].edge_by_peer_[node1] = i;
     nodes_[node2].peer_by_edge_[i] = node1;
 
-    //    std::cout <<"[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << "\033[0m" << std::endl;
+    std::cout << "[GRAPH] Added edge2 of length " << length << " between node " << node1 << " and node " << node2 << " at " << i << std::endl;
 
     return i;
 }
@@ -85,6 +89,8 @@ int Graph::addEdge2(const int node1, const int node2, const double length, const
 
 int Graph::addEdge3(const int node1, const int node2, const int node3)
 {
+    std::cout << "[GRAPH] Adding edge3 between node " << node1 << ", " << node2 << " and " << node3 << std::endl;
+
     if (node1 == node2 || node2 == node3 || node3 == node1)
     {
         std::cout << "\033[31m" << "[GRAPH] ERROR! You're trying to add an edge between three nodes of which at least two are the same. Returning -1" << "\033[0m" << std::endl;
@@ -115,6 +121,7 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
     {
         // Triplet already exists, so overwrite old triplet and return
         triplets_[i] = trip;
+        std::cout << "[GRAPH] Edge3 between node " << node1 << ", " << node2 << " and " << node3 << " already existed" << std::endl;
         return i;
     }
 
@@ -151,7 +158,7 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
     nodes_[node3].triplets_by_peer_[node2].push_back(i);
     edges_[nodes_[node3].edgeByPeer(node1)].triplet_by_node_[node2] = i;
 
-    //    std::cout << "[GRAPH] Added Edge3 between nodes " << node1 << ", " << node2 << " and " << node3 << std::endl;
+    std::cout << "[GRAPH] Added Edge3 between nodes " << node1 << ", " << node2 << " and " << node3 << " at " << i << std::endl;
 
     return i;
 }
@@ -160,6 +167,13 @@ int Graph::addEdge3(const int node1, const int node2, const int node3)
 
 void Graph::deleteNode(const int i)
 {
+    std::cout << "[GRAPH] Deleting node " << i << std::endl;
+    if ( nodes_[i].deleted )
+    {
+        std::cout << "[GRAPH] Node " << i << " is already marked deleted" << std::endl;
+        return;
+    }
+
     Node node = nodes_[i];
 
     nodes_[i].deleted = true;
@@ -177,13 +191,15 @@ void Graph::deleteNode(const int i)
         deleteEdge2(*it);
     }
 
-    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted nodes is not completely implemented yet!" << "\033[0m" << std::endl;
+    std::cout << "[GRAPH] Deleted node " << i << std::endl;
+//    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted nodes is not completely implemented yet!" << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
 
 void Graph::deleteEdge2(const int i)
 {
+    std::cout << "[GRAPH] Deleting edge " << i << std::endl;
     Edge2 edge = edges_[i];
 
     // For both nodes stored in this edge, find the index to this edge (i) in its list of edges and erase it from that list
@@ -218,19 +234,21 @@ void Graph::deleteEdge2(const int i)
         deleteNode(edge.B);
     }
 
+    // Delete all triplets this edge was part of!
     for ( std::map<int,int>::iterator it = edge.triplet_by_node_.begin(); it != edge.triplet_by_node_.end(); ++it )
     {
         deleteEdge3(it->second);
     }
 
-    // TODO: delete triplets that incorporate the deleted edge!
-    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted edges is not completely implemented yet!" << "\033[0m" << std::endl;
+    std::cout << "[GRAPH] Deleted edge " << i << std::endl;
+//    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted edges is not completely implemented yet!" << "\033[0m" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
 
 void Graph::deleteEdge3(const int i)
 {
+    std::cout << "[GRAPH] Deleting triplet " << i << std::endl;
     Edge3 triplet = triplets_[i];
 
     // For every node stored in this triplet, find the index to this triplet (i) in its list of triplets and erase it from that list
@@ -299,7 +317,9 @@ void Graph::deleteEdge3(const int i)
 
     triplets_[i].deleted = true;
     deleted_triplets_.push_back(i);
-    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted triplets is not completely implemented yet!" << "\033[0m" << std::endl;
+
+    std::cout << "[GRAPH] Deleted triplet " << i << std::endl;
+//    std::cout << "\033[31m" << "[GRAPH] WARNING! Handling deleted triplets is not completely implemented yet!" << "\033[0m" << std::endl;
     // TODO: Remove involved edges if no longer part of any triplets
 }
 
@@ -332,7 +352,7 @@ void Graph::setEdgeRigid(const int n1, const int n2)
 
 void Graph::mergeNodes(const int n1, const int n2)
 {
-    std::cout << "Merging nodes... " << std::endl;
+    std::cout << "[GRAPH] Merging nodes " << n1 << " and " << n2 << std::endl;
     // Make copies of nodes 1 and 2
     Node node_1 = nodes_[n1];
     Node node_2 = nodes_[n2];
@@ -430,7 +450,7 @@ void Graph::mergeNodes(const int n1, const int n2)
     deleteNode(n1);
     deleteNode(n2);
 
-    std::cout << "done merging nodes" << std::endl;
+    std::cout << "[GRAPH] Merged nodes " << n1 << " and " << n2 << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
