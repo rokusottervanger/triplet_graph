@@ -266,7 +266,8 @@ int main(int argc, char** argv)
             {
                 for ( std::vector<int>::iterator it_2 = it_1+1 ; it_2 != associations.nodes.end(); ++it_2 )
                 {
-                    node_it = graph.begin() + *it_1;
+                    node_it = graph.iteratorAtIndex(*it_1);
+//                    node_it = graph.begin() + *it_1;
                     if ( node_it->deleted )
                     {
                         std::cout << "\033[31m" << "[mapping] ERROR! Bug! One of the associated nodes is a deleted node. This is never supposed to happen!" << "\033[0m" << std::endl;

@@ -92,9 +92,11 @@ public:
                 return it_;
             }
 
-            friend NodeIterator operator+(NodeIterator it, const int offset) { return it+=offset; }
+            friend NodeIterator operator+(NodeIterator it, const int offset) { return it.it_ +=offset; }
 
             const Node* operator->() const { return &*it_; }
+
+            int getIndex(const Graph& g) const { return it_ - g.nodes_.begin(); }
 
         private:
 
@@ -107,6 +109,8 @@ public:
     inline const_iterator begin() const { return const_iterator(nodes_); }
 
     inline const_iterator end() const { return const_iterator(nodes_.end());}
+
+    inline const_iterator iteratorAtIndex(const int i) const { return const_iterator( nodes_.begin() + i ); }
 
     inline int size() const { return nodes_.size() - deleted_nodes_.size(); }
 
@@ -165,6 +169,8 @@ public:
 
     inline const_edge2_iterator endEdges() const { return const_edge2_iterator(edges_.end());}
 
+    inline const_edge2_iterator edgeIteratorAtIndex(const int i) const { return const_edge2_iterator( edges_.begin() + i ); }
+
     inline int numEdges() const { return edges_.size() - deleted_edges_.size(); }
 
     // -----------------------------------------------------------------------------------------------
@@ -221,6 +227,8 @@ public:
     inline const_edge3_iterator beginTriplets() const { return const_edge3_iterator(triplets_); }
 
     inline const_edge3_iterator endTriplets() const { return const_edge3_iterator(triplets_.end());}
+
+    inline const_edge3_iterator tripletIteratorAtIndex(const int i) const { return const_edge3_iterator( triplets_.begin() + i ); }
 
     inline int numTriplets() const { return triplets_.size() - deleted_triplets_.size(); }
 

@@ -40,12 +40,16 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
     else
     {
         // Get edge lengths of current graph node to its parents in the path
-        Graph::const_iterator node_it = graph.begin()+graph_positions.nodes[node_index];
+//        Graph::const_iterator node_it = graph.begin()+graph_positions.nodes[node_index];
+        Graph::const_iterator node_it = graph.iteratorAtIndex(graph_positions.nodes[node_index]);
 
-        Graph::const_edge2_iterator edge_1_it = graph.beginEdges() + node_it->edgeByPeer(parent_1_i);
-        Graph::const_edge2_iterator edge_2_it = graph.beginEdges() + node_it->edgeByPeer(parent_2_i);
+//        Graph::const_edge2_iterator edge_1_it = graph.beginEdges() + node_it->edgeByPeer(parent_1_i);
+//        Graph::const_edge2_iterator edge_2_it = graph.beginEdges() + node_it->edgeByPeer(parent_2_i);
+        Graph::const_edge2_iterator edge_1_it = graph.edgeIteratorAtIndex(node_it->edgeByPeer(parent_1_i));
+        Graph::const_edge2_iterator edge_2_it = graph.edgeIteratorAtIndex(node_it->edgeByPeer(parent_2_i));
 
-        Graph::const_edge3_iterator trip_it = graph.beginTriplets() + edge_1_it->tripletByNode(parent_2_i);
+//        Graph::const_edge3_iterator trip_it = graph.beginTriplets() + edge_1_it->tripletByNode(parent_2_i);
+        Graph::const_edge3_iterator trip_it = graph.tripletIteratorAtIndex(edge_1_it->tripletByNode(parent_2_i));
 
         // Get the most recent positions of the parent nodes (either the predicted position or the hypothesized associated measurement point),
         geo::Vec3d parent_1_pos = getMostRecentNodePosition(input_associations, graph_positions, parent_1_i);

@@ -91,7 +91,8 @@ double PathFinder::findPath(const int target_node, Path& path)
                     std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
                 else
                 {
-                    Graph::const_iterator node_it = graph_->begin() + *it_1;
+//                    Graph::const_iterator node_it = graph_->begin() + *it_1;
+                    Graph::const_iterator node_it = graph_->iteratorAtIndex(*it_1);
                     if ( node_it->deleted )
                     {
                         std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
@@ -136,7 +137,8 @@ double PathFinder::findPath(const int target_node, Path& path)
         if ( es[u] == -1 )
             continue;
 
-        Graph::const_edge2_iterator edge_it = graph_->beginEdges() + u;
+//        Graph::const_edge2_iterator edge_it = graph_->beginEdges() + u;
+        Graph::const_edge2_iterator edge_it = graph_->edgeIteratorAtIndex(u);
         if ( edge_it->deleted )
         {
             std::cout << "[FIND_PATH] Warning! Skipping deleted edge" << std::endl;
@@ -152,7 +154,8 @@ double PathFinder::findPath(const int target_node, Path& path)
             return ns_[target_node];
         }
 
-        std::vector<int> common_triplets = (graph_->begin() + edge_it->A)->tripletsByPeer(edge_it->B);
+//        std::vector<int> common_triplets = (graph_->begin() + edge_it->A)->tripletsByPeer(edge_it->B);
+        std::vector<int> common_triplets = graph_->iteratorAtIndex(edge_it->A)->tripletsByPeer(edge_it->B);
 
         if ( common_triplets.size() == 0 )
             std::cout << "Did not find any common triplets" << std::endl;
@@ -161,7 +164,8 @@ double PathFinder::findPath(const int target_node, Path& path)
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
         {
             // Retrieve the right node from the triplet.
-            Graph::const_edge3_iterator trip_it = graph_->beginTriplets() + *t_it;
+//            Graph::const_edge3_iterator trip_it = graph_->beginTriplets() + *t_it;
+            Graph::const_edge3_iterator trip_it = graph_->tripletIteratorAtIndex(*t_it);
             if ( trip_it->deleted )
             {
                 std::cout << "[FIND_PATH] Warning! Skipping deleted triplet" << std::endl;
@@ -170,7 +174,8 @@ double PathFinder::findPath(const int target_node, Path& path)
 
             int v = trip_it->getThirdNode(edge_it->A,edge_it->B);
 
-            Graph::const_iterator node_it = graph_->begin() + v;
+//            Graph::const_iterator node_it = graph_->begin() + v;
+            Graph::const_iterator node_it = graph_->iteratorAtIndex(v);
             if ( node_it->deleted )
             {
                 std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
@@ -180,8 +185,10 @@ double PathFinder::findPath(const int target_node, Path& path)
 
             double w;
             double l3 = edge_it->l;                                                     // Edge between parents
-            double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
-            double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
+//            double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
+            double l1 = graph_->edgeIteratorAtIndex(node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
+//            double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
+            double l2 = graph_->edgeIteratorAtIndex(node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
 
             // Check triangle inequality!
             double p  = ( l1 + l2 + l3 )/2.0;
@@ -227,7 +234,8 @@ double PathFinder::findPath(const int target_node, Path& path)
                 // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
                 for ( std::vector<int>::const_iterator e_it = node_it->edges.begin(); e_it !=node_it->edges.end(); ++e_it )
                 {
-                    int neighbor = (graph_->beginEdges() + *e_it)->getOtherNode(v);
+//                    int neighbor = (graph_->beginEdges() + *e_it)->getOtherNode(v);
+                    int neighbor = graph_->edgeIteratorAtIndex(*e_it)->getOtherNode(v);
 
                     // if neighbor is not visited yet, add it to queue
                     if ( ns_[neighbor] < 1e38 )
@@ -291,7 +299,8 @@ void PathFinder::tracePath(const int target_node, Path& path)
         if ( visited != -1 )
         {
             // Don't add source nodes (cost == 0) to trace
-            Graph::const_edge2_iterator edge_it = graph_->beginEdges() + e;
+//            Graph::const_edge2_iterator edge_it = graph_->beginEdges() + e;
+            Graph::const_edge2_iterator edge_it = graph_->edgeIteratorAtIndex(e);
             if ( edge_it->deleted )
             {
                 std::cout << "[FIND_PATH] Warning! Skipping deleted edge" << std::endl;
