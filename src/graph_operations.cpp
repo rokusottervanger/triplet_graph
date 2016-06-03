@@ -27,8 +27,7 @@ int findNodeByID(const Graph& g, const std::string &id)
     for ( Graph::const_iterator it = g.begin(); it != g.end(); ++it )
     {
         if ((*it).id == id)
-//            return (it - g.begin());
-            return it.getIndex(g);
+            return (it - g.begin());
     }
 
     // Node not found, return -1!
@@ -182,14 +181,14 @@ void setRigidEdges(Graph &graph, const std::vector<int>& nodes)
 
 // -----------------------------------------------------------------------------------------------
 
-void mergeNodes(Graph &graph, const std::vector<int>& nodes)
-{
-    int n1 = nodes.front();
-    for ( std::vector<int>::const_iterator it = nodes.begin()+1; it != nodes.end(); ++it )
-    {
-        graph.mergeNodes(n1,*it);
-    }
-}
+//void mergeNodes(Graph &graph, const std::vector<int>& nodes)
+//{
+//    int n1 = nodes.front();
+//    for ( std::vector<int>::const_iterator it1 = nodes.begin()+1; it1 != nodes.end(); ++it1 )
+//    {
+//        graph.mergeNodes(n1,*it);
+//    }
+//}
 
 // -----------------------------------------------------------------------------------------------
 
@@ -230,9 +229,7 @@ void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurem
         }
 
         // Get edge that connects parent nodes
-//        int parents_edge_i = (graph.begin() + parent1_i)->edgeByPeer(parent2_i);
-        int parents_edge_i = graph.iteratorAtIndex(parent1_i)->edgeByPeer(parent2_i);
-
+        int parents_edge_i = (graph.begin() + parent1_i)->edgeByPeer(parent2_i);
         if ( parents_edge_i == -1 )
         {
             std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! No edge connects parents " << parent1_i << " and " << parent2_i << ". This is never supposed to happen!" << "\033[0m" << std::endl;
@@ -240,8 +237,7 @@ void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurem
         }
 
         // Get triplet that connects parents' edge with new node
-//        Graph::const_edge2_iterator parents_edge_it = graph.beginEdges() + parents_edge_i;
-        Graph::const_edge2_iterator parents_edge_it = graph.edgeIteratorAtIndex(parents_edge_i);
+        Graph::const_edge2_iterator parents_edge_it = graph.beginEdges() + parents_edge_i;
         if ( parents_edge_it->deleted )
         {
             std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted edge in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
@@ -257,8 +253,7 @@ void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurem
 
         // Parent1 and parent2 are either clockwise or anticlockwise in order with respect to their child node
         // If clockwise (wrong direction) swap parent nodes.
-//        Graph::const_edge3_iterator trip_it = graph.beginTriplets() + triplet_i;
-        Graph::const_edge3_iterator trip_it = graph.tripletIteratorAtIndex(triplet_i);
+        Graph::const_edge3_iterator trip_it = graph.beginTriplets() + triplet_i;
         if ( trip_it->deleted )
         {
             std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted triplet in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
@@ -274,31 +269,28 @@ void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurem
             parent2_i = tmp;
         }
 
-//        int edge_1_i = (graph.begin() + parent1_i)->edgeByPeer(node_i);
-        int edge_1_i = graph.iteratorAtIndex(parent1_i)->edgeByPeer(node_i);
+        int edge_1_i = (graph.begin() + parent1_i)->edgeByPeer(node_i);
         if ( edge_1_i == -1 )
         {
             std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
 
-//        int edge_2_i = (graph.begin() + parent2_i)->edgeByPeer(node_i);
-        int edge_2_i = graph.iteratorAtIndex(parent2_i)->edgeByPeer(node_i);
+        int edge_2_i = (graph.begin() + parent2_i)->edgeByPeer(node_i);
         if ( edge_2_i == -1 )
         {
             std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! Edge 1 does not exist. This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
 
-//        Graph::const_edge2_iterator edge_1_it = graph.beginEdges() + edge_1_i;
-        Graph::const_edge2_iterator edge_1_it = graph.edgeIteratorAtIndex(edge_1_i);
+        Graph::const_edge2_iterator edge_1_it = graph.beginEdges() + edge_1_i;
         if ( edge_1_it->deleted )
         {
             std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted edge in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
             return;
         }
 
-        Graph::const_edge2_iterator edge_2_it = graph.edgeIteratorAtIndex(edge_2_i);
+        Graph::const_edge2_iterator edge_2_it = graph.beginEdges() + edge_2_i;
         if ( edge_2_it->deleted )
         {
             std::cout << "\033[31m" << "[calculatePositions] ERROR! Bug! There's a deleted edge in the path. This is never supposed to happen!" << "\033[0m" << std::endl;
@@ -402,8 +394,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
     {
         int n1 = *it_1;
 
-//        Graph::const_iterator node1_it = graph.begin() + *it_1;
-        Graph::const_iterator node1_it = graph.iteratorAtIndex(*it_1);
+        Graph::const_iterator node1_it = graph.begin() + *it_1;
         if ( node1_it->deleted )
         {
             std::cout << "\033[31m" << "[updateGraph] ERROR! Bug! There's a deleted node in the associations. This is never supposed to happen!" << "\033[0m" << std::endl;
@@ -446,7 +437,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
                 e = graph.addEdge2(n1, n2, length, default_std_dev);
             }
 
-            Graph::const_edge2_iterator edge_1_it = graph.edgeIteratorAtIndex(e);
+            Graph::const_edge2_iterator edge_1_it = graph.beginEdges() + e;
             if ( edge_1_it->deleted )
             {
                 std::cout << "\033[31m" << "[updateGraph] ERROR! Bug! There's a deleted edge stored in the connected nodes. This is never supposed to happen!" << "\033[0m" << std::endl;
@@ -474,7 +465,7 @@ void updateGraph(Graph &graph, const AssociatedMeasurement &associations, bool u
                     if ( update_lengths )
                     {
                         // get a copy of the triplet.
-                        Graph::const_edge3_iterator trip_it = graph.tripletIteratorAtIndex(t);
+                        Graph::const_edge3_iterator trip_it = graph.beginTriplets() + t;
                         if ( trip_it->deleted )
                         {
                             std::cout << "\033[31m" << "[updateGraph] ERROR! Bug! There's a deleted edge in an edge's list of triplets. This is never supposed to happen!" << "\033[0m" << std::endl;
@@ -669,10 +660,8 @@ void save(const Graph &graph, const std::string &filename)
     for ( Graph::const_edge2_iterator it = graph.beginEdges(); it != graph.endEdges(); ++it )
     {
         config.addArrayItem();
-//        config.setValue("n1",s+(graph.begin() + it->A)->id+s);
-//        config.setValue("n2",s+(graph.begin() + it->B)->id+s);
-        config.setValue("n1",s+(graph.iteratorAtIndex(it->A))->id+s);
-        config.setValue("n2",s+(graph.iteratorAtIndex(it->B))->id+s);
+        config.setValue("n1",s+(graph.begin() + it->A)->id+s);
+        config.setValue("n2",s+(graph.begin() + it->B)->id+s);
         config.setValue("length",it->l);
         config.endArrayItem();
     }
@@ -682,12 +671,9 @@ void save(const Graph &graph, const std::string &filename)
     for ( Graph::const_edge3_iterator it = graph.beginTriplets(); it != graph.endTriplets(); ++it )
     {
         config.addArrayItem();
-//        config.setValue("n1",s+(graph.begin() + it->A)->id+s);
-//        config.setValue("n2",s+(graph.begin() + it->B)->id+s);
-//        config.setValue("n3",s+(graph.begin() + it->C)->id+s);
-        config.setValue("n1",s+(graph.iteratorAtIndex(it->A))->id+s);
-        config.setValue("n2",s+(graph.iteratorAtIndex(it->B))->id+s);
-        config.setValue("n3",s+(graph.iteratorAtIndex(it->C))->id+s);
+        config.setValue("n1",s+(graph.begin() + it->A)->id+s);
+        config.setValue("n2",s+(graph.begin() + it->B)->id+s);
+        config.setValue("n3",s+(graph.begin() + it->C)->id+s);
         config.endArrayItem();
     }
     config.endArray();
