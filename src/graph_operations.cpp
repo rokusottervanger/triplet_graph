@@ -663,6 +663,7 @@ void save(const Graph &graph, const std::string &filename)
         config.setValue("n1",s+(graph.begin() + it->A)->id+s);
         config.setValue("n2",s+(graph.begin() + it->B)->id+s);
         config.setValue("length",it->l);
+        config.setValue("uncertainty",it->std_dev);
         config.endArrayItem();
     }
     config.endArray();
