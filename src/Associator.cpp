@@ -259,13 +259,21 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     unassociated_points_ = measurement;
     best_association_cost_ = 100;
 
+    std::cout << "Test 1" << std::endl;
+
     // Find a path through the graph starting from the associated nodes
     PathFinder pathFinder( *graph_ptr_, associations.nodes );
-    pathFinder.findPath( goal_node_i, path_ );
+    std::cout << path_ << std::endl;
+    std::cout << goal_node_i << std::endl;
+    std::cout << pathFinder.findPath( goal_node_i, path_ ) << std::endl;
+
+    std::cout << "Test 2" << std::endl;
 
     // Calculate the positions of graph nodes on the path
     AssociatedMeasurement path_positions = associations;
     calculatePositions( *graph_ptr_, path_, path_positions );
+
+    std::cout << "Test 3" << std::endl;
 
     associations.clear();
     associations.measurement.time_stamp = measurement.time_stamp;
@@ -278,8 +286,12 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
 
     for ( int i = 0; i < costCalculators_.size(); ++i )
     {
+        std::cout << "Test 4." << i << ".1" << std::endl;
+
         // Call the recursive association algorithms
         associate( path_positions, unassociated_points_, associations, *costCalculators_[i], max_assoc_dists_[i], 0.0);
+
+        std::cout << "Test 4." << i << ".2" << std::endl;
 
         std::cout << associations.nodes.size() << " associations found after using costcalculator " << i << std::endl;
 
@@ -294,7 +306,11 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
                 unassociated_points_.points.erase( it );
             }
         }
+
+        std::cout << "Test 4." << i << ".3" << std::endl;
     }
+
+    std::cout << "Test 5" << std::endl;
 
     associated_ = true;
 

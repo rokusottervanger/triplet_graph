@@ -78,6 +78,8 @@ double PathFinder::findPath(const int target_node, Path& path)
      */
     std::priority_queue<CostInt, std::vector<CostInt>, std::greater<CostInt> > Q;
 
+    std::cout << "Here 1" << std::endl;
+
     // Find all edges connecting the source nodes and add those edges to Q
     for ( std::set<int>::const_iterator it_1 = source_nodes_.begin(); it_1 != source_nodes_.end(); ++it_1 )
     {
@@ -116,6 +118,8 @@ double PathFinder::findPath(const int target_node, Path& path)
         }
     }
 
+    std::cout << "Here 2" << std::endl;
+
     if ( Q.size() < 1 )
     {
         std::cout << "\033[31m" << "[PathFinder] Not enough valid input points!" << "\033[0m" << std::endl;
@@ -129,6 +133,7 @@ double PathFinder::findPath(const int target_node, Path& path)
      */
     while(!Q.empty())
     {
+        std::cout << "Here 3" << std::endl;
         // Take the cheapest edge (cost is sum of node costs so far) from the queue
         int u = Q.top().second; // current edge, cheapest pair of nodes so far
         Q.pop();
@@ -145,17 +150,22 @@ double PathFinder::findPath(const int target_node, Path& path)
             continue;
         }
 
+        std::cout << "Here u: " << u << std::endl;
+
         // When the target is reached in current edge's A or B node, trace back path
         if ( target_node != -1 && (edge_it->A == target_node || edge_it->B == target_node))
         {
+            std::cout << "Tracing path..." << std::endl;
             tracePath(target_node, path);
 
             // When finished, return cost to target node
             return ns_[target_node];
         }
 
+        std::cout << "Here 5" << std::endl;
 //        std::vector<int> common_triplets = (graph_->begin() + edge_it->A)->tripletsByPeer(edge_it->B);
         std::vector<int> common_triplets = graph_->iteratorAtIndex(edge_it->A)->tripletsByPeer(edge_it->B);
+        std::cout << "Here size common triplets: " << common_triplets.size() << std::endl;
 
         if ( common_triplets.size() == 0 )
             std::cout << "Did not find any common triplets" << std::endl;
@@ -163,6 +173,8 @@ double PathFinder::findPath(const int target_node, Path& path)
         // Run through common triplets of the current pair of nodes
         for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
         {
+
+            std::cout << "Here *t_it: " << *t_it << std::endl;
             // Retrieve the right node from the triplet.
 //            Graph::const_edge3_iterator trip_it = graph_->beginTriplets() + *t_it;
             Graph::const_edge3_iterator trip_it = graph_->tripletIteratorAtIndex(*t_it);
@@ -171,24 +183,36 @@ double PathFinder::findPath(const int target_node, Path& path)
                 std::cout << "[FIND_PATH] Warning! Skipping deleted triplet" << std::endl;
                 continue;
             }
+            std::cout << "Here 8" << std::endl;
 
             int v = trip_it->getThirdNode(edge_it->A,edge_it->B);
 
+            std::cout << "Here v = " << v << std::endl;
+
 //            Graph::const_iterator node_it = graph_->begin() + v;
             Graph::const_iterator node_it = graph_->iteratorAtIndex(v);
+
+            std::cout << "Here 10" << std::endl;
             if ( node_it->deleted )
             {
-                std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
+                std::cout << "[FIND_PATH] Warning! Skipping deleted node, this should never happen using graph iterators!" << std::endl;
                 continue;
             }
 
 
             double w;
-            double l3 = edge_it->l;                                                     // Edge between parents
+            // Edge between parents:
+            double l3 = edge_it->l;
+
+            std::cout << "Here 11" << std::endl;
 //            double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
             double l1 = graph_->edgeIteratorAtIndex(node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
+
+            std::cout << "Here l1: " << l1 << std::endl;
 //            double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
             double l2 = graph_->edgeIteratorAtIndex(node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
+
+            std::cout << "Here l2: " << l2 << std::endl;
 
             // Check triangle inequality!
             double p  = ( l1 + l2 + l3 )/2.0;
@@ -234,8 +258,10 @@ double PathFinder::findPath(const int target_node, Path& path)
                 // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
                 for ( std::vector<int>::const_iterator e_it = node_it->edges.begin(); e_it !=node_it->edges.end(); ++e_it )
                 {
+                    std::cout << "Here 14" << std::endl;
 //                    int neighbor = (graph_->beginEdges() + *e_it)->getOtherNode(v);
                     int neighbor = graph_->edgeIteratorAtIndex(*e_it)->getOtherNode(v);
+                    std::cout << "Neighbor: " << neighbor << std::endl;
 
                     // if neighbor is not visited yet, add it to queue
                     if ( ns_[neighbor] < 1e38 )
@@ -253,8 +279,14 @@ double PathFinder::findPath(const int target_node, Path& path)
 
     // If there is no target node (target_node == -1), the program will get here after calculating paths to ever node in the graph.
     // Now push all nodes in the graph into the path.
+
+    std::cout << "All done, tracing path..." << std::endl;
     tracePath(target_node,path);
+
+    std::cout << "Path traced, returning " << std::endl;
     all_done_ = true;
+
+    std::cout << "Now really returning!!!" << std::endl;
 
     return 0;
 }

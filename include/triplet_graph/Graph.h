@@ -55,6 +55,14 @@ public:
 
     // -----------------------------------------------------------------------------------------------
 
+    class indexTooLargeException: public std::exception
+    {
+      virtual const char* what() const throw()
+      {
+        return "Trying to get an iterator for an index that is outside of the array!";
+      }
+    } indexTooLargeEx;
+
     class NodeIterator : public std::iterator<std::forward_iterator_tag, Node>
     {
         public:
@@ -110,7 +118,15 @@ public:
 
     inline const_iterator end() const { return const_iterator(nodes_.end());}
 
-    inline const_iterator iteratorAtIndex(const int i) const { return const_iterator( nodes_.begin() + i ); }
+    inline const_iterator iteratorAtIndex(const int i) const
+    {
+        if ( i >= nodes_.size() )
+        {
+            throw indexTooLargeEx;
+        }
+        std::cout << "getting iterator from index: " << i << std::endl;
+        return nodes_.begin() + i;
+    }
 
     inline int size() const { return nodes_.size() - deleted_nodes_.size(); }
 
@@ -169,7 +185,7 @@ public:
 
     inline const_edge2_iterator endEdges() const { return const_edge2_iterator(edges_.end());}
 
-    inline const_edge2_iterator edgeIteratorAtIndex(const int i) const { return const_edge2_iterator( edges_.begin() + i ); }
+    inline const_edge2_iterator edgeIteratorAtIndex(const int i) const { if ( i >= edges_.size()){ throw indexTooLargeEx; } std::cout << "getting edge iterator from index: " << i << std::endl; return edges_.begin() + i; }
 
     inline int numEdges() const { return edges_.size() - deleted_edges_.size(); }
 
@@ -228,7 +244,7 @@ public:
 
     inline const_edge3_iterator endTriplets() const { return const_edge3_iterator(triplets_.end());}
 
-    inline const_edge3_iterator tripletIteratorAtIndex(const int i) const { return const_edge3_iterator( triplets_.begin() + i ); }
+    inline const_edge3_iterator tripletIteratorAtIndex(const int i) const { if ( i >= triplets_.size()){ throw indexTooLargeEx; } std::cout << "getting triplet iterator from index: " << i << std::endl; return triplets_.begin() + i; }
 
     inline int numTriplets() const { return triplets_.size() - deleted_triplets_.size(); }
 
