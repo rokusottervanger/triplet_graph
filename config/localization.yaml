@@ -16,20 +16,20 @@ corner_detector:
 association:
     association_modules:
       - type: "nearest_neighbor"
-        max_no_std_devs: 1.0
+        max_no_std_devs: 0.2
       - type: "edge_tension"
-        max_no_std_devs: 1.0
+        max_no_std_devs: 2.0
 odom_tracker:
     odom_frame: "amigo/odom"
     sensor_frame: "amigo/base_laser"
-graph_filename: "robotics_testlab_B_partly.yaml"
+graph_filename: "test_area_1.yaml"
 initial_pose:
-    - position: {x: 2.11, y: -0.76}
-      node: 2
-      std_dev: 0.05
-    - position: {x: 0.12, y: 0.50}
+    - position: {x: 2.5, y: 1.2}
       node: 5
-      std_dev: 0.05
+      std_dev: 0.10
+    - position: {x: 2.5, y: -1.2}
+      node: 2
+      std_dev: 0.10
 visualization:
     lifetime: 0.1
     points:
