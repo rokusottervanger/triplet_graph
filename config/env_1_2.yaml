@@ -1,0 +1,963 @@
+edges: 
+    - length: 0.386036
+      n1: 'ab29032c2621f38d'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 0.43651
+      n1: '94a87f4c8c6e45ce'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 0.193054
+      n1: '94a87f4c8c6e45ce'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 2.79708
+      n1: '1f813ae510713fed'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.41219
+      n1: '1f813ae510713fed'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 2.3984
+      n1: '1f813ae510713fed'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 2.79323
+      n1: '486c8a807eeb4ba5'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.4072
+      n1: '486c8a807eeb4ba5'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 2.40943
+      n1: '486c8a807eeb4ba5'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 0.200028
+      n1: '486c8a807eeb4ba5'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 3.19154
+      n1: 'b27ed53e5af9ad7e'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.8055
+      n1: 'b27ed53e5af9ad7e'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 2.80667
+      n1: 'b27ed53e5af9ad7e'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 0.448816
+      n1: 'b27ed53e5af9ad7e'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 0.398306
+      n1: 'b27ed53e5af9ad7e'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 3.1987
+      n1: '6dae73fe2ea694c4'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 3.22276
+      n1: '6dae73fe2ea694c4'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 3.41773
+      n1: '6dae73fe2ea694c4'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 4.39825
+      n1: '6dae73fe2ea694c4'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 4.25465
+      n1: '6dae73fe2ea694c4'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 4.52103
+      n1: '6dae73fe2ea694c4'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.40329
+      n1: '7334862e127cfea6'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.1384
+      n1: '7334862e127cfea6'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 2.29803
+      n1: '7334862e127cfea6'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 2.1914
+      n1: '7334862e127cfea6'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 2.03077
+      n1: '7334862e127cfea6'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 2.26589
+      n1: '7334862e127cfea6'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.26406
+      n1: '7334862e127cfea6'
+      n2: '6dae73fe2ea694c4'
+      uncertainty: 0.1
+    - length: 2.39927
+      n1: 'b543932b2c2b1f08'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.12675
+      n1: 'b543932b2c2b1f08'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.40323
+      n1: 'b543932b2c2b1f08'
+      n2: '6dae73fe2ea694c4'
+      uncertainty: 0.1
+    - length: 0.139952
+      n1: 'b543932b2c2b1f08'
+      n2: '7334862e127cfea6'
+      uncertainty: 0.1
+    - length: 4.2512
+      n1: '23cbafac1281137d'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 0.400078
+      n1: '23cbafac1281137d'
+      n2: '6dae73fe2ea694c4'
+      uncertainty: 0.1
+    - length: 1.98607
+      n1: '23cbafac1281137d'
+      n2: '7334862e127cfea6'
+      uncertainty: 0.1
+    - length: 2.12519
+      n1: '23cbafac1281137d'
+      n2: 'b543932b2c2b1f08'
+      uncertainty: 0.1
+    - length: 3.1929
+      n1: '9c02f3e2f0d10e92'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 4.51646
+      n1: '9c02f3e2f0d10e92'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 4.25115
+      n1: '9c02f3e2f0d10e92'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 4.39783
+      n1: '9c02f3e2f0d10e92'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 3.22971
+      n1: '9c02f3e2f0d10e92'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 3.42081
+      n1: '9c02f3e2f0d10e92'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 2.39892
+      n1: '26ed5897a18c4f9e'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.2666
+      n1: '26ed5897a18c4f9e'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.02741
+      n1: '26ed5897a18c4f9e'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 2.19357
+      n1: '26ed5897a18c4f9e'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 2.14508
+      n1: '26ed5897a18c4f9e'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 2.29952
+      n1: '26ed5897a18c4f9e'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 2.26176
+      n1: '26ed5897a18c4f9e'
+      n2: '9c02f3e2f0d10e92'
+      uncertainty: 0.1
+    - length: 2.4044
+      n1: 'ba0bdeddfbefa72d'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.12576
+      n1: 'ba0bdeddfbefa72d'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.4042
+      n1: 'ba0bdeddfbefa72d'
+      n2: '9c02f3e2f0d10e92'
+      uncertainty: 0.1
+    - length: 0.140453
+      n1: 'ba0bdeddfbefa72d'
+      n2: '26ed5897a18c4f9e'
+      uncertainty: 0.1
+    - length: 4.25489
+      n1: 'e1a3a3b5531a3a8f'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 0.400108
+      n1: 'e1a3a3b5531a3a8f'
+      n2: '9c02f3e2f0d10e92'
+      uncertainty: 0.1
+    - length: 1.98753
+      n1: 'e1a3a3b5531a3a8f'
+      n2: '26ed5897a18c4f9e'
+      uncertainty: 0.1
+    - length: 2.12927
+      n1: 'e1a3a3b5531a3a8f'
+      n2: 'ba0bdeddfbefa72d'
+      uncertainty: 0.1
+    - length: 2.1397
+      n1: '48b179f75d6059d3'
+      n2: '26ed5897a18c4f9e'
+      uncertainty: 0.1
+    - length: 2.28401
+      n1: '48b179f75d6059d3'
+      n2: 'ba0bdeddfbefa72d'
+      uncertainty: 0.1
+    - length: 1.97868
+      n1: 'a774b2906baa529a'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.1258
+      n1: 'a774b2906baa529a'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 1.98399
+      n1: 'a774b2906baa529a'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 2.27812
+      n1: 'a774b2906baa529a'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 1.98462
+      n1: 'b5b3eaa4814ea115'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 1.9804
+      n1: 'b5b3eaa4814ea115'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 1.84043
+      n1: 'b5b3eaa4814ea115'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 2.14
+      n1: 'b5b3eaa4814ea115'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 1.85835
+      n1: 'b5b3eaa4814ea115'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 1.70403
+      n1: 'b5b3eaa4814ea115'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 3.41257
+      n1: '99a4c453f0d536fe'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 4.40005
+      n1: '99a4c453f0d536fe'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.80708
+      n1: '99a4c453f0d536fe'
+      n2: '9c02f3e2f0d10e92'
+      uncertainty: 0.1
+    - length: 3.4005
+      n1: '99a4c453f0d536fe'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 2.13637
+      n1: '99a4c453f0d536fe'
+      n2: '7334862e127cfea6'
+      uncertainty: 0.1
+    - length: 0.198201
+      n1: '99a4c453f0d536fe'
+      n2: '23cbafac1281137d'
+      uncertainty: 0.1
+    - length: 3.5981
+      n1: '99a4c453f0d536fe'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 2.11959
+      n1: 'cb1a6cfed3c84eed'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 1.97998
+      n1: 'cb1a6cfed3c84eed'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 1.9748
+      n1: 'cb1a6cfed3c84eed'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.27661
+      n1: 'cb1a6cfed3c84eed'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 1.98108
+      n1: '7924d77d742ab297'
+      n2: '94a87f4c8c6e45ce'
+      uncertainty: 0.1
+    - length: 1.84251
+      n1: '7924d77d742ab297'
+      n2: 'ab29032c2621f38d'
+      uncertainty: 0.1
+    - length: 1.98537
+      n1: '7924d77d742ab297'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 2.13535
+      n1: '7924d77d742ab297'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 3.41585
+      n1: 'db2371255ee9dd75'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 4.39988
+      n1: 'db2371255ee9dd75'
+      n2: 'd6cce35c487a58fe'
+      uncertainty: 0.1
+    - length: 2.13721
+      n1: 'db2371255ee9dd75'
+      n2: '26ed5897a18c4f9e'
+      uncertainty: 0.1
+    - length: 3.39868
+      n1: 'db2371255ee9dd75'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+    - length: 0.197917
+      n1: 'db2371255ee9dd75'
+      n2: 'e1a3a3b5531a3a8f'
+      uncertainty: 0.1
+    - length: 2.80713
+      n1: 'db2371255ee9dd75'
+      n2: '6dae73fe2ea694c4'
+      uncertainty: 0.1
+    - length: 3.59868
+      n1: 'db2371255ee9dd75'
+      n2: '1f813ae510713fed'
+      uncertainty: 0.1
+    - length: 3.5975
+      n1: '6a94211a54516e94'
+      n2: 'db2371255ee9dd75'
+      uncertainty: 0.1
+    - length: 0.448886
+      n1: '6a94211a54516e94'
+      n2: 'b27ed53e5af9ad7e'
+      uncertainty: 0.1
+    - length: 3.40276
+      n1: '6a94211a54516e94'
+      n2: 'e1a3a3b5531a3a8f'
+      uncertainty: 0.1
+    - length: 0.186881
+      n1: '6a94211a54516e94'
+      n2: '486c8a807eeb4ba5'
+      uncertainty: 0.1
+nodes: 
+    - id: 'd6cce35c487a58fe'
+    - id: 'ab29032c2621f38d'
+    - id: '94a87f4c8c6e45ce'
+    - id: '1f813ae510713fed'
+    - id: '486c8a807eeb4ba5'
+    - id: 'b27ed53e5af9ad7e'
+    - id: '6dae73fe2ea694c4'
+    - id: '7334862e127cfea6'
+    - id: 'b543932b2c2b1f08'
+    - id: '23cbafac1281137d'
+    - id: '9c02f3e2f0d10e92'
+    - id: '26ed5897a18c4f9e'
+    - id: 'ba0bdeddfbefa72d'
+    - id: 'e1a3a3b5531a3a8f'
+    - id: '48b179f75d6059d3'
+    - id: 'a774b2906baa529a'
+    - id: 'b5b3eaa4814ea115'
+    - id: '99a4c453f0d536fe'
+    - id: 'cb1a6cfed3c84eed'
+    - id: '7924d77d742ab297'
+    - id: 'db2371255ee9dd75'
+    - id: '6a94211a54516e94'
+triplets: 
+    - n1: '94a87f4c8c6e45ce'
+      n2: 'ab29032c2621f38d'
+      n3: 'd6cce35c487a58fe'
+    - n1: '1f813ae510713fed'
+      n2: 'ab29032c2621f38d'
+      n3: 'd6cce35c487a58fe'
+    - n1: '1f813ae510713fed'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '1f813ae510713fed'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '486c8a807eeb4ba5'
+      n2: 'ab29032c2621f38d'
+      n3: 'd6cce35c487a58fe'
+    - n1: '486c8a807eeb4ba5'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '486c8a807eeb4ba5'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '486c8a807eeb4ba5'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: '486c8a807eeb4ba5'
+      n2: 'ab29032c2621f38d'
+      n3: '1f813ae510713fed'
+    - n1: '486c8a807eeb4ba5'
+      n2: '94a87f4c8c6e45ce'
+      n3: '1f813ae510713fed'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: 'ab29032c2621f38d'
+      n3: '1f813ae510713fed'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: '94a87f4c8c6e45ce'
+      n3: '1f813ae510713fed'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: 'ab29032c2621f38d'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: '486c8a807eeb4ba5'
+      n3: '94a87f4c8c6e45ce'
+    - n1: 'b27ed53e5af9ad7e'
+      n2: '486c8a807eeb4ba5'
+      n3: '1f813ae510713fed'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '6dae73fe2ea694c4'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'ab29032c2621f38d'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'ab29032c2621f38d'
+      n3: '1f813ae510713fed'
+    - n1: '6dae73fe2ea694c4'
+      n2: '94a87f4c8c6e45ce'
+      n3: '1f813ae510713fed'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'ab29032c2621f38d'
+      n3: '486c8a807eeb4ba5'
+    - n1: '6dae73fe2ea694c4'
+      n2: '94a87f4c8c6e45ce'
+      n3: '486c8a807eeb4ba5'
+    - n1: '6dae73fe2ea694c4'
+      n2: '1f813ae510713fed'
+      n3: '486c8a807eeb4ba5'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '6dae73fe2ea694c4'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '6dae73fe2ea694c4'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '6dae73fe2ea694c4'
+      n2: '1f813ae510713fed'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '6dae73fe2ea694c4'
+      n2: '486c8a807eeb4ba5'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7334862e127cfea6'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: '7334862e127cfea6'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '7334862e127cfea6'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '7334862e127cfea6'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: '7334862e127cfea6'
+      n2: 'ab29032c2621f38d'
+      n3: '1f813ae510713fed'
+    - n1: '7334862e127cfea6'
+      n2: '94a87f4c8c6e45ce'
+      n3: '1f813ae510713fed'
+    - n1: '7334862e127cfea6'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: '7334862e127cfea6'
+      n2: 'ab29032c2621f38d'
+      n3: '486c8a807eeb4ba5'
+    - n1: '7334862e127cfea6'
+      n2: '94a87f4c8c6e45ce'
+      n3: '486c8a807eeb4ba5'
+    - n1: '7334862e127cfea6'
+      n2: '1f813ae510713fed'
+      n3: '486c8a807eeb4ba5'
+    - n1: '7334862e127cfea6'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7334862e127cfea6'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7334862e127cfea6'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7334862e127cfea6'
+      n2: '1f813ae510713fed'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7334862e127cfea6'
+      n2: '486c8a807eeb4ba5'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7334862e127cfea6'
+      n2: '6dae73fe2ea694c4'
+      n3: 'd6cce35c487a58fe'
+    - n1: '7334862e127cfea6'
+      n2: '6dae73fe2ea694c4'
+      n3: 'ab29032c2621f38d'
+    - n1: '7334862e127cfea6'
+      n2: '6dae73fe2ea694c4'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '7334862e127cfea6'
+      n2: '6dae73fe2ea694c4'
+      n3: '1f813ae510713fed'
+    - n1: '7334862e127cfea6'
+      n2: '6dae73fe2ea694c4'
+      n3: '486c8a807eeb4ba5'
+    - n1: '7334862e127cfea6'
+      n2: '6dae73fe2ea694c4'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b543932b2c2b1f08'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b543932b2c2b1f08'
+      n2: '6dae73fe2ea694c4'
+      n3: 'd6cce35c487a58fe'
+    - n1: 'b543932b2c2b1f08'
+      n2: '6dae73fe2ea694c4'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b543932b2c2b1f08'
+      n2: '7334862e127cfea6'
+      n3: 'd6cce35c487a58fe'
+    - n1: 'b543932b2c2b1f08'
+      n2: '7334862e127cfea6'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b543932b2c2b1f08'
+      n2: '7334862e127cfea6'
+      n3: '6dae73fe2ea694c4'
+    - n1: '23cbafac1281137d'
+      n2: '6dae73fe2ea694c4'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '23cbafac1281137d'
+      n2: '7334862e127cfea6'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '23cbafac1281137d'
+      n2: '6dae73fe2ea694c4'
+      n3: '7334862e127cfea6'
+    - n1: '23cbafac1281137d'
+      n2: 'b543932b2c2b1f08'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '23cbafac1281137d'
+      n2: '6dae73fe2ea694c4'
+      n3: 'b543932b2c2b1f08'
+    - n1: '23cbafac1281137d'
+      n2: '7334862e127cfea6'
+      n3: 'b543932b2c2b1f08'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: '9c02f3e2f0d10e92'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '9c02f3e2f0d10e92'
+      n2: '486c8a807eeb4ba5'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'ab29032c2621f38d'
+      n3: '486c8a807eeb4ba5'
+    - n1: '9c02f3e2f0d10e92'
+      n2: '94a87f4c8c6e45ce'
+      n3: '486c8a807eeb4ba5'
+    - n1: '9c02f3e2f0d10e92'
+      n2: '1f813ae510713fed'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: '9c02f3e2f0d10e92'
+      n2: 'ab29032c2621f38d'
+      n3: '1f813ae510713fed'
+    - n1: '9c02f3e2f0d10e92'
+      n2: '94a87f4c8c6e45ce'
+      n3: '1f813ae510713fed'
+    - n1: '9c02f3e2f0d10e92'
+      n2: '486c8a807eeb4ba5'
+      n3: '1f813ae510713fed'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: '26ed5897a18c4f9e'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '26ed5897a18c4f9e'
+      n2: '486c8a807eeb4ba5'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'ab29032c2621f38d'
+      n3: '486c8a807eeb4ba5'
+    - n1: '26ed5897a18c4f9e'
+      n2: '94a87f4c8c6e45ce'
+      n3: '486c8a807eeb4ba5'
+    - n1: '26ed5897a18c4f9e'
+      n2: '1f813ae510713fed'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'ab29032c2621f38d'
+      n3: '1f813ae510713fed'
+    - n1: '26ed5897a18c4f9e'
+      n2: '94a87f4c8c6e45ce'
+      n3: '1f813ae510713fed'
+    - n1: '26ed5897a18c4f9e'
+      n2: '1f813ae510713fed'
+      n3: '486c8a807eeb4ba5'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'b27ed53e5af9ad7e'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'd6cce35c487a58fe'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '26ed5897a18c4f9e'
+      n2: 'ab29032c2621f38d'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '26ed5897a18c4f9e'
+      n2: '94a87f4c8c6e45ce'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '26ed5897a18c4f9e'
+      n2: '486c8a807eeb4ba5'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '26ed5897a18c4f9e'
+      n2: '1f813ae510713fed'
+      n3: '9c02f3e2f0d10e92'
+    - n1: 'ba0bdeddfbefa72d'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'ba0bdeddfbefa72d'
+      n2: 'b27ed53e5af9ad7e'
+      n3: '9c02f3e2f0d10e92'
+    - n1: 'ba0bdeddfbefa72d'
+      n2: 'd6cce35c487a58fe'
+      n3: '9c02f3e2f0d10e92'
+    - n1: 'ba0bdeddfbefa72d'
+      n2: 'b27ed53e5af9ad7e'
+      n3: '26ed5897a18c4f9e'
+    - n1: 'ba0bdeddfbefa72d'
+      n2: 'd6cce35c487a58fe'
+      n3: '26ed5897a18c4f9e'
+    - n1: 'ba0bdeddfbefa72d'
+      n2: '9c02f3e2f0d10e92'
+      n3: '26ed5897a18c4f9e'
+    - n1: 'e1a3a3b5531a3a8f'
+      n2: 'd6cce35c487a58fe'
+      n3: '9c02f3e2f0d10e92'
+    - n1: 'e1a3a3b5531a3a8f'
+      n2: 'd6cce35c487a58fe'
+      n3: '26ed5897a18c4f9e'
+    - n1: 'e1a3a3b5531a3a8f'
+      n2: '26ed5897a18c4f9e'
+      n3: '9c02f3e2f0d10e92'
+    - n1: 'e1a3a3b5531a3a8f'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ba0bdeddfbefa72d'
+    - n1: 'e1a3a3b5531a3a8f'
+      n2: 'ba0bdeddfbefa72d'
+      n3: '9c02f3e2f0d10e92'
+    - n1: 'e1a3a3b5531a3a8f'
+      n2: 'ba0bdeddfbefa72d'
+      n3: '26ed5897a18c4f9e'
+    - n1: '48b179f75d6059d3'
+      n2: 'ba0bdeddfbefa72d'
+      n3: '26ed5897a18c4f9e'
+    - n1: 'a774b2906baa529a'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: 'a774b2906baa529a'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'a774b2906baa529a'
+      n2: '1f813ae510713fed'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'a774b2906baa529a'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'a774b2906baa529a'
+      n2: '1f813ae510713fed'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'a774b2906baa529a'
+      n2: '486c8a807eeb4ba5'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'b5b3eaa4814ea115'
+      n2: '1f813ae510713fed'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b5b3eaa4814ea115'
+      n2: '1f813ae510713fed'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b5b3eaa4814ea115'
+      n2: '486c8a807eeb4ba5'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: 'b5b3eaa4814ea115'
+      n2: '94a87f4c8c6e45ce'
+      n3: '1f813ae510713fed'
+    - n1: 'b5b3eaa4814ea115'
+      n2: '94a87f4c8c6e45ce'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'b5b3eaa4814ea115'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'ab29032c2621f38d'
+      n3: '1f813ae510713fed'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'ab29032c2621f38d'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'b5b3eaa4814ea115'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '99a4c453f0d536fe'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '99a4c453f0d536fe'
+      n2: 'd6cce35c487a58fe'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '99a4c453f0d536fe'
+      n2: 'b27ed53e5af9ad7e'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '99a4c453f0d536fe'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: '99a4c453f0d536fe'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '99a4c453f0d536fe'
+      n2: 'ab29032c2621f38d'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '99a4c453f0d536fe'
+      n2: 'd6cce35c487a58fe'
+      n3: '7334862e127cfea6'
+    - n1: '99a4c453f0d536fe'
+      n2: '7334862e127cfea6'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '99a4c453f0d536fe'
+      n2: 'ab29032c2621f38d'
+      n3: '7334862e127cfea6'
+    - n1: '99a4c453f0d536fe'
+      n2: '23cbafac1281137d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '99a4c453f0d536fe'
+      n2: '23cbafac1281137d'
+      n3: '7334862e127cfea6'
+    - n1: '99a4c453f0d536fe'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '99a4c453f0d536fe'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '99a4c453f0d536fe'
+      n2: '94a87f4c8c6e45ce'
+      n3: '9c02f3e2f0d10e92'
+    - n1: '99a4c453f0d536fe'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '99a4c453f0d536fe'
+      n2: '94a87f4c8c6e45ce'
+      n3: '7334862e127cfea6'
+    - n1: 'cb1a6cfed3c84eed'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: 'cb1a6cfed3c84eed'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'cb1a6cfed3c84eed'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'cb1a6cfed3c84eed'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: 'cb1a6cfed3c84eed'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: 'cb1a6cfed3c84eed'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7924d77d742ab297'
+      n2: 'ab29032c2621f38d'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '7924d77d742ab297'
+      n2: '94a87f4c8c6e45ce'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7924d77d742ab297'
+      n2: 'ab29032c2621f38d'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: '7924d77d742ab297'
+      n2: 'd6cce35c487a58fe'
+      n3: '94a87f4c8c6e45ce'
+    - n1: '7924d77d742ab297'
+      n2: 'd6cce35c487a58fe'
+      n3: 'ab29032c2621f38d'
+    - n1: '7924d77d742ab297'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'db2371255ee9dd75'
+      n2: 'd6cce35c487a58fe'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'db2371255ee9dd75'
+      n2: '26ed5897a18c4f9e'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'db2371255ee9dd75'
+      n2: 'd6cce35c487a58fe'
+      n3: '26ed5897a18c4f9e'
+    - n1: 'db2371255ee9dd75'
+      n2: '486c8a807eeb4ba5'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'db2371255ee9dd75'
+      n2: 'd6cce35c487a58fe'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'db2371255ee9dd75'
+      n2: '26ed5897a18c4f9e'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'db2371255ee9dd75'
+      n2: 'd6cce35c487a58fe'
+      n3: 'e1a3a3b5531a3a8f'
+    - n1: 'db2371255ee9dd75'
+      n2: '26ed5897a18c4f9e'
+      n3: 'e1a3a3b5531a3a8f'
+    - n1: 'db2371255ee9dd75'
+      n2: '6dae73fe2ea694c4'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'db2371255ee9dd75'
+      n2: '6dae73fe2ea694c4'
+      n3: 'd6cce35c487a58fe'
+    - n1: 'db2371255ee9dd75'
+      n2: '6dae73fe2ea694c4'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'db2371255ee9dd75'
+      n2: '1f813ae510713fed'
+      n3: 'b27ed53e5af9ad7e'
+    - n1: 'db2371255ee9dd75'
+      n2: 'd6cce35c487a58fe'
+      n3: '1f813ae510713fed'
+    - n1: 'db2371255ee9dd75'
+      n2: '26ed5897a18c4f9e'
+      n3: '1f813ae510713fed'
+    - n1: 'db2371255ee9dd75'
+      n2: '1f813ae510713fed'
+      n3: '486c8a807eeb4ba5'
+    - n1: 'db2371255ee9dd75'
+      n2: '6dae73fe2ea694c4'
+      n3: '1f813ae510713fed'
+    - n1: '6a94211a54516e94'
+      n2: 'b27ed53e5af9ad7e'
+      n3: 'db2371255ee9dd75'
+    - n1: '6a94211a54516e94'
+      n2: 'e1a3a3b5531a3a8f'
+      n3: 'db2371255ee9dd75'
+    - n1: '6a94211a54516e94'
+      n2: '486c8a807eeb4ba5'
+      n3: 'db2371255ee9dd75'
+    - n1: '6a94211a54516e94'
+      n2: 'b27ed53e5af9ad7e'
+      n3: '486c8a807eeb4ba5'
