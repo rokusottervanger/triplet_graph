@@ -92,7 +92,7 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
         // Get rid of points that are isolated from their neighbours
         if (std::abs(rs - sensor_ranges[i - 1]) > 0.03 && std::abs(rs - sensor_ranges[i + 1]) > 0.03)  // TODO: magic number
         {
-            sensor_ranges[i] = sensor_ranges[i - 1];
+            sensor_ranges[i] = 0.0;
         }
     }
 
@@ -113,12 +113,18 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
     {
         geo::Vec3d A, B, db, dc, N, c;
 
+        if ( sensor_ranges[i] == 0.0 )
+            continue;
+
         // Determine step size in number of beams based on step distance
-        for (int j = i+1; j < num_beams; j++ )  // loop through next few beams (break when step reaches step_dist_)
+        for (int j = i+2; j < num_beams; j++ )  // loop through next few beams (break when step reaches step_dist_)
         {
             // If a jump occurs, move on to after jump
-            if ( fabs(sensor_ranges[j] - sensor_ranges[j-1]) > jump_size_ )
+            if ( sensor_ranges[j] == 0.0 || fabs(sensor_ranges[j] - sensor_ranges[j-1]) > jump_size_ )
+            {
+                step_size = 0;
                 break;
+            }
 
             // Get vectors to range points
             A = lrf_model_.rangeToPoint(sensor_ranges[i],i);
