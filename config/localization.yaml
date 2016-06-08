@@ -22,13 +22,13 @@ association:
 odom_tracker:
     odom_frame: "amigo/odom"
     sensor_frame: "amigo/base_laser"
-graph_filename: "test_area_1.yaml"
+graph_filename: "test_area_2.yaml"
 initial_pose:
-    - position: {x: 2.5, y: 1.2}
-      node: 5
+    - position: {x: 1.75, y: 0.6}
+      node: 8
       std_dev: 0.10
-    - position: {x: 2.5, y: -1.2}
-      node: 2
+    - position: {x: 1.93, y: -0.6}
+      node: 6
       std_dev: 0.10
 visualization:
     lifetime: 0.1
