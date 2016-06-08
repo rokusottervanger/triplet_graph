@@ -321,7 +321,7 @@ void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurem
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(const Graph &graph,
+bool associate(const Graph &graph,
                const Measurement &measurement,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
@@ -340,12 +340,12 @@ void associate(const Graph &graph,
  */
 {
     Path path;
-    associate(graph, measurement, associations, unassociated, goal_node_i, path, config);
+    return associate(graph, measurement, associations, unassociated, goal_node_i, path, config);
 }
 
 // -----------------------------------------------------------------------------------------------
 
-void associate(const Graph &graph,
+bool associate(const Graph &graph,
                const Measurement &measurement,
                AssociatedMeasurement &associations,
                Measurement &unassociated,
@@ -367,7 +367,7 @@ void associate(const Graph &graph,
 {
     // If no points to associate, just return
     if ( measurement.points.size() == 0 )
-        return;
+        return false;
 
     Associator associator;
     associator.configure(config);
@@ -378,6 +378,40 @@ void associate(const Graph &graph,
 
     associator.getPath(path);
     associator.getUnassociatedPoints(unassociated);
+
+    // Check if localization was succesful
+    if ( associations.nodes.size() >= 2 )
+    {
+        triplet_graph::Graph::const_iterator node_it = graph.begin();
+
+        for ( std::vector<int>::iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
+        {
+            for ( std::vector<int>::iterator it_2 = it_1+1 ; it_2 != associations.nodes.end(); ++it_2 )
+            {
+                node_it = graph.begin() + *it_1;
+                if ( node_it->deleted )
+                {
+                    std::cout << "\033[31m" << "[associate] ERROR! Bug! One of the associated nodes is a deleted node. This is never supposed to happen!" << "\033[0m" << std::endl;
+                    return false;
+                }
+
+                int num_of_common_trips = node_it->tripletsByPeer(*it_2).size();
+
+                if ( num_of_common_trips > 0 )
+                {
+                    std::cout << associations.nodes.size() << " associations found, state is: localized" << std::endl;
+                    return true;
+                }
+            }
+        }
+        std::cout << "No common triplets found in " << associations.nodes.size() << " associations, state is: not localized" << std::endl;
+        return false;
+    }
+    else
+    {
+        std::cout << associations.nodes.size() << " associations found, state is: not localized" << std::endl;
+        return false;
+    }
 }
 
 // -----------------------------------------------------------------------------------------------

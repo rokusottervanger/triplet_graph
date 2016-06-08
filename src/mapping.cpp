@@ -122,14 +122,48 @@ int main(int argc, char** argv)
     // Load and configure graph or get a filename
 
     std::string graph_filename;
+
+    // old_associations are always the latest associations that yield succesful localization
+    triplet_graph::AssociatedMeasurement old_associations;
     if ( config.value("graph_filename",graph_filename) )
     {
         std::cout << "Loading initial graph from config file..." << std::endl;
         if ( !triplet_graph::load(graph, graph_filename) )
         {
-            std::cout << "Failed to load graph" << std::endl;
+            std::cout << "Failed to load graph. If you want to create a new graph, remove graph_filename from the config" << std::endl;
             return -1;
         }
+
+        if ( config.readArray("initial_pose") )
+        {
+            while ( config.nextArrayItem() )
+            {
+                int node;
+                config.value("node",node);
+
+                double x,y;
+                if ( config.readGroup("position") )
+                {
+                    config.value("x",x);
+                    config.value("y",y);
+                    config.endGroup();
+                }
+                geo::Vec3d point(x,y,0.0);
+
+                double std_dev;
+                if ( !config.value("std_dev", std_dev) )
+                {
+                    std::cout << "\033[31m" << "[LOCALIZATION]: Error while configuring initial pose. No std_dev given for initial point" << "\033[0m" << std::endl;
+                    return -1;
+                }
+
+                old_associations.append(point, std_dev, node);
+            }
+            old_associations.measurement.frame_id = sensor_frame_id;
+            old_associations.measurement.time_stamp = ros::Time::now();
+            config.endArray();
+        }
+
         std::cout << "Loaded!" << std::endl;
     }
     else
@@ -202,9 +236,10 @@ int main(int argc, char** argv)
 
     double default_edge_std_dev = 0.1; // TODO: Hack! Magic number!
 
-    // old_associations are always the latest associations that yield succesful localization
-    triplet_graph::AssociatedMeasurement old_associations;
+
     bool localized = true;
+
+    triplet_graph::AssociatedMeasurement stored_associations = old_associations;
 
     while (ros::ok())
     {
@@ -219,19 +254,10 @@ int main(int argc, char** argv)
 
 
         // - - - - - - - - - - - - - - - - - -
-        // Instantiate stuff
-
-        triplet_graph::Measurement measurement;
-        triplet_graph::Measurement unassociated_points;
-        triplet_graph::AssociatedMeasurement associations;
-        geo::Transform delta = geo::Transform::identity();
-        triplet_graph::Path path;
-
-
-        // - - - - - - - - - - - - - - - - - -
         // Find corners
 
         std::cout << "Detecting corners" << std::endl;
+        triplet_graph::Measurement measurement;
         cornerDetector.process(measurement);
         std::cout << measurement.points.size() << " corners detected" << std::endl << std::endl;
 
@@ -240,10 +266,15 @@ int main(int argc, char** argv)
         // Update position using odom data
 
         std::cout << "Getting odom delta" << std::endl;
-        odomTracker.getDelta(delta,measurement.time_stamp);
-
+        geo::Transform delta = geo::Transform::identity();
+        odomTracker.getDelta(delta, measurement.time_stamp);
+        /* todo: use some odom error model. Don't just add it to the measurement error, because
+         * measurement error is random for every point in a measurement, odom error is random
+         * for every measurement, but constant over the points in one measurement!
+         */
 
         old_associations = delta.inverse() * old_associations;
+        triplet_graph::AssociatedMeasurement associations;
         associations = old_associations;
         std::cout << "old_associations.size() = " << old_associations.nodes.size() << std::endl;
         std::cout << "Done" << std::endl << std::endl;
@@ -253,49 +284,22 @@ int main(int argc, char** argv)
         // Associate
 
         std::cout << "Trying to associate..." << std::endl;
-        triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, config);
+        triplet_graph::Measurement unassociated_points;
+        triplet_graph::Path path;
+        localized = triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, config);
 
-        visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
-
-        // Check if localization was succesful
-        if ( associations.nodes.size() >= 2 )
+        // If succesful, store associations for the next run (one that will get odom update, one that will not) and visualize the graph
+        if ( localized )
         {
-            triplet_graph::Graph::const_iterator node_it = graph.begin();
-
-            for ( std::vector<int>::iterator it_1 = associations.nodes.begin(); it_1 != associations.nodes.end(); ++it_1 )
-            {
-                for ( std::vector<int>::iterator it_2 = it_1+1 ; it_2 != associations.nodes.end(); ++it_2 )
-                {
-                    node_it = graph.begin() + *it_1;
-                    if ( node_it->deleted )
-                    {
-                        std::cout << "\033[31m" << "[mapping] ERROR! Bug! One of the associated nodes is a deleted node. This is never supposed to happen!" << "\033[0m" << std::endl;
-                        return -1;
-                    }
-
-                    int num_of_common_trips = node_it->tripletsByPeer(*it_2).size();
-
-                    if ( num_of_common_trips > 0 )
-                    {
-                        localized = true;
-                        std::cout << associations.nodes.size() << " associations found, state is: localized" << std::endl;
-                        goto done;
-                    }
-                }
-            }
-            std::cout << "No common triplets found in " << associations.nodes.size() << " associations, state is: not localized" << std::endl;
-            localized = false;
+            visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
+            stored_associations = associations;
+            old_associations = associations;
         }
+        // If not succesful, visualize the graph using the last made associations without odom update
         else
         {
-            std::cout << associations.nodes.size() << " associations found, state is: not localized" << std::endl;
-            localized = false;
+            visualizer.publish(triplet_graph::generateVisualization(graph, stored_associations, path));
         }
-        done:
-
-        // If successful, store the associations for the next run
-        if ( localized )
-            old_associations = associations;
 
         std::cout << "old_associations' size after association: " << old_associations.nodes.size() << std::endl;
 
