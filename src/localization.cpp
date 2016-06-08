@@ -5,6 +5,7 @@
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/Visualizer.h"
 #include "triplet_graph/Path.h"
+#include "triplet_graph/PathFinder.h"
 
 #include <tue/profiling/timer.h>
 #include <tue/config/configuration.h>
@@ -221,7 +222,7 @@ int main(int argc, char** argv)
         std::cout << "Trying to associate..." << std::endl;
         triplet_graph::Measurement unassociated_points;
         triplet_graph::Path path;
-        localized = triplet_graph::associate( graph, measurement, associations, unassociated_points, target_node, path, config );
+        localized = triplet_graph::associate( graph, measurement, associations, unassociated_points, -1, path, config );
 
         // If succesful, store associations for the next run (one that will get odom update, one that will not) and visualize the graph
         if ( localized )
@@ -234,6 +235,19 @@ int main(int argc, char** argv)
         else
         {
             visualizer.publish(triplet_graph::generateVisualization(graph, stored_associations, path));
+        }
+
+        std::cout << target_node << std::endl;
+        if ( target_node != -1 )
+        {
+            triplet_graph::AssociatedMeasurement path_positions = old_associations;
+
+            triplet_graph::PathFinder pathFinder(graph, path_positions.nodes);
+            pathFinder.findPath(target_node, path);
+
+            calculatePositions(graph, path, path_positions);
+
+            std::cout << "Target node position in sensor frame = " << path_positions.measurement.points[path_positions.node_indices[target_node]] << std::endl;
         }
 
         signal(SIGINT, signalHandler);

@@ -30,6 +30,7 @@ initial_pose:
     - position: {x: 1.93, y: -0.6}
       node: 6
       std_dev: 0.10
+target_node: 4
 visualization:
     lifetime: 0.1
     points:
