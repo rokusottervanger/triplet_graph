@@ -68,14 +68,19 @@ void OdomTracker::getDelta(geo::Transform& movement, const ros::Time& time)
     {
         std::cout << "[ODOM TRACKER] " << e.what() << std::endl;
 
-        if (!have_previous_pose_)
-            return;
-
-        odom_to_base_link = previous_pose_;
-
         movement = geo::Transform::identity();
     }
 
+}
+
+// -----------------------------------------------------------------------------------------------
+
+void OdomTracker::getLastOdomPose(geo::Transform& odom)
+{
+    if ( have_previous_pose_ )
+        odom = previous_pose_;
+    else
+        odom = geo::Transform::identity();
 }
 
 }

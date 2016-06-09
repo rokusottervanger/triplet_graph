@@ -17,6 +17,7 @@ public:
     ~OdomTracker();
     bool configure(tue::Configuration &config);
     void getDelta(geo::Transform &movement, const ros::Time &time);
+    void getLastOdomPose(geo::Transform &odom);
 
 private:
 
