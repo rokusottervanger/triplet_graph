@@ -75,12 +75,32 @@ void OdomTracker::getDelta(geo::Transform& movement, const ros::Time& time)
 
 // -----------------------------------------------------------------------------------------------
 
-void OdomTracker::getLastOdomPose(geo::Transform& odom)
+void OdomTracker::getPointPosition( const std::string source_frame_id, const std::string target_frame_id, const geo::Vec3d source, geo::Vec3d target, const ros::Time time )
 {
-    if ( have_previous_pose_ )
-        odom = previous_pose_;
-    else
-        odom = geo::Transform::identity();
+    if (!tf_listener_->waitForTransform(target_frame_id, source_frame_id, time, ros::Duration(1.0)))
+    {
+        ROS_WARN_STREAM("[ODOM TRACKER] Cannot get transform from '" << source_frame_id << "' to '" << target_frame_id << "'.");
+        target = geo::Vec3d(0.0);
+        return;
+    }
+
+    try
+    {
+        geo::Pose3D transform_geo;
+        tf::StampedTransform transform_tf;
+
+        tf_listener_->lookupTransform(target_frame_id, source_frame_id, time, transform_tf);
+
+        geo::convert(transform_tf, transform_geo);
+
+        target = transform_geo * source;
+
+    }
+    catch (tf::TransformException e)
+    {
+        std::cout << "[ODOM TRACKER] " << e.what() << std::endl;
+        target = geo::Vec3d(0.0);
+    }
 }
 
 }

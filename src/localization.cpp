@@ -11,6 +11,7 @@
 #include <tue/config/configuration.h>
 
 #include <csignal>
+#include <fstream>
 
 void signalHandler( int signum )
 {
@@ -177,6 +178,13 @@ int main(int argc, char** argv)
 
     triplet_graph::AssociatedMeasurement stored_associations = old_associations;
 
+    // Odom, as ground truth for position in simulation
+    geo::Transform odom;
+    std::ofstream output_file;
+    output_file.open ("data.csv");
+
+    ros::Time start_time = ros::Time::now();
+
     while (ros::ok())
     {
 
@@ -247,10 +255,21 @@ int main(int argc, char** argv)
 
             calculatePositions(graph, path, path_positions);
 
-            std::cout << "Target node position in sensor frame = " << path_positions.measurement.points[path_positions.node_indices[target_node]] << std::endl;
+            // For experiments!!! begin
+            geo::Vec3d point = path_positions.measurement.points[path_positions.node_indices[target_node]];
+            geo::Vec3d point_gt;
+            geo::Vec3d point_amcl;
+            double a = (507-552)*0.025;
+            double b = (531-643)*0.025;
+            geo::Vec3d point_in_odom_frame = geo::Vec3d(a,b,0.0);
+            odomTracker.getPointPosition("/amigo/odom", "/amigo/base_laser", point_in_odom_frame, point_gt, measurement.time_stamp );
+            odomTracker.getPointPosition("/map", "/amigo/base_laser", point_in_odom_frame, point_amcl, measurement.time_stamp );
+
+            output_file << (measurement.time_stamp - start_time).toSec() << ", " << point_gt.x << ", " << point_gt.y << ", " << point.x << ", " << point.y << ", " << point_amcl.x << ", " << point_amcl.y << "\n";
+            // end for experiments
         }
 
-        signal(SIGINT, signalHandler);
+//        signal(SIGINT, signalHandler);
 
         std::cout << "old_associations' size after association: " << old_associations.nodes.size() << std::endl;
 
@@ -268,6 +287,8 @@ int main(int argc, char** argv)
         ros::spinOnce();
 
     }
+    std::cout << "Closing output file" << std::endl;
+    output_file.close();
 }
 
 
