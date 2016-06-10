@@ -18,6 +18,8 @@ bool CornerDetector::configure(tue::Configuration &config)
     config.value("step_size", step_dist_);
     config.value("jump_size", jump_size_);
     config.value("sensor_noise_std_dev", std_dev_);
+    if ( !config.value("jumps_as_corners", jumps_as_corners_))
+        jumps_as_corners_ = false;
 
     if ( config.readGroup("visualization"))
     {
@@ -104,8 +106,6 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
     // - - - - - - - - - - - - - - - - - -
     // Find corners
 
-    // TODO: in a blocks world, some jumps can also be considered corners.
-
     double step_dist_sq_ = step_dist_*step_dist_;   // squared step size in meters
     int step_size = 0;                          // step size in number of beams
 
@@ -117,10 +117,13 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
             continue;
 
         // Determine step size in number of beams based on step distance
-        for (int j = i+2; j < num_beams; j++ )  // loop through next few beams (break when step reaches step_dist_)
+        geo::Vec3d c_corner;
+        int corner_index = 0;
+        for (int j = i+1; j < num_beams; j++ )  // loop through next few beams (break when step reaches step_dist_)
         {
             // If a jump occurs, move on to after jump
-            if ( sensor_ranges[j] == 0.0 || fabs(sensor_ranges[j] - sensor_ranges[j-1]) > jump_size_ )
+            double diff = sensor_ranges[j] - sensor_ranges[j-1];
+            if ( sensor_ranges[j] == 0.0 || fabs(diff) > jump_size_ )
             {
                 step_size = 0;
                 break;
@@ -146,8 +149,6 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
         N = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * db/db.length();
 
         double d_max = corner_threshold_;
-        geo::Vec3d c_corner;
-        int corner_index = 0;
 
         // For every intermediate point, check if distance to line segment AB is small enough. If too big, it's a corner!
         for (int j = i+1; j < i+step_size; j++ )
@@ -188,6 +189,31 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
             measurement.line_list.push_back(B);
 
             i = corner_index;
+        }
+    }
+
+    if ( jumps_as_corners_ )
+    {
+        std::cout << "Detecting jumps as corners" << std::endl;
+        for (int i = 1; i < num_beams; i++ )
+        {
+            if ( fabs(sensor_ranges[i]) < 1e-9 || fabs(sensor_ranges[i-1] < 1e-9) )
+                continue;
+
+            double diff = sensor_ranges[i]-sensor_ranges[i-1];
+            if ( fabs(diff) > jump_size_ )
+            {
+                if ( diff < 0 )
+                {
+                    measurement.points.push_back(lrf_model_.rangeToPoint(sensor_ranges[i],i));
+                    measurement.uncertainties.push_back(std_dev_);
+                }
+                else
+                {
+                    measurement.points.push_back(lrf_model_.rangeToPoint(sensor_ranges[i-1],i-1));
+                    measurement.uncertainties.push_back(std_dev_);
+                }
+            }
         }
     }
 

@@ -35,6 +35,7 @@ private:
     double step_dist_;
     double corner_threshold_;
     double std_dev_;
+    bool jumps_as_corners_;
 
 };
 
