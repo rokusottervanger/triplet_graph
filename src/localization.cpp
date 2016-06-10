@@ -36,6 +36,11 @@ int main(int argc, char** argv)
         return 1;
     }
 
+    bool experiment;
+    if ( argc > 2 )
+        if ( argv[2] == "--experiment" )
+            experiment = true;
+
     std::string config_filename = argv[1];
     config.loadFromYAMLFile(config_filename);
 
@@ -245,7 +250,6 @@ int main(int argc, char** argv)
             visualizer.publish(triplet_graph::generateVisualization(graph, stored_associations, path));
         }
 
-        std::cout << target_node << std::endl;
         if ( target_node != -1 )
         {
             triplet_graph::AssociatedMeasurement path_positions = old_associations;
@@ -256,16 +260,19 @@ int main(int argc, char** argv)
             calculatePositions(graph, path, path_positions);
 
             // For experiments!!! begin
-            geo::Vec3d point = path_positions.measurement.points[path_positions.node_indices[target_node]];
-            geo::Vec3d point_gt;
-            geo::Vec3d point_amcl;
-            double a = (507-552)*0.025;
-            double b = (531-643)*0.025;
-            geo::Vec3d point_in_odom_frame = geo::Vec3d(a,b,0.0);
-            odomTracker.getPointPosition("/amigo/odom", "/amigo/base_laser", point_in_odom_frame, point_gt, measurement.time_stamp );
-            odomTracker.getPointPosition("/map", "/amigo/base_laser", point_in_odom_frame, point_amcl, measurement.time_stamp );
+            if ( experiment )
+            {
+                geo::Vec3d point = path_positions.measurement.points[path_positions.node_indices[target_node]];
+                geo::Vec3d point_gt;
+                geo::Vec3d point_amcl;
+                double a = (507.0-552.0)*0.025;
+                double b = (643.0-531.0)*0.025;
+                geo::Vec3d point_in_odom_frame = geo::Vec3d(a,b,0.0);
+                odomTracker.transformVector("/amigo/odom", "/amigo/base_laser", point_in_odom_frame, point_gt, measurement.time_stamp );
+                odomTracker.transformVector("/map", "/amigo/base_laser", point_in_odom_frame, point_amcl, measurement.time_stamp );
 
-            output_file << (measurement.time_stamp - start_time).toSec() << ", " << point_gt.x << ", " << point_gt.y << ", " << point.x << ", " << point.y << ", " << point_amcl.x << ", " << point_amcl.y << "\n";
+                output_file << (measurement.time_stamp - start_time).toSec() << ", " << point_gt.x << ", " << point_gt.y << ", " << point.x << ", " << point.y << ", " << point_amcl.x << ", " << point_amcl.y << "\n";
+            }
             // end for experiments
         }
 

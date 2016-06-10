@@ -17,7 +17,7 @@ public:
     ~OdomTracker();
     bool configure(tue::Configuration &config);
     void getDelta(geo::Transform &movement, const ros::Time &time);
-    void getPointPosition(const std::string source_frame_id, const std::string target_frame_id, const geo::Vec3d source, geo::Vec3d target, const ros::Time time);
+    void transformVector(const std::string &source_frame_id, const std::string &target_frame_id, const geo::Vec3d &source, geo::Vec3d &target, const ros::Time &time);
 
 private:
 

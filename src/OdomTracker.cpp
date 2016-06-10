@@ -75,7 +75,7 @@ void OdomTracker::getDelta(geo::Transform& movement, const ros::Time& time)
 
 // -----------------------------------------------------------------------------------------------
 
-void OdomTracker::getPointPosition( const std::string source_frame_id, const std::string target_frame_id, const geo::Vec3d source, geo::Vec3d target, const ros::Time time )
+void OdomTracker::transformVector( const std::string& source_frame_id, const std::string& target_frame_id, const geo::Vec3d& source, geo::Vec3d& target, const ros::Time& time )
 {
     if (!tf_listener_->waitForTransform(target_frame_id, source_frame_id, time, ros::Duration(1.0)))
     {
@@ -94,7 +94,6 @@ void OdomTracker::getPointPosition( const std::string source_frame_id, const std
         geo::convert(transform_tf, transform_geo);
 
         target = transform_geo * source;
-
     }
     catch (tf::TransformException e)
     {
