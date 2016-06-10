@@ -315,7 +315,7 @@ int main(int argc, char** argv)
         {
             // Updates existing edges and adds edges between measured points
             std::cout << "Updating graph..." << std::endl;
-//            triplet_graph::updateGraph( graph, associations );
+            triplet_graph::updateGraph( graph, associations );
             std::cout << "Done!" << std::endl << std::endl;
         }
 
