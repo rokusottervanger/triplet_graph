@@ -13,6 +13,7 @@ corner_detector:
         lines:
             name: "corner_lines"
             color: {r: 0, g: 1, b: 1}
+    jumps_as_corners: 1
 association:
     association_modules:
       - type: "nearest_neighbor"
@@ -22,15 +23,15 @@ association:
 odom_tracker:
     odom_frame: "amigo/odom"
     sensor_frame: "amigo/base_laser"
-graph_filename: "test_area_2.yaml"
+graph_filename: "rokus_experiment3.yaml"
 initial_pose:
-    - position: {x: 1.75, y: 0.6}
-      node: 8
+    - position: {x: 1.94, y: -0.6}
+      node: 2
       std_dev: 0.10
-    - position: {x: 1.93, y: -0.6}
-      node: 6
+    - position: {x: 1.96, y: 0.6}
+      node: 3
       std_dev: 0.10
-target_node: 4
+target_node: 21
 visualization:
     lifetime: 0.1
     points:
