@@ -18,7 +18,7 @@ bool CornerDetector::configure(tue::Configuration &config)
     config.value("step_size", step_dist_);
     config.value("jump_size", jump_size_);
     config.value("sensor_noise_std_dev", std_dev_);
-    if ( !config.value("jumps_as_corners", jumps_as_corners_))
+    if ( !config.value("jumps_as_corners", jumps_as_corners_, tue::OPTIONAL))
         jumps_as_corners_ = false;
 
     if ( config.readGroup("visualization"))
