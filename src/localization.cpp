@@ -36,10 +36,15 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    bool experiment;
+    bool experiment = false;
     if ( argc > 2 )
-        if ( argv[2] == "--experiment" )
+    {
+        std::string exp_arg = argv[2];
+        if ( exp_arg == "--experiment" )
+        {
             experiment = true;
+        }
+    }
 
     std::string config_filename = argv[1];
     config.loadFromYAMLFile(config_filename);
@@ -183,10 +188,11 @@ int main(int argc, char** argv)
 
     triplet_graph::AssociatedMeasurement stored_associations = old_associations;
 
-    // Odom, as ground truth for position in simulation
-    geo::Transform odom;
     std::ofstream output_file;
-    output_file.open ("data.csv");
+    if ( experiment )
+    {
+        output_file.open ("data.csv");
+    }
 
     ros::Time start_time = ros::Time::now();
 
@@ -237,41 +243,50 @@ int main(int argc, char** argv)
         triplet_graph::Path path;
         localized = triplet_graph::associate( graph, measurement, associations, unassociated_points, -1, path, config );
 
+        triplet_graph::AssociatedMeasurement visualization_measurement;
+
         // If succesful, store associations for the next run (one that will get odom update, one that will not) and visualize the graph
         if ( localized )
         {
-            visualizer.publish(triplet_graph::generateVisualization(graph, old_associations, path));
+            visualization_measurement = triplet_graph::generateVisualization(graph, old_associations, path);
+            visualizer.publish(visualization_measurement);
             stored_associations = associations;
             old_associations = associations;
+
         }
         // If not succesful, visualize the graph using the last made associations without odom update
         else
         {
-            visualizer.publish(triplet_graph::generateVisualization(graph, stored_associations, path));
+            visualization_measurement = triplet_graph::generateVisualization(graph, stored_associations, path);
+            visualizer.publish(visualization_measurement);
         }
 
         if ( target_node != -1 )
         {
-            triplet_graph::AssociatedMeasurement path_positions = old_associations;
-
-            triplet_graph::PathFinder pathFinder(graph, path_positions.nodes);
-            pathFinder.findPath(target_node, path);
-
-            calculatePositions(graph, path, path_positions);
-
             // For experiments!!! begin
             if ( experiment )
             {
-                geo::Vec3d point = path_positions.measurement.points[path_positions.node_indices[target_node]];
+                geo::Vec3d point = visualization_measurement.measurement.points[visualization_measurement.node_indices[target_node]];
                 geo::Vec3d point_gt;
                 geo::Vec3d point_amcl;
                 double a = (507.0-552.0)*0.025;
                 double b = (643.0-531.0)*0.025;
                 geo::Vec3d point_in_odom_frame = geo::Vec3d(a,b,0.0);
+                geo::Vec3d zero(0.0,0.0,0.0);
+                geo::Vec3d robot_pos_gt;
+                geo::Vec3d robot_pos_amcl;
+                odomTracker.transformVector("/amigo/base_link", "/amigo/odom", zero, robot_pos_gt, measurement.time_stamp );
+                odomTracker.transformVector("/amigo/base_link", "/map", zero, robot_pos_amcl, measurement.time_stamp );
                 odomTracker.transformVector("/amigo/odom", "/amigo/base_laser", point_in_odom_frame, point_gt, measurement.time_stamp );
                 odomTracker.transformVector("/map", "/amigo/base_laser", point_in_odom_frame, point_amcl, measurement.time_stamp );
 
-                output_file << (measurement.time_stamp - start_time).toSec() << ", " << point_gt.x << ", " << point_gt.y << ", " << point.x << ", " << point.y << ", " << point_amcl.x << ", " << point_amcl.y << "\n";
+                output_file << (measurement.time_stamp - start_time).toSec() << ", "
+                            << point_gt.x << ", " << point_gt.y << ", "
+                            << point.x << ", " << point.y << ", "
+                            << point_amcl.x << ", " << point_amcl.y << ", "
+                            << robot_pos_gt.x << ", " << robot_pos_gt.y << ", "
+                            << robot_pos_amcl.x << ", " << robot_pos_amcl.y << ", "
+                            << "\n";
             }
             // end for experiments
         }
@@ -294,8 +309,12 @@ int main(int argc, char** argv)
         ros::spinOnce();
 
     }
-    std::cout << "Closing output file" << std::endl;
-    output_file.close();
+
+    if (experiment)
+    {
+        std::cout << "Closing output file" << std::endl;
+        output_file.close();
+    }
 }
 
 
