@@ -94,7 +94,7 @@ bool configure(Graph& g, tue::Configuration &config)
                 if ( config.value("length", length, tue::REQUIRED) )
                 {
                     double std_dev = 0.1;
-                    if ( !config.value("std_dev", std_dev, tue::REQUIRED) )
+                    if ( !config.value("std_dev", std_dev, tue::OPTIONAL) )
                     {
                         std::cout << "[GRAPH] WARNING! No edge std dev defined in config. You're probably using an old config file. Using " << std_dev << " % of edge length as default" << std::endl;
                     }
@@ -697,7 +697,7 @@ void save(const Graph &graph, const std::string &filename)
         config.setValue("n1",s+(graph.begin() + it->A)->id+s);
         config.setValue("n2",s+(graph.begin() + it->B)->id+s);
         config.setValue("length",it->l);
-        config.setValue("uncertainty",it->std_dev);
+        config.setValue("std_dev",it->std_dev);
         config.endArrayItem();
     }
     config.endArray();
