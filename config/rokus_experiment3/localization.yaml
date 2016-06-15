@@ -17,9 +17,9 @@ corner_detector:
 association:
     association_modules:
       - type: "nearest_neighbor"
-        max_no_std_devs: 0.2
+        min_association_prob: 0.95
       - type: "edge_tension"
-        max_no_std_devs: 2.0
+        min_association_prob: 0.9
 odom_tracker:
     odom_frame: "amigo/odom"
     sensor_frame: "amigo/base_laser"
