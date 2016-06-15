@@ -31,7 +31,7 @@ bool Associator::configure(tue::Configuration config)
                     boost::shared_ptr<NearestNeighborCC> costCalculator(new NearestNeighborCC);
                     costCalculators_.push_back(costCalculator);
 
-                    double min_association_prob;
+                    double min_association_prob = 0.0;
                     if ( !config.value("min_association_prob", min_association_prob) )
                         std::cout << "[ASSOCIATOR] Configure: Warning! No min_association_prob defined for " << module_type << " cost calculator module" << std::endl;
 
@@ -42,7 +42,7 @@ bool Associator::configure(tue::Configuration config)
                     boost::shared_ptr<EdgeTensionCC> costCalculator(new EdgeTensionCC);
                     costCalculators_.push_back(costCalculator);
 
-                    double min_association_prob;
+                    double min_association_prob = 0.0;
                     if ( !config.value("min_association_prob", min_association_prob) )
                         std::cout << "[ASSOCIATOR] Configure: Warning! No min_association_prob defined for " << module_type << " cost calculator module" << std::endl;
 
@@ -127,7 +127,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
     if ( level == graph_positions.nodes.size() )
     {
-        std::cout << indent.str() << "Base case: level == graph_positions.nodes.size() " << std::endl;
+//        std::cout << indent.str() << "Base case: level == graph_positions.nodes.size() " << std::endl;
         double return_prob = intPow(min_association_prob, measurement.points.size()); // TODO: rename min_association_prob
         double total_prob = return_prob * parents_prob;
 
@@ -136,12 +136,12 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
             best_association_prob_ = total_prob;
         }
 
-        std::cout << indent.str() << "Returning " << return_prob << ", because " << measurement.points.size() << " points left" << std::endl;
+//        std::cout << indent.str() << "Returning " << return_prob << ", because " << measurement.points.size() << " points left" << std::endl;
         return return_prob;
     }
     if ( measurement.points.size() == 0 )
     {
-        std::cout << indent.str() << "Returning 1.0, because measurement is empty" << std::endl;
+//        std::cout << indent.str() << "Returning 1.0, because measurement is empty" << std::endl;
         if ( parents_prob > best_association_prob_ )
         {
             best_association_prob_ = parents_prob;
@@ -167,8 +167,8 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
     Q.push(std::make_pair(min_association_prob,-1));
 
     // Hypothesize associations with every measurement point, check if they satisfy some constraints
-    std::cout << indent.str() << "Calculating cost of associating node " << current_node << std::endl;
-    std::cout << indent.str() << "parents_prob = " << parents_prob << std::endl;
+//    std::cout << indent.str() << "Calculating cost of associating node " << current_node << std::endl;
+//    std::cout << indent.str() << "parents_prob = " << parents_prob << std::endl;
     for ( int i = 0; i < measurement.points.size(); i++ )
     {
         geo::Vec3d cur_measurement_pt = measurement.points[i];
@@ -178,15 +178,15 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
         double prob_so_far = parents_prob * local_prob;
 
-        std::cout << indent.str() << "with point " << cur_measurement_pt << std::endl;
-        std::cout << indent.str() << "local prob  = " << local_prob << std::endl;
-        std::cout << indent.str() << "prob_so_far = " << prob_so_far << std::endl;
+//        std::cout << indent.str() << "with point " << cur_measurement_pt << std::endl;
+//        std::cout << indent.str() << "local prob  = " << local_prob << std::endl;
+//        std::cout << indent.str() << "prob_so_far = " << prob_so_far << std::endl;
 
         if ( local_prob >= min_association_prob &&
              prob_so_far > best_association_prob_)
         {
 
-            std::cout << indent.str() << "This is good enough!" << std::endl;
+//            std::cout << indent.str() << "This is good enough!" << std::endl;
             Q.push(std::make_pair(local_prob,i));
         }
     }
@@ -198,7 +198,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
     while ( !Q.empty() )
     {
-        std::cout << indent.str() << "Considering node " << current_node << " for association with" << std::endl;
+//        std::cout << indent.str() << "Considering node " << current_node << " for association with" << std::endl;
 
         // Get hypothesis with best probability from queue
         std::pair<double, int> hypothesis = Q.top();
@@ -209,14 +209,14 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
 
         double prob_so_far = parents_prob * hypothesis.first;
 
-        if ( hypothesis.second == -1 )
-            std::cout << indent.str() << "no point (" << hypothesis.first << ")" << std::endl;
-        else
-            std::cout << indent.str() << "point " << measurement.points[hypothesis.second] << " (" << hypothesis.first << ")" << std::endl;
+//        if ( hypothesis.second == -1 )
+//            std::cout << indent.str() << "no point (" << hypothesis.first << ")" << std::endl;
+//        else
+//            std::cout << indent.str() << "point " << measurement.points[hypothesis.second] << " (" << hypothesis.first << ")" << std::endl;
 
         if ( hypothesis.first < best_prob )
         {
-            std::cout << indent.str() << "this local cost is higher than best cost. Don't look further!" << std::endl;
+//            std::cout << indent.str() << "this local cost is higher than best cost. Don't look further!" << std::endl;
             break;
         }
 
@@ -234,7 +234,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
                 double penalty = intPow(min_association_prob, point_surplus);
                 if ( penalty * prob_so_far < best_association_prob_ )
                 {
-                    std::cout << indent.str() << "Penalizing for leaving unassociated points: penalty + prob_so_far = " << penalty * prob_so_far << " > " << best_association_prob_ << std::endl;
+//                    std::cout << indent.str() << "Penalizing for leaving unassociated points: penalty + prob_so_far = " << penalty * prob_so_far << " > " << best_association_prob_ << std::endl;
                     continue;
                 }
             }
@@ -254,19 +254,19 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         // Calculate the sum of the currently hypothesized association and the best associations resulting from the reduced problem
         double total_prob = hypothesis.first * associate( graph_positions, reduced_measurement, prog_associations, cost_calculator, min_association_prob, prob_so_far, level+1 );
 
-        std::cout << indent.str() << "total_prob = " << total_prob << std::endl;
-        std::cout << indent.str() << "best_prob = " << best_prob << std::endl;
+//        std::cout << indent.str() << "total_prob = " << total_prob << std::endl;
+//        std::cout << indent.str() << "best_prob = " << best_prob << std::endl;
 
         if ( total_prob / best_association_prob_ < 0.9999999 )
         {
-            std::cout << indent.str() << "Not better than best association prob (" << best_association_prob_ << "), not storing resulting associations" << std::endl;
+//            std::cout << indent.str() << "Not better than best association prob (" << best_association_prob_ << "), not storing resulting associations" << std::endl;
             continue;
         }
 
         // Store the total prob if it is better than we've seen before
         if ( total_prob > best_prob )
         {
-            std::cout << indent.str() << "Better than before, storing the resulting associations" << std::endl;
+//            std::cout << indent.str() << "Better than before, storing the resulting associations" << std::endl;
             best_prob = total_prob;
             associations = prog_associations;
         }
@@ -301,7 +301,7 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     for ( int i = 0; i < costCalculators_.size(); ++i )
     {
         // Worst case scenario is that no points are associated, so this will be the initial benchmark.
-        best_association_prob_ = intPow(min_assoc_probs_[i],unassociated_points_.points.size());
+        best_association_prob_ = intPow(min_assoc_probs_[i],unassociated_points_.points.size()-2);
 
         // Call the recursive association algorithms
         associate( path_positions, unassociated_points_, associations, *costCalculators_[i], min_assoc_probs_[i], 1.0);
