@@ -34,7 +34,7 @@ double NearestNeighborCC::calculateCost(const Graph& graph,
     double odom_std_dev_sq = odom_std_dev * odom_std_dev;
 
     // TODO: better incorporation of odom error!
-    return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2() / ( cur_measurement_std_dev_sq + odom_std_dev_sq );
+    return exp(-(cur_measurement_pt - graph_positions.measurement.points[node_index]).length2() / ( cur_measurement_std_dev_sq + odom_std_dev_sq ));
 }
 
 }

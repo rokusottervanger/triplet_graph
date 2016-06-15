@@ -36,11 +36,11 @@ private:
     Path path_;
 
     std::vector<boost::shared_ptr<CostCalculator> > costCalculators_;
-    std::vector<double> max_assoc_dists_;
+    std::vector<double> min_assoc_probs_;
 
     bool associated_;
 
-    double best_association_cost_;
+    double best_association_prob_;
 
     double associate(const AssociatedMeasurement &graph_positions,
                      const Measurement &measurement,

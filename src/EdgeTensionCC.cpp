@@ -35,7 +35,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         // stretch method as in the non-root node case, only without the edge error (but later including an
         // odometry error model).
         // TODO: take into account odom error when trying to associate root nodes
-        return (cur_measurement_pt - graph_positions.measurement.points[node_index]).length2()/(cur_measurement_std_dev_sq + odom_std_dev_sq);
+        return exp(-(cur_measurement_pt - graph_positions.measurement.points[node_index]).length2()/ ( cur_measurement_std_dev_sq * odom_std_dev_sq ));
     }
     else
     {
@@ -63,7 +63,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         Edge3 t(graph_positions.nodes[node_index],parent_1_i,parent_2_i);
 
         if ( sign < 0 && t == *trip_it || sign > 0 && t.flip() == *trip_it )
-            return -1.0; // todo: this is very strict. Flat triplets may sometimes invert. How to handle that?
+            return 0.0; // todo: this is very strict. Flat triplets may sometimes invert. How to handle that?
 
         // and calculate the lengths of those vectors
         double l_1_m = v_1_m.length();
@@ -85,7 +85,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
         geo::Vec3d dir_2 = v_2_m/l_2_m;
 
         // Calculate the resulting 'force' on the node
-        return (s1*dir_1 + s2*dir_2).length();
+        return exp(-(s1*dir_1 + s2*dir_2).length());
     }
 }
 
