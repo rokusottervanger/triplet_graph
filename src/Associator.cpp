@@ -8,6 +8,7 @@
 #include "triplet_graph/PathFinder.h"
 #include "triplet_graph/EdgeTensionPC.h"
 #include "triplet_graph/NearestNeighborPC.h"
+#include "triplet_graph/OdomModel.h"
 
 namespace triplet_graph
 {
@@ -174,7 +175,9 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         geo::Vec3d cur_measurement_pt = measurement.points[i];
         double cur_measurement_std_dev = measurement.uncertainties[i];
 
-        double local_prob = cost_calculator.calculateProbability(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, level, associations, path_);
+        OdomModel odom_model;
+
+        double local_prob = cost_calculator.calculateProbability(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, odom_model, graph_positions, level, associations, path_);
 
         double prob_so_far = parents_prob * local_prob;
 

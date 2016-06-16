@@ -122,6 +122,7 @@ add_library(triplet_graph
     src/NearestNeighborPC.cpp
     src/EdgeTensionPC.cpp
     src/Server.cpp
+    src/OdomModel.cpp
     ${HEADER_FILES}
 )
 target_link_libraries(triplet_graph

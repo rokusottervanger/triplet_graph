@@ -9,6 +9,7 @@ namespace triplet_graph
 class Graph;
 class AssociatedMeasurement;
 class Path;
+class OdomModel;
 
 class ProbabilityCalculator
 {
@@ -16,11 +17,11 @@ public:
     virtual double calculateProbability(const Graph& graph,
                                         const geo::Vec3d& cur_measurement_pt,
                                         const double cur_measurement_std_dev,
-                                        const double odom_std_dev,
+                                        const OdomModel& odom_model,
                                         const AssociatedMeasurement& graph_positions,
                                         const int node_index,
                                         const AssociatedMeasurement& input_associations,
-                                        Path& path) const = 0;
+                                        const Path& path) const = 0;
 };
 
 }
