@@ -1,4 +1,4 @@
-#include "triplet_graph/NearestNeighborCC.h"
+#include "triplet_graph/NearestNeighborPC.h"
 
 #include "triplet_graph/Graph.h"
 #include "triplet_graph/Measurement.h"
@@ -21,7 +21,7 @@ double prob(double a, double b)
     return exp(-0.5*a*a/b_sq) / sqrt(2*PI*b_sq);
 }
 
-double NearestNeighborCC::calculateCost(const Graph& graph,
+double NearestNeighborPC::calculateProbability(const Graph& graph,
                                         const geo::Vec3d& cur_measurement_pt,
                                         const double cur_measurement_std_dev,
                                         const double odom_std_dev,

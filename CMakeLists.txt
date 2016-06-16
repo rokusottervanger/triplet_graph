@@ -119,8 +119,8 @@ add_library(triplet_graph
     src/CornerDetector.cpp
     src/OdomTracker.cpp
     src/Associator.cpp
-    src/NearestNeighborCC.cpp
-    src/EdgeTensionCC.cpp
+    src/NearestNeighborPC.cpp
+    src/EdgeTensionPC.cpp
     src/Server.cpp
     ${HEADER_FILES}
 )

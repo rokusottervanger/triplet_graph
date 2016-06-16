@@ -7,7 +7,7 @@
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/Path.h"
 #include "triplet_graph/Graph.h"
-#include "triplet_graph/CostCalculator.h"
+#include "triplet_graph/ProbabilityCalculator.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -35,7 +35,7 @@ private:
     const Graph* graph_ptr_;
     Path path_;
 
-    std::vector<boost::shared_ptr<CostCalculator> > costCalculators_;
+    std::vector<boost::shared_ptr<ProbabilityCalculator> > probCalculators_;
     std::vector<double> min_assoc_probs_;
 
     bool associated_;
@@ -45,7 +45,7 @@ private:
     double associate(const AssociatedMeasurement &graph_positions,
                      const Measurement &measurement,
                      AssociatedMeasurement& resulting_associations,
-                     const CostCalculator& cost_calculator,
+                     const ProbabilityCalculator& cost_calculator,
                      const double max_no_std_devs,
                      double parents_cost,
                      int level);

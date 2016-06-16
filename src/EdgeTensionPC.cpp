@@ -1,4 +1,4 @@
-#include "triplet_graph/EdgeTensionCC.h"
+#include "triplet_graph/EdgeTensionPC.h"
 
 #include "triplet_graph/Graph.h"
 #include "triplet_graph/Measurement.h"
@@ -9,7 +9,7 @@
 namespace triplet_graph
 {
 
-double EdgeTensionCC::calculateCost(const Graph& graph,
+double EdgeTensionPC::calculateProbability(const Graph& graph,
                                     const geo::Vec3d& cur_measurement_pt,
                                     const double cur_measurement_std_dev,
                                     const double odom_std_dev,
@@ -91,7 +91,7 @@ double EdgeTensionCC::calculateCost(const Graph& graph,
 
 // -----------------------------------------------------------------------------------------------
 
-geo::Vec3d EdgeTensionCC::getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, const int node_i) const
+geo::Vec3d EdgeTensionPC::getMostRecentNodePosition(const AssociatedMeasurement& associations, const AssociatedMeasurement& graph_positions, const int node_i) const
 {
     std::map<int,int>::const_iterator index_it = associations.node_indices.find(node_i);
 

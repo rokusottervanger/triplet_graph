@@ -6,8 +6,8 @@
 #include "triplet_graph/Measurement.h"
 #include "triplet_graph/graph_operations.h"
 #include "triplet_graph/PathFinder.h"
-#include "triplet_graph/EdgeTensionCC.h"
-#include "triplet_graph/NearestNeighborCC.h"
+#include "triplet_graph/EdgeTensionPC.h"
+#include "triplet_graph/NearestNeighborPC.h"
 
 namespace triplet_graph
 {
@@ -28,8 +28,8 @@ bool Associator::configure(tue::Configuration config)
                 config.value("type", module_type );
                 if ( module_type == "nearest_neighbor" )
                 {
-                    boost::shared_ptr<NearestNeighborCC> costCalculator(new NearestNeighborCC);
-                    costCalculators_.push_back(costCalculator);
+                    boost::shared_ptr<NearestNeighborPC> probCalculator(new NearestNeighborPC);
+                    probCalculators_.push_back(probCalculator);
 
                     double min_association_prob = 0.0;
                     if ( !config.value("min_association_prob", min_association_prob) )
@@ -39,8 +39,8 @@ bool Associator::configure(tue::Configuration config)
                 }
                 else if ( module_type == "edge_tension" )
                 {
-                    boost::shared_ptr<EdgeTensionCC> costCalculator(new EdgeTensionCC);
-                    costCalculators_.push_back(costCalculator);
+                    boost::shared_ptr<EdgeTensionPC> costCalculator(new EdgeTensionPC);
+                    probCalculators_.push_back(costCalculator);
 
                     double min_association_prob = 0.0;
                     if ( !config.value("min_association_prob", min_association_prob) )
@@ -55,7 +55,7 @@ bool Associator::configure(tue::Configuration config)
             }
             config.endArray();
 
-            if ( !costCalculators_.size() )
+            if ( !probCalculators_.size() )
             {
                 std::cout << "\033[31m" << "[ASSOCIATOR] Configure: No cost calculator modules available!" << "\033[0m" << std::endl;
                 return false;
@@ -113,7 +113,7 @@ double intPow(double base, unsigned int exponent)
 double Associator::associate(const AssociatedMeasurement& graph_positions,
                              const Measurement& measurement,
                              AssociatedMeasurement& associations,
-                             const CostCalculator& cost_calculator,
+                             const ProbabilityCalculator& cost_calculator,
                              const double min_association_prob,
                              const double parents_prob=1.0,
                              int level=0)
@@ -174,7 +174,7 @@ double Associator::associate(const AssociatedMeasurement& graph_positions,
         geo::Vec3d cur_measurement_pt = measurement.points[i];
         double cur_measurement_std_dev = measurement.uncertainties[i];
 
-        double local_prob = cost_calculator.calculateCost(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, level, associations, path_);
+        double local_prob = cost_calculator.calculateProbability(*graph_ptr_, cur_measurement_pt, cur_measurement_std_dev, 0.05, graph_positions, level, associations, path_);
 
         double prob_so_far = parents_prob * local_prob;
 
@@ -293,18 +293,18 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     associations.measurement.time_stamp = measurement.time_stamp;
     associations.measurement.frame_id = measurement.frame_id;
 
-    if ( !costCalculators_.size() )
+    if ( !probCalculators_.size() )
     {
         std::cout << "\033[31m" << "[ASSOCIATOR] GetAssociations: No cost calculator modules available!" << "\033[0m" << std::endl;
     }
 
-    for ( int i = 0; i < costCalculators_.size(); ++i )
+    for ( int i = 0; i < probCalculators_.size(); ++i )
     {
         // Worst case scenario is that no points are associated, so this will be the initial benchmark.
         best_association_prob_ = intPow(min_assoc_probs_[i],unassociated_points_.points.size()-2);
 
         // Call the recursive association algorithms
-        associate( path_positions, unassociated_points_, associations, *costCalculators_[i], min_assoc_probs_[i], 1.0);
+        associate( path_positions, unassociated_points_, associations, *probCalculators_[i], min_assoc_probs_[i], 1.0);
 
         std::cout << associations.nodes.size() << " associations found after using costcalculator " << i << std::endl;
 

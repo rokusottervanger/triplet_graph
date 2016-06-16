@@ -1,17 +1,17 @@
-#ifndef TRIPLET_GRAPH_EDGE_TENSION_CC_H_
-#define TRIPLET_GRAPH_EDGE_TENSION_CC_H_
+#ifndef TRIPLET_GRAPH_EDGE_TENSION_PC_H_
+#define TRIPLET_GRAPH_EDGE_TENSION_PC_H_
 
-#include "CostCalculator.h"
+#include "ProbabilityCalculator.h"
 
 namespace triplet_graph
 {
 
-class EdgeTensionCC : public CostCalculator
+class EdgeTensionPC : public ProbabilityCalculator
 {
 public:
 //    EdgeTensionCC();
 
-    double calculateCost(const Graph& graph,
+    double calculateProbability(const Graph& graph,
                          const geo::Vec3d& cur_measurement_pt,
                          const double cur_measurement_std_dev,
                          const double odom_std_dev,
