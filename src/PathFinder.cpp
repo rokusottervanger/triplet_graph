@@ -213,6 +213,8 @@ double PathFinder::findPath(const int target_node, Path& path)
                 double dy_sq = 1/(l1_sq-x_sq) * thing*thing * dl1_sq + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq)) *dl2_sq + x_sq/(l1_sq-x_sq) * dl3_sq;
 
                 w = dx_sq+dy_sq;
+
+                std::cout << "w = " << w << std::endl;
             }
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
@@ -225,6 +227,7 @@ double PathFinder::findPath(const int target_node, Path& path)
             double b_sq = b*b;
 
             double new_cost = a_sq + (a_sq + b_sq) * l1*l1/(l3*l3) + a_sq*(1-2*x/l3) + w;
+
 
 
             if (ns_[v] > new_cost)

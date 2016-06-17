@@ -243,6 +243,9 @@ int main(int argc, char** argv)
         triplet_graph::Path path;
         localized = triplet_graph::associate( graph, measurement, associations, unassociated_points, -1, path, config );
 
+        std::cout << "Path: " << std::endl;
+        std::cout << path << std::endl;
+
         triplet_graph::AssociatedMeasurement visualization_measurement;
 
         // If succesful, store associations for the next run (one that will get odom update, one that will not) and visualize the graph
@@ -305,7 +308,8 @@ int main(int argc, char** argv)
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
 
-        loop_rate.sleep();
+//        loop_rate.sleep();
+        getchar();
         ros::spinOnce();
 
     }
