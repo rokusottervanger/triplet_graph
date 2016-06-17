@@ -193,6 +193,13 @@ double PathFinder::findPath(const int target_node, Path& path)
             else
             {
 //                w = weighting(l1,l2,l3);
+                double dl1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->std_dev;
+                double dl2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->std_dev;
+                double dl3 = edge_it->std_dev;
+
+                double dl1_sq = dl1*dl1;
+                double dl2_sq = dl2*dl2;
+                double dl3_sq = dl3*dl3;
 
                 double l1_sq = l1*l1;
                 double l2_sq = l2*l2;
@@ -201,11 +208,11 @@ double PathFinder::findPath(const int target_node, Path& path)
                 x = (l1_sq-l2_sq+l3_sq)/(2*l3);
                 double x_sq = x*x;
 
-                double dx_sq = l1_sq/l3_sq + l2_sq/l3_sq + 1/4.0;
+                double dx_sq = l1_sq/l3_sq * dl1_sq + l2_sq/l3_sq * dl2_sq + dl3_sq/4.0 ;
                 double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
-                double dy_sq = 1/(l1_sq-x_sq) * thing*thing + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq))+x_sq/(l1_sq-x_sq);
+                double dy_sq = 1/(l1_sq-x_sq) * thing*thing * dl1_sq + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq)) *dl2_sq + x_sq/(l1_sq-x_sq) * dl3_sq;
 
-                w =  dx_sq+dy_sq;
+                w = dx_sq+dy_sq;
             }
 
             // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
