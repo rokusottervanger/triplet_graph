@@ -34,7 +34,7 @@ double EdgeTensionPC::calculateProbability(const Graph& graph,
         // stretch method as in the non-root node case, only without the edge error (but later including an
         // odometry error model).
         // TODO: take into account odom error when trying to associate root nodes
-        return exp(-(cur_measurement_pt - graph_positions.measurement.points[node_index]).length2()/ ( cur_measurement_std_dev_sq ));
+        return exp(-(cur_measurement_pt - graph_positions.measurement.points[node_index]).length2()/ ( 2 * cur_measurement_std_dev_sq ));
     }
     else
     {
@@ -76,8 +76,8 @@ double EdgeTensionPC::calculateProbability(const Graph& graph,
         double stddev1 = edge_1_it->std_dev * edge_1_it->l;
         double stddev2 = edge_2_it->std_dev * edge_2_it->l;
 
-        double s1 = e1*e1 / ( stddev1*stddev1 + cur_measurement_std_dev_sq );
-        double s2 = e2*e2 / ( stddev2*stddev2 + cur_measurement_std_dev_sq );
+        double s1 = e1*e1 / ( 2 * ( stddev1*stddev1 + cur_measurement_std_dev_sq ));
+        double s2 = e2*e2 / ( 2 * ( stddev2*stddev2 + cur_measurement_std_dev_sq ));
 
         // Calculate the direction vectors of the 'forces' working on the graph node to pull it to the measurement point
         geo::Vec3d dir_1 = v_1_m/l_1_m;

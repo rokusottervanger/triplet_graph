@@ -21,7 +21,7 @@ double NearestNeighborPC::calculateProbability(const Graph& graph,
     double cur_measurement_std_dev_sq = cur_measurement_std_dev * cur_measurement_std_dev;
 
     // TODO: better incorporation of odom error!
-    return exp(-(cur_measurement_pt - graph_positions.measurement.points[node_index]).length2() / ( cur_measurement_std_dev_sq ));
+    return exp(-(cur_measurement_pt - graph_positions.measurement.points[node_index]).length2() / ( 2 * cur_measurement_std_dev_sq ));
 }
 
 }
