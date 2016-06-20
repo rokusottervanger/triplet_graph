@@ -77,10 +77,8 @@ double PathFinder::findPath(const int target_node, Path& path)
     std::priority_queue<CostInt, std::vector<CostInt>, std::greater<CostInt> > Q;
 
     // Mark all source nodes visited and add them to the queue
-    std::cout << "Source nodes: " << std::endl;
     for ( std::set<int>::const_iterator it = source_nodes_.begin(); it != source_nodes_.end(); ++it )
     {
-        std::cout << *it << ", ";
         if ( *it == -1 )
              std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
         else
@@ -149,56 +147,73 @@ double PathFinder::findPath(const int target_node, Path& path)
 
                 Graph::const_iterator node_it = graph_->begin() + v;
 
-                double w = 0;
                 double l3 = edge_it->l;                                                     // Edge between parents
                 double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
                 double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
 
                 // Check triangle inequality!
                 double p  = ( l1 + l2 + l3 )/2.0;
-                double x_sq = 0;
-                double y = 0;
-                double y_sq = 0;
+                double new_cost;
                 if ( (p-l1)*(p-l2)*(p-l3) > 0 )
                 {
+                    // Get edge uncertainties from graph
                     double dl1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->std_dev;
                     double dl2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->std_dev;
                     double dl3 = edge_it->std_dev;
 
+                    // We'll need the squares (variances)
                     double dl1_sq = dl1*dl1;
                     double dl2_sq = dl2*dl2;
                     double dl3_sq = dl3*dl3;
 
+                    // We'll also need the squares of the lengths of the edges
                     double l1_sq = l1*l1;
                     double l2_sq = l2*l2;
                     double l3_sq = l3*l3;
 
+                    // Now let's calculate the coordinates of the third point in the triangle frame and their squares.
+                    // x:
                     double x = (l1_sq-l2_sq+l3_sq)/(2*l3);
-                    x_sq = x*x;
+                    double x_sq = x*x;
 
-                    y = sqrt(l1_sq - x_sq);
-                    y_sq = y*y;
+                    // and y:
+                    double y = sqrt(l1_sq - x_sq);
+                    double y_sq = y*y;
 
+                    // Now we calculate the error propagation of the edge lengths to the position of point 3
                     double dx_sq = l1_sq/l3_sq * dl1_sq + l2_sq/l3_sq * dl2_sq + dl3_sq/4.0 ;
                     double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
                     double dy_sq = 1/(l1_sq-x_sq) * thing*thing * dl1_sq + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq)) *dl2_sq + x_sq/(l1_sq-x_sq) * dl3_sq;
 
-                    w = dx_sq+dy_sq;
+                    // And we sum the squares to get the squared magnitude of this vector
+                    double edges_to_point = dx_sq+dy_sq;
+
+                    // Now let's also get the uncertainties of the parents (points 1 and 2)
+                    double dp_1_sq = ns_[edge_it->A];
+                    double dp_2_sq = ns_[edge_it->B];
+
+                    // And let's scale the coordinates of point 3 by the size of the edge between the parents
+                    double y_scaled_plus_one = (y/l3 + 1);
+                    double x_scaled_sq = x_sq/l3_sq;
+                    double y_scaled_sq = y_sq/l3_sq;
+
+                    // Now let's calculate the error propagation from the parents to the position of point 3
+                    double dp_31_sq = dp_1_sq + y_scaled_sq * ( dp_1_sq + dp_2_sq );
+                    double dp_32_sq = y_scaled_plus_one*y_scaled_plus_one * dp_1_sq + x_scaled_sq * dp_2_sq;
+                    double parents_to_point = dp_31_sq + dp_32_sq;
+
+                    // Total position estimation error is the sum of the two
+                    new_cost = parents_to_point + edges_to_point;
+                }
+                else
+                {
+                    // If triangle inequality is not satisfied, avoid this triplet (set cost very high)
+                    new_cost = 1e38;
                 }
 
-                double dp_1_sq = ns_[edge_it->A];
-                double dp_2_sq = ns_[edge_it->B];
-
-                double l3_sq = l3*l3;
-
-                double x_scaled_sq = x_sq/l3_sq;
-                double y_scaled_sq = y_sq/l3_sq;
-
-                double new_cost = dp_1_sq + y_scaled_sq * ( dp_1_sq + dp_2_sq ) + (y/l3 + 1)*(y/l3 + 1) * dp_1_sq + x_scaled_sq * dp_2_sq + w;
-
-                // If this new cost ends up to be lower than the cost to one of the parents,
-                if ( dp_1_sq > new_cost || dp_2_sq > new_cost )
-                    new_cost = std::max(dp_1_sq,dp_2_sq);
+                // If this new cost ends up to be lower than the cost to one of the parents
+                if ( ns_[edge_it->A] > new_cost || ns_[edge_it->B] > new_cost )
+                    new_cost = std::max( ns_[edge_it->A], ns_[edge_it->B] );
 
                 // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
                 // of potential nodes to visit and record what the previous node was.
@@ -214,21 +229,6 @@ double PathFinder::findPath(const int target_node, Path& path)
             }
         }
     }
-
-//    std::cout << "ns_: \n[ " << std::endl;
-//    for ( int i = 0; i < ns_.size(); i++ )
-//    {
-//        std::cout << i << ": " << ns_[i] << ", ";
-//    }
-//    std::cout << std::endl;
-
-//    std::cout << "Prevs: \n[ " << std::endl;
-////    for ( std::vector<int>::const_iterator it = prevs_.begin(); it != prevs_.end(); ++it )
-//    for ( int i = 0; i < prevs_.size(); i++ )
-//    {
-//        std::cout << i << ": (" << (graph_->beginEdges() + prevs_[i])->A << ", " << (graph_->beginEdges() + prevs_[i])->B << "), ";
-//    }
-//    std::cout << std::endl;
 
     // If there is no target node (target_node == -1), the program will get here after calculating paths to ever node in the graph.
     // Now push all nodes in the graph into the path.
