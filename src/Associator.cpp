@@ -267,13 +267,6 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
     AssociatedMeasurement path_positions = associations;
     calculatePositions( *graph_ptr_, path_, path_positions );
 
-    std::cout << "Path positions: \n[";
-    for ( int i = 0; i < path_positions.nodes.size(); ++i )
-    {
-        std::cout << path_positions.nodes[i] << ": " << path_positions.measurement.points[i] << ", ";
-    }
-    std::cout << std::endl;
-
     associations.clear();
     associations.measurement.time_stamp = measurement.time_stamp;
     associations.measurement.frame_id = measurement.frame_id;

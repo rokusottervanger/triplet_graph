@@ -109,15 +109,12 @@ double PathFinder::findPath(const int target_node, Path& path)
         // Take the cheapest node from the queue (guaranteed to have lowest cost calculated)
         int u = Q.top().second; // current edge, cheapest pair of nodes so far
 
-        std::cout << "Taking cheapest node so far: " << u << " with cost " << Q.top().first << std::endl;
-
         Q.pop();
         visited_nodes_[u] = true;
 
         // If current node is the target node, trace back path
         if ( target_node != -1 && u == target_node )
         {
-            std::cout << "Reached target node! Going to trace path..." << std::endl;
             tracePath(target_node, path);
 
             // When finished, return cost to target node
@@ -137,15 +134,7 @@ double PathFinder::findPath(const int target_node, Path& path)
             if ( !visited_nodes_[peer] )
                 continue;
 
-            std::cout << "and " << u << "'s visited peer " << peer << std::endl;
-
             std::vector<int> common_triplets = (graph_->begin() + edge_it->A)->tripletsByPeer(edge_it->B);
-            std::cout << "Number of common triplets of these nodes: " << common_triplets.size() << std::endl;
-
-            if ( common_triplets.size() == 0 )
-                 std::cout << "Did not find any common triplets" << std::endl;
-            else
-                 std::cout << "Going to run through them... " << std::endl;
 
             // Run through common triplets of the current pair of nodes
             for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
@@ -158,11 +147,8 @@ double PathFinder::findPath(const int target_node, Path& path)
                 if ( visited_nodes_[v] )
                     continue;
 
-                std::cout << "Triplet " << *t_it << " brings us to node " << v << std::endl;
-
                 Graph::const_iterator node_it = graph_->begin() + v;
 
-                std::cout << "Let's calculate the cost of going there from this edge..." << std::endl;
                 double w = 0;
                 double l3 = edge_it->l;                                                     // Edge between parents
                 double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
@@ -170,22 +156,14 @@ double PathFinder::findPath(const int target_node, Path& path)
 
                 // Check triangle inequality!
                 double p  = ( l1 + l2 + l3 )/2.0;
-                double x = 1e38;
-                if ( (p-l1)*(p-l2)*(p-l3) < 0 )
+                double x_sq = 0;
+                double y = 0;
+                double y_sq = 0;
+                if ( (p-l1)*(p-l2)*(p-l3) > 0 )
                 {
-                    w = 1e38;
-                    std::cout << "Triangle inequality is not satisfied, so let's make it very high: " << w << std::endl;
-                }
-                else
-                {
-    //                w = weighting(l1,l2,l3);
                     double dl1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->std_dev;
                     double dl2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->std_dev;
                     double dl3 = edge_it->std_dev;
-
-                    std::cout << "std dev of edge from " << v << " to " << edge_it->A << " is " << dl1 << std::endl;
-                    std::cout << "std dev of edge from " << v << " to " << edge_it->B << " is " << dl2 << std::endl;
-                    std::cout << "std dev of edge between parents " << edge_it->A << " and " << edge_it->B << " is " << dl3 << std::endl;
 
                     double dl1_sq = dl1*dl1;
                     double dl2_sq = dl2*dl2;
@@ -195,61 +173,62 @@ double PathFinder::findPath(const int target_node, Path& path)
                     double l2_sq = l2*l2;
                     double l3_sq = l3*l3;
 
-                    x = (l1_sq-l2_sq+l3_sq)/(2*l3);
-                    double x_sq = x*x;
+                    double x = (l1_sq-l2_sq+l3_sq)/(2*l3);
+                    x_sq = x*x;
+
+                    y = sqrt(l1_sq - x_sq);
+                    y_sq = y*y;
 
                     double dx_sq = l1_sq/l3_sq * dl1_sq + l2_sq/l3_sq * dl2_sq + dl3_sq/4.0 ;
                     double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
                     double dy_sq = 1/(l1_sq-x_sq) * thing*thing * dl1_sq + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq)) *dl2_sq + x_sq/(l1_sq-x_sq) * dl3_sq;
 
                     w = dx_sq+dy_sq;
-                    std::cout << "Alright, step cost becomes " << w << std::endl;
                 }
+
+                double dp_1_sq = ns_[edge_it->A];
+                double dp_2_sq = ns_[edge_it->B];
+
+                double l3_sq = l3*l3;
+
+                double x_scaled_sq = x_sq/l3_sq;
+                double y_scaled_sq = y_sq/l3_sq;
+
+                double new_cost = dp_1_sq + y_scaled_sq * ( dp_1_sq + dp_2_sq ) + (y/l3 + 1)*(y/l3 + 1) * dp_1_sq + x_scaled_sq * dp_2_sq + w;
+
+                // If this new cost ends up to be lower than the cost to one of the parents,
+                if ( dp_1_sq > new_cost || dp_2_sq > new_cost )
+                    new_cost = std::max(dp_1_sq,dp_2_sq);
 
                 // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
                 // of potential nodes to visit and record what the previous node was.
-                double new_cost = ns_[edge_it->A] + ns_[edge_it->B] + w; // New cost is sum of (squared) parent node costs plus (squared) step cost
-
-                double a = ns_[edge_it->A];
-                double a_sq = a*a;
-                double b = ns_[edge_it->B];
-                double b_sq = b*b;
-
-//                double new_cost = a_sq + (a_sq + b_sq) * l1*l1/(l3*l3) + a_sq*(1-2*x/l3) + w;
-
-                std::cout << "Including cost of parent positions results in a total cost of " << new_cost << " to node " << v << std::endl;
-                std::cout << "The previous cost to get to that node was " << ns_[v] << std::endl;
-
                 if (ns_[v] > new_cost)
                 {
-                    std::cout << "So this is better." << std::endl;
-
                     ns_[v] = new_cost;
 
                     Q.push(CostInt(new_cost, v));
 
                     // Store edge that lead to this node
-                    std::cout << "Storing edge " << *e_it << " that lead to this node (" << v << ")" << std::endl;
                     prevs_[v] = *e_it;
                 }
             }
         }
     }
 
-    std::cout << "ns_: \n[ " << std::endl;
-    for ( int i = 0; i < ns_.size(); i++ )
-    {
-        std::cout << i << ": " << ns_[i] << ", ";
-    }
-    std::cout << std::endl;
+//    std::cout << "ns_: \n[ " << std::endl;
+//    for ( int i = 0; i < ns_.size(); i++ )
+//    {
+//        std::cout << i << ": " << ns_[i] << ", ";
+//    }
+//    std::cout << std::endl;
 
-    std::cout << "Prevs: \n[ " << std::endl;
-//    for ( std::vector<int>::const_iterator it = prevs_.begin(); it != prevs_.end(); ++it )
-    for ( int i = 0; i < prevs_.size(); i++ )
-    {
-        std::cout << i << ": (" << (graph_->beginEdges() + prevs_[i])->A << ", " << (graph_->beginEdges() + prevs_[i])->B << "), ";
-    }
-    std::cout << std::endl;
+//    std::cout << "Prevs: \n[ " << std::endl;
+////    for ( std::vector<int>::const_iterator it = prevs_.begin(); it != prevs_.end(); ++it )
+//    for ( int i = 0; i < prevs_.size(); i++ )
+//    {
+//        std::cout << i << ": (" << (graph_->beginEdges() + prevs_[i])->A << ", " << (graph_->beginEdges() + prevs_[i])->B << "), ";
+//    }
+//    std::cout << std::endl;
 
     // If there is no target node (target_node == -1), the program will get here after calculating paths to ever node in the graph.
     // Now push all nodes in the graph into the path.
