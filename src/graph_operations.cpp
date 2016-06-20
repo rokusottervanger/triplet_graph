@@ -315,7 +315,7 @@ void calculatePositions(const Graph &graph, const Path& path, AssociatedMeasurem
         geo::Vec3d base_x = (parent_2_pos - parent_1_pos)/l3;
         geo::Vec3d base_y = geo::Mat3d(0,-1,0,1,0,0,0,0,1) * base_x;
 
-        positions.append(base_x * s + base_y * k + parent_1_pos, 0.0, node_i); // TODO: magic number for position uncertainty. Maybe use the position uncertainty from path in this?
+        positions.append(base_x * s + base_y * k + parent_1_pos, path.costs[index], node_i); // TODO: magic number for position uncertainty. Maybe use the position uncertainty from path in this?
     }
 }
 

@@ -75,13 +75,22 @@ class Block(object):
 
 
 if __name__ == "__main__":
-    rospy.init_node('move_block')
+    if len(sys.argv) < 2:
+        print "Provide a simulator object id as argument"
+        sys.exit()
+
+    block_id = sys.argv[1]
+    print "Moving block: %s" % block_id
+
+    node_id = block_id.replace('-','_')
+
+    rospy.init_node('move_'+node_id)
 
     settings = termios.tcgetattr(sys.stdin)
 
     W = client.SimWorld()
 
-    block = Block(id="block-1", W=W)
+    block = Block(id=block_id, W=W)
 
     print "Move the simulated block"
     print "Usage: press 5 to print the current coordinates"

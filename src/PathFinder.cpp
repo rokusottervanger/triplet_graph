@@ -13,6 +13,7 @@ PathFinder::PathFinder(const Graph &graph, const std::vector<int> &source_nodes)
 {
     prevs_ = std::vector<int>(graph.size(),-1);  // vector of edges from which each node is reached (index is node index)
     ns_ = std::vector<double>(graph.size(),1e38); // cost to get to nodes (index is node index)
+    visited_nodes_ = std::vector<bool>(graph_->size(),false);
 
     for ( std::vector<int>::const_iterator it = source_nodes.begin(); it != source_nodes.end(); ++it )
         source_nodes_.insert(*it);
@@ -61,90 +62,56 @@ double PathFinder::weighting(double l3, double l1, double l2)
 double PathFinder::findPath(const int target_node, Path& path)
 {
     // If path was already calculated...
-    if ( target_node != -1 && prevs_[target_node] != -1 )
+    if ( target_node != -1 && visited_nodes_[target_node] )
     {
         // directly trace back that path
-        std::cout << "Path was already calculated, so just tracing it back" << std::endl;
         tracePath(target_node, path);
         return ns_[target_node];
     }
 
-    // Track visited edges and triplets
-    std::vector<double> es(graph_->numEdges(),1e38);
-
-    /* The priority queue holds couples of nodes (edges) to be handled, sorted by
-     * the sum of the cost to get to those nodes. The cost to get to the first
-     * pair of nodes is obviously zero.
+    /*
+     * The priority queue holds unvisited nodes to which a cost has been calculated, sorted by
+     * the total cost to get to that node. The cost of the unvisited node with the lowest cost
+     * is guaranteed to be the lowest possible cost.
      */
     std::priority_queue<CostInt, std::vector<CostInt>, std::greater<CostInt> > Q;
 
-    // Find all edges connecting the source nodes and add those edges to Q
-    for ( std::set<int>::const_iterator it_1 = source_nodes_.begin(); it_1 != source_nodes_.end(); ++it_1 )
+    // Mark all source nodes visited and add them to the queue
+    for ( std::set<int>::const_iterator it = source_nodes_.begin(); it != source_nodes_.end(); ++it )
     {
-        if ( *it_1 == -1 )
-            std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
+        if ( *it == -1 )
+             std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
         else
         {
-            for ( std::set<int>::const_iterator it_2 = source_nodes_.begin(); it_2 != it_1; ++it_2 )
-            {
-                if ( *it_2 == -1 )
-                    std::cout << "[FIND_PATH] Warning! Input node index is -1!" << std::endl;
-                else
-                {
-                    Graph::const_iterator node_it = graph_->begin() + *it_1;
-                    if ( node_it->deleted )
-                    {
-                        std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
-                        continue;
-                    }
-
-                    int edge = node_it->edgeByPeer(*it_2);
-                    if ( edge == -1 )
-                    {
-                        std::cout << "[FIND_PATH] Warning! Edge between nodes " << *it_1 << " and " << *it_2 << " does not exist!" << std::endl;
-                    }
-                    else
-                    {
-                        Q.push(CostInt(0,edge));
-                        es[edge] = 0;
-                    }
-
-                }
-            }
-            ns_[*it_1] = 0;
+            Q.push(CostInt(0.0, *it));
+            visited_nodes_[*it] = true;
+            ns_[*it] = 0;
         }
     }
+    std::cout << std::endl;
 
     if ( Q.size() < 1 )
     {
-        std::cout << "\033[31m" << "[PathFinder] Not enough valid input points!" << "\033[0m" << std::endl;
+         std::cout << "\033[31m" << "[PathFinder] Not enough valid input points!" << "\033[0m" << std::endl;
     }
 
 
     /* The path is to contain the series of nodes to get from the source nodes to
      * the target node. To construct this path, the prevs vector is maintained,
-     * holding for every visited node the previous node and -1 for ever non-
-     * visited node.
+     * holding for every node the set of nodes that its current best calculated
+     * cost originates from. Nodes for which no cost is calculated yet, and source
+     * nodes have -1 at their places in prevs.
      */
     while(!Q.empty())
     {
-        // Take the cheapest edge (cost is sum of node costs so far) from the queue
+        // Take the cheapest node from the queue (guaranteed to have lowest cost calculated)
         int u = Q.top().second; // current edge, cheapest pair of nodes so far
+
         Q.pop();
+        visited_nodes_[u] = true;
 
-        // If pair of nodes already visited, continue
-        if ( es[u] == -1 )
-            continue;
-
-        Graph::const_edge2_iterator edge_it = graph_->beginEdges() + u;
-        if ( edge_it->deleted )
-        {
-            std::cout << "[FIND_PATH] Warning! Skipping deleted edge" << std::endl;
-            continue;
-        }
-
-        // When the target is reached in current edge's A or B node, trace back path
-        if ( target_node != -1 && (edge_it->A == target_node || edge_it->B == target_node))
+        // If current node is the target node, trace back path
+        if ( target_node != -1 && u == target_node )
         {
             tracePath(target_node, path);
 
@@ -152,95 +119,115 @@ double PathFinder::findPath(const int target_node, Path& path)
             return ns_[target_node];
         }
 
-        std::vector<int> common_triplets = (graph_->begin() + edge_it->A)->tripletsByPeer(edge_it->B);
+        Graph::const_iterator node_it = graph_->begin() + u;
 
-        if ( common_triplets.size() == 0 )
-            std::cout << "Did not find any common triplets" << std::endl;
-
-        // Run through common triplets of the current pair of nodes
-        for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
+        // Go through current node's edges
+        for ( std::vector<int>::const_iterator e_it = node_it->edges.begin(); e_it != node_it->edges.end(); ++e_it )
         {
-            // Retrieve the right node from the triplet.
-            Graph::const_edge3_iterator trip_it = graph_->beginTriplets() + *t_it;
-            if ( trip_it->deleted )
-            {
-                std::cout << "[FIND_PATH] Warning! Skipping deleted triplet" << std::endl;
+            Graph::const_edge2_iterator edge_it = graph_->beginEdges() + *e_it;
+
+            int peer = edge_it->getOtherNode(u);
+
+            // Only consider edges that connect current node to visited nodes
+            if ( !visited_nodes_[peer] )
                 continue;
-            }
 
-            int v = trip_it->getThirdNode(edge_it->A,edge_it->B);
+            std::vector<int> common_triplets = (graph_->begin() + edge_it->A)->tripletsByPeer(edge_it->B);
 
-            Graph::const_iterator node_it = graph_->begin() + v;
-            if ( node_it->deleted )
+            // Run through common triplets of the current pair of nodes
+            for ( std::vector<int>::iterator t_it = common_triplets.begin(); t_it != common_triplets.end(); ++t_it )
             {
-                std::cout << "[FIND_PATH] Warning! Skipping deleted node" << std::endl;
-                continue;
-            }
+                // Retrieve the right node from the triplet.
+                Graph::const_edge3_iterator trip_it = graph_->beginTriplets() + *t_it;
 
+                int v = trip_it->getThirdNode(edge_it->A,edge_it->B);
 
-            double w;
-            double l3 = edge_it->l;                                                     // Edge between parents
-            double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
-            double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
+                if ( visited_nodes_[v] )
+                    continue;
 
-            // Check triangle inequality!
-            double p  = ( l1 + l2 + l3 )/2.0;
-            double x;
-            if ( (p-l1)*(p-l2)*(p-l3) < 0 )
-            {
-                w = 1e38;
-            }
-            else
-            {
-//                w = weighting(l1,l2,l3);
+                Graph::const_iterator node_it = graph_->begin() + v;
 
-                double l1_sq = l1*l1;
-                double l2_sq = l2*l2;
-                double l3_sq = l3*l3;
+                double l3 = edge_it->l;                                                     // Edge between parents
+                double l1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->l;    // Edge between parent A and current node
+                double l2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->l;    // Edge between parent B and current node
 
-                x = (l1_sq-l2_sq+l3_sq)/(2*l3);
-                double x_sq = x*x;
-
-                double dx_sq = l1_sq/l3_sq + l2_sq/l3_sq + 1/4.0;
-                double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
-                double dy_sq = 1/(l1_sq-x_sq) * thing*thing + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq))+x_sq/(l1_sq-x_sq);
-
-                w =  dx_sq+dy_sq;
-            }
-
-            // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
-            // of potential nodes to visit and record what the previous node was.
-//            double new_cost = ns_[edge_it->A] + ns_[edge_it->B] + w; // New cost is sum of (squared) parent node costs plus (squared) step cost
-
-            double a = ns_[edge_it->A];
-            double a_sq = a*a;
-            double b = ns_[edge_it->B];
-            double b_sq = b*b;
-
-            double new_cost = a_sq + (a_sq + b_sq) * l1*l1/(l3*l3) + a_sq*(1-2*x/l3) + w;
-
-
-            if (ns_[v] > new_cost)
-            {
-                ns_[v] = new_cost;
-
-                // Loop through all neighbors of current node (v) and add connecting edges to queue if neighbor is visited
-                for ( std::vector<int>::const_iterator e_it = node_it->edges.begin(); e_it !=node_it->edges.end(); ++e_it )
+                // Check triangle inequality!
+                double p  = ( l1 + l2 + l3 )/2.0;
+                double new_cost;
+                if ( (p-l1)*(p-l2)*(p-l3) > 0 )
                 {
-                    int neighbor = (graph_->beginEdges() + *e_it)->getOtherNode(v);
+                    // Get edge uncertainties from graph
+                    double dl1 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->A))->std_dev;
+                    double dl2 = (graph_->beginEdges() + node_it->edgeByPeer(edge_it->B))->std_dev;
+                    double dl3 = edge_it->std_dev;
 
-                    // if neighbor is not visited yet, add it to queue
-                    if ( ns_[neighbor] < 1e38 )
-                        Q.push(CostInt(new_cost, *e_it));
+                    // We'll need the squares (variances)
+                    double dl1_sq = dl1*dl1;
+                    double dl2_sq = dl2*dl2;
+                    double dl3_sq = dl3*dl3;
+
+                    // We'll also need the squares of the lengths of the edges
+                    double l1_sq = l1*l1;
+                    double l2_sq = l2*l2;
+                    double l3_sq = l3*l3;
+
+                    // Now let's calculate the coordinates of the third point in the triangle frame and their squares.
+                    // x:
+                    double x = (l1_sq-l2_sq+l3_sq)/(2*l3);
+                    double x_sq = x*x;
+
+                    // and y:
+                    double y = sqrt(l1_sq - x_sq);
+                    double y_sq = y*y;
+
+                    // Now we calculate the error propagation of the edge lengths to the position of point 3
+                    double dx_sq = l1_sq/l3_sq * dl1_sq + l2_sq/l3_sq * dl2_sq + dl3_sq/4.0 ;
+                    double thing = 2 * l1 - 2*(l1/l3)*x; // TODO naming?
+                    double dy_sq = 1/(l1_sq-x_sq) * thing*thing * dl1_sq + (4*l2_sq*x_sq)/(l3_sq*(l1_sq-x_sq)) *dl2_sq + x_sq/(l1_sq-x_sq) * dl3_sq;
+
+                    // And we sum the squares to get the squared magnitude of this vector
+                    double edges_to_point = dx_sq+dy_sq;
+
+                    // Now let's also get the uncertainties of the parents (points 1 and 2)
+                    double dp_1_sq = ns_[edge_it->A];
+                    double dp_2_sq = ns_[edge_it->B];
+
+                    // And let's scale the coordinates of point 3 by the size of the edge between the parents
+                    double y_scaled_plus_one = (y/l3 + 1);
+                    double x_scaled_sq = x_sq/l3_sq;
+                    double y_scaled_sq = y_sq/l3_sq;
+
+                    // Now let's calculate the error propagation from the parents to the position of point 3
+                    double dp_31_sq = dp_1_sq + y_scaled_sq * ( dp_1_sq + dp_2_sq );
+                    double dp_32_sq = y_scaled_plus_one*y_scaled_plus_one * dp_1_sq + x_scaled_sq * dp_2_sq;
+                    double parents_to_point = dp_31_sq + dp_32_sq;
+
+                    // Total position estimation error is the sum of the two
+                    new_cost = parents_to_point + edges_to_point;
+                }
+                else
+                {
+                    // If triangle inequality is not satisfied, avoid this triplet (set cost very high)
+                    new_cost = 1e38;
                 }
 
-                // Store edge that lead to this node
-                prevs_[v] = u;
+                // If this new cost ends up to be lower than the cost to one of the parents
+                if ( ns_[edge_it->A] > new_cost || ns_[edge_it->B] > new_cost )
+                    new_cost = std::max( ns_[edge_it->A], ns_[edge_it->B] );
+
+                // If path to third node is cheaper than before, update cost to that node, add the cheapest connecting edge to priority queue
+                // of potential nodes to visit and record what the previous node was.
+                if (ns_[v] > new_cost)
+                {
+                    ns_[v] = new_cost;
+
+                    Q.push(CostInt(new_cost, v));
+
+                    // Store edge that lead to this node
+                    prevs_[v] = *e_it;
+                }
             }
         }
-
-        // After visiting edge, mark it visited using vector of edge weights
-        es[u] = -1;
     }
 
     // If there is no target node (target_node == -1), the program will get here after calculating paths to ever node in the graph.

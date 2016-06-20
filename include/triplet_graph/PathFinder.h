@@ -14,6 +14,7 @@ class PathFinder
     const Graph* graph_;
     std::vector<int> prevs_;
     std::vector<double> ns_;
+    std::vector<bool> visited_nodes_;
     std::set<int> source_nodes_;
     bool all_done_;
 
