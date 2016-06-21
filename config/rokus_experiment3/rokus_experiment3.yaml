@@ -6,19 +6,19 @@ edges:
     - length: 1.59931
       n1: '94a87f4c8c6e45ce'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.60963
       n1: '94a87f4c8c6e45ce'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.00144
       n1: '1f813ae510713fed'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.88739
       n1: '1f813ae510713fed'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.19976
       n1: '1f813ae510713fed'
       n2: '94a87f4c8c6e45ce'
@@ -26,11 +26,11 @@ edges:
     - length: 1.85143
       n1: '486c8a807eeb4ba5'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.7277
       n1: '486c8a807eeb4ba5'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.21486
       n1: '486c8a807eeb4ba5'
       n2: '94a87f4c8c6e45ce'
@@ -50,23 +50,23 @@ edges:
     - length: 1.21587
       n1: 'b27ed53e5af9ad7e'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.56342
       n1: 'b27ed53e5af9ad7e'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.42122
       n1: 'b27ed53e5af9ad7e'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.97541
       n1: '6dae73fe2ea694c4'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.83937
       n1: '6dae73fe2ea694c4'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.40557
       n1: '6dae73fe2ea694c4'
       n2: '94a87f4c8c6e45ce'
@@ -82,15 +82,15 @@ edges:
     - length: 1.55692
       n1: '6dae73fe2ea694c4'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.26395
       n1: '7334862e127cfea6'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.07644
       n1: '7334862e127cfea6'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.69873
       n1: '7334862e127cfea6'
       n2: '94a87f4c8c6e45ce'
@@ -106,7 +106,7 @@ edges:
     - length: 1
       n1: '7334862e127cfea6'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.02315
       n1: '7334862e127cfea6'
       n2: '6dae73fe2ea694c4'
@@ -114,59 +114,59 @@ edges:
     - length: 1.03064
       n1: 'b543932b2c2b1f08'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.839879
       n1: 'b543932b2c2b1f08'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.10187
       n1: 'b543932b2c2b1f08'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.86215
       n1: 'b543932b2c2b1f08'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.67133
       n1: 'b543932b2c2b1f08'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.03042
       n1: 'b543932b2c2b1f08'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.69722
       n1: 'b543932b2c2b1f08'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.676608
       n1: 'b543932b2c2b1f08'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.19255
       n1: '23cbafac1281137d'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.03107
       n1: '23cbafac1281137d'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.05958
       n1: '23cbafac1281137d'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.31305
       n1: '23cbafac1281137d'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.08783
       n1: '23cbafac1281137d'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.06756
       n1: '23cbafac1281137d'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.399183
       n1: '23cbafac1281137d'
       n2: 'b543932b2c2b1f08'
@@ -174,23 +174,23 @@ edges:
     - length: 1.36432
       n1: '9c02f3e2f0d10e92'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.19373
       n1: '9c02f3e2f0d10e92'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.44073
       n1: '9c02f3e2f0d10e92'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.0594
       n1: '9c02f3e2f0d10e92'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.0466
       n1: '9c02f3e2f0d10e92'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.447261
       n1: '9c02f3e2f0d10e92'
       n2: 'b543932b2c2b1f08'
@@ -202,7 +202,7 @@ edges:
     - length: 2.16273
       n1: '26ed5897a18c4f9e'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.20519
       n1: '26ed5897a18c4f9e'
       n2: '6dae73fe2ea694c4'
@@ -210,19 +210,19 @@ edges:
     - length: 1.16648
       n1: '26ed5897a18c4f9e'
       n2: '23cbafac1281137d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.14844
       n1: '26ed5897a18c4f9e'
       n2: '9c02f3e2f0d10e92'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.56142
       n1: '26ed5897a18c4f9e'
       n2: 'b543932b2c2b1f08'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.79883
       n1: 'ba0bdeddfbefa72d'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.48892
       n1: 'ba0bdeddfbefa72d'
       n2: '6dae73fe2ea694c4'
@@ -230,15 +230,15 @@ edges:
     - length: 1.5241
       n1: 'ba0bdeddfbefa72d'
       n2: '23cbafac1281137d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.65845
       n1: 'ba0bdeddfbefa72d'
       n2: '9c02f3e2f0d10e92'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.84399
       n1: 'ba0bdeddfbefa72d'
       n2: 'b543932b2c2b1f08'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.2
       n1: 'ba0bdeddfbefa72d'
       n2: '26ed5897a18c4f9e'
@@ -246,71 +246,71 @@ edges:
     - length: 2.75288
       n1: 'e1a3a3b5531a3a8f'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.870908
       n1: 'e1a3a3b5531a3a8f'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.59297
       n1: 'e1a3a3b5531a3a8f'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.59147
       n1: 'e1a3a3b5531a3a8f'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.3678
       n1: 'e1a3a3b5531a3a8f'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.05785
       n1: 'e1a3a3b5531a3a8f'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.23925
       n1: 'e1a3a3b5531a3a8f'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.04321
       n1: 'e1a3a3b5531a3a8f'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.22769
       n1: 'e1a3a3b5531a3a8f'
       n2: 'b543932b2c2b1f08'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.22503
       n1: '48b179f75d6059d3'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.66128
       n1: '48b179f75d6059d3'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.03068
       n1: '48b179f75d6059d3'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.645984
       n1: '48b179f75d6059d3'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.1921
       n1: '48b179f75d6059d3'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.65
       n1: '48b179f75d6059d3'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.2042
       n1: '48b179f75d6059d3'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.85
       n1: '48b179f75d6059d3'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.199816
       n1: '48b179f75d6059d3'
       n2: 'b543932b2c2b1f08'
@@ -318,39 +318,39 @@ edges:
     - length: 2.12273
       n1: '48b179f75d6059d3'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.65489
       n1: 'a774b2906baa529a'
       n2: 'd6cce35c487a58fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.85877
       n1: 'a774b2906baa529a'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.48612
       n1: 'a774b2906baa529a'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.45771
       n1: 'a774b2906baa529a'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.28435
       n1: 'a774b2906baa529a'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.05002
       n1: 'a774b2906baa529a'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.25755
       n1: 'a774b2906baa529a'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.07394
       n1: 'a774b2906baa529a'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.192554
       n1: 'a774b2906baa529a'
       n2: 'e1a3a3b5531a3a8f'
@@ -358,27 +358,27 @@ edges:
     - length: 1.96041
       n1: 'a774b2906baa529a'
       n2: '48b179f75d6059d3'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.24384
       n1: 'b5b3eaa4814ea115'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.63555
       n1: 'b5b3eaa4814ea115'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.4342
       n1: 'b5b3eaa4814ea115'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.64461
       n1: 'b5b3eaa4814ea115'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.45103
       n1: 'b5b3eaa4814ea115'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.441629
       n1: 'b5b3eaa4814ea115'
       n2: 'e1a3a3b5531a3a8f'
@@ -390,11 +390,11 @@ edges:
     - length: 1.75193
       n1: 'b5b3eaa4814ea115'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.80999
       n1: 'b5b3eaa4814ea115'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.01671
       n1: '99a4c453f0d536fe'
       n2: '6dae73fe2ea694c4'
@@ -402,7 +402,7 @@ edges:
     - length: 3.41577
       n1: '99a4c453f0d536fe'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.20813
       n1: '99a4c453f0d536fe'
       n2: '486c8a807eeb4ba5'
@@ -418,11 +418,11 @@ edges:
     - length: 1.15644
       n1: '99a4c453f0d536fe'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.16398
       n1: '99a4c453f0d536fe'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.50373
       n1: '99a4c453f0d536fe'
       n2: '7334862e127cfea6'
@@ -430,39 +430,39 @@ edges:
     - length: 3.57496
       n1: '99a4c453f0d536fe'
       n2: 'ab29032c2621f38d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.777619
       n1: '99a4c453f0d536fe'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.7167
       n1: 'cb1a6cfed3c84eed'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.56191
       n1: 'cb1a6cfed3c84eed'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.19812
       n1: 'cb1a6cfed3c84eed'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.6938
       n1: 'cb1a6cfed3c84eed'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.54808
       n1: 'cb1a6cfed3c84eed'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.46353
       n1: 'cb1a6cfed3c84eed'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.81217
       n1: 'cb1a6cfed3c84eed'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.200008
       n1: 'cb1a6cfed3c84eed'
       n2: 'b27ed53e5af9ad7e'
@@ -582,55 +582,55 @@ edges:
     - length: 1.18571
       n1: '7924d77d742ab297'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.38571
       n1: '7924d77d742ab297'
       n2: 'cb1a6cfed3c84eed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.47712
       n1: '7924d77d742ab297'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.32219
       n1: '7924d77d742ab297'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.60811
       n1: '7924d77d742ab297'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.6898
       n1: 'db2371255ee9dd75'
       n2: '94a87f4c8c6e45ce'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.72067
       n1: 'db2371255ee9dd75'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.58586
       n1: 'db2371255ee9dd75'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.43898
       n1: 'db2371255ee9dd75'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.2637
       n1: 'db2371255ee9dd75'
       n2: 'cb1a6cfed3c84eed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.06773
       n1: 'db2371255ee9dd75'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.89932
       n1: 'db2371255ee9dd75'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.9117
       n1: 'db2371255ee9dd75'
       n2: '7924d77d742ab297'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.10107
       n1: '7334862e127cfea6'
       n2: 'db2371255ee9dd75'
@@ -666,11 +666,11 @@ edges:
     - length: 3.58288
       n1: '6a94211a54516e94'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.56615
       n1: '6a94211a54516e94'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.96763
       n1: '6a94211a54516e94'
       n2: '7924d77d742ab297'
@@ -678,7 +678,7 @@ edges:
     - length: 3.39851
       n1: '6a94211a54516e94'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.10385
       n1: '6a94211a54516e94'
       n2: '7334862e127cfea6'
@@ -686,43 +686,43 @@ edges:
     - length: 2.68454
       n1: '6a94211a54516e94'
       n2: '48b179f75d6059d3'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.50286
       n1: 'ac72ea8386d635ba'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.31128
       n1: 'ac72ea8386d635ba'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.26586
       n1: 'ac72ea8386d635ba'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.58716
       n1: 'ac72ea8386d635ba'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.65159
       n1: 'ac72ea8386d635ba'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.318874
       n1: 'ac72ea8386d635ba'
       n2: '7924d77d742ab297'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.41472
       n1: 'ac72ea8386d635ba'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.468925
       n1: 'ac72ea8386d635ba'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.65398
       n1: 'ac72ea8386d635ba'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.19538
       n1: 'b543932b2c2b1f08'
       n2: 'db2371255ee9dd75'
@@ -750,19 +750,19 @@ edges:
     - length: 2.47168
       n1: 'f5e260cc41db07fb'
       n2: '1f813ae510713fed'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.35767
       n1: 'f5e260cc41db07fb'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.19323
       n1: 'f5e260cc41db07fb'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.73238
       n1: 'f5e260cc41db07fb'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.3918
       n1: 'f5e260cc41db07fb'
       n2: 'db2371255ee9dd75'
@@ -770,39 +770,39 @@ edges:
     - length: 1.81756
       n1: 'f5e260cc41db07fb'
       n2: '7924d77d742ab297'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.56999
       n1: 'f5e260cc41db07fb'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.01409
       n1: 'f5e260cc41db07fb'
       n2: '7334862e127cfea6'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.95658
       n1: 'f5e260cc41db07fb'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.60462
       n1: 'f5e260cc41db07fb'
       n2: 'ac72ea8386d635ba'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.23293
       n1: 'f5e260cc41db07fb'
       n2: 'b543932b2c2b1f08'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.37147
       n1: 'f5e260cc41db07fb'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.35699
       n1: '37d1164ac2007cb7'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.8469
       n1: '37d1164ac2007cb7'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.451526
       n1: '37d1164ac2007cb7'
       n2: 'db2371255ee9dd75'
@@ -810,27 +810,27 @@ edges:
     - length: 2.01708
       n1: '37d1164ac2007cb7'
       n2: '7924d77d742ab297'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.69428
       n1: '37d1164ac2007cb7'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.95037
       n1: '37d1164ac2007cb7'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.80041
       n1: '37d1164ac2007cb7'
       n2: 'ac72ea8386d635ba'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.43393
       n1: '37d1164ac2007cb7'
       n2: 'b543932b2c2b1f08'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.45808
       n1: '37d1164ac2007cb7'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.193641
       n1: '37d1164ac2007cb7'
       n2: 'f5e260cc41db07fb'
@@ -838,43 +838,43 @@ edges:
     - length: 3.24808
       n1: '1998954e7298993d'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.22419
       n1: '1998954e7298993d'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.46972
       n1: '1998954e7298993d'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.35493
       n1: '1998954e7298993d'
       n2: '7924d77d742ab297'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.02914
       n1: '1998954e7298993d'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.777439
       n1: '1998954e7298993d'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3
       n1: '1998954e7298993d'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.8341
       n1: '1998954e7298993d'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.90649
       n1: '1998954e7298993d'
       n2: '37d1164ac2007cb7'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.03939
       n1: '1998954e7298993d'
       n2: 'ac72ea8386d635ba'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.52739
       n1: '486c8a807eeb4ba5'
       n2: '37d1164ac2007cb7'
@@ -926,15 +926,15 @@ edges:
     - length: 0.849323
       n1: '11e273d45e5da04c'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.57764
       n1: '11e273d45e5da04c'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.874065
       n1: '11e273d45e5da04c'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.9436
       n1: '11e273d45e5da04c'
       n2: '6a94211a54516e94'
@@ -942,19 +942,19 @@ edges:
     - length: 1.25556
       n1: '11e273d45e5da04c'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.31308
       n1: '11e273d45e5da04c'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.46522
       n1: '11e273d45e5da04c'
       n2: '37d1164ac2007cb7'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.43111
       n1: '11e273d45e5da04c'
       n2: '1998954e7298993d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.282001
       n1: '11e273d45e5da04c'
       n2: '486c8a807eeb4ba5'
@@ -966,7 +966,7 @@ edges:
     - length: 1.46356
       n1: '11e273d45e5da04c'
       n2: 'ac72ea8386d635ba'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.200016
       n1: '11e273d45e5da04c'
       n2: '6dae73fe2ea694c4'
@@ -978,39 +978,39 @@ edges:
     - length: 1.6788
       n1: 'ad43391acb365636'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.84035
       n1: 'ad43391acb365636'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.51293
       n1: 'ad43391acb365636'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.79024
       n1: 'ad43391acb365636'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.76007
       n1: 'ad43391acb365636'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.79821
       n1: 'ad43391acb365636'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.99822
       n1: 'ad43391acb365636'
       n2: '37d1164ac2007cb7'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.14706
       n1: 'ad43391acb365636'
       n2: '1998954e7298993d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.46551
       n1: 'ad43391acb365636'
       n2: '99a4c453f0d536fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.197294
       n1: 'ad43391acb365636'
       n2: 'ac72ea8386d635ba'
@@ -1018,75 +1018,75 @@ edges:
     - length: 1.25
       n1: 'ad43391acb365636'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.45
       n1: 'ad43391acb365636'
       n2: '11e273d45e5da04c'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.94763
       n1: '8280664b4a8eacb4'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.60001
       n1: '8280664b4a8eacb4'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.76099
       n1: '8280664b4a8eacb4'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.3776
       n1: '8280664b4a8eacb4'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.94377
       n1: '8280664b4a8eacb4'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.64589
       n1: '8280664b4a8eacb4'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.83964
       n1: '8280664b4a8eacb4'
       n2: '37d1164ac2007cb7'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.71577
       n1: '8280664b4a8eacb4'
       n2: '1998954e7298993d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.57186
       n1: '8280664b4a8eacb4'
       n2: '99a4c453f0d536fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.22163
       n1: 'a08d9a865bca201a'
       n2: 'e1a3a3b5531a3a8f'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.67377
       n1: 'a08d9a865bca201a'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.02158
       n1: 'a08d9a865bca201a'
       n2: 'a774b2906baa529a'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.15556
       n1: 'a08d9a865bca201a'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.04766
       n1: 'a08d9a865bca201a'
       n2: 'b5b3eaa4814ea115'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.0106
       n1: 'a08d9a865bca201a'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.11439
       n1: 'a08d9a865bca201a'
       n2: '37d1164ac2007cb7'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.390338
       n1: 'a08d9a865bca201a'
       n2: '1998954e7298993d'
@@ -1094,11 +1094,11 @@ edges:
     - length: 3.4199
       n1: 'a08d9a865bca201a'
       n2: '99a4c453f0d536fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.51672
       n1: 'a08d9a865bca201a'
       n2: '8280664b4a8eacb4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.396244
       n1: 'ac72ea8386d635ba'
       n2: '8280664b4a8eacb4'
@@ -1174,7 +1174,7 @@ edges:
     - length: 2.3722
       n1: '39b90044ad25aea5'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.98819
       n1: '39b90044ad25aea5'
       n2: '6a94211a54516e94'
@@ -1182,15 +1182,15 @@ edges:
     - length: 2.64603
       n1: '39b90044ad25aea5'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.79097
       n1: '39b90044ad25aea5'
       n2: '37d1164ac2007cb7'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.25707
       n1: '39b90044ad25aea5'
       n2: '1998954e7298993d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 3.94043
       n1: '39b90044ad25aea5'
       n2: '99a4c453f0d536fe'
@@ -1198,19 +1198,19 @@ edges:
     - length: 1.56474
       n1: '39b90044ad25aea5'
       n2: '8280664b4a8eacb4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.95773
       n1: '39b90044ad25aea5'
       n2: 'ac72ea8386d635ba'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.95001
       n1: '39b90044ad25aea5'
       n2: 'ad43391acb365636'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.50455
       n1: '39b90044ad25aea5'
       n2: 'b27ed53e5af9ad7e'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.1992
       n1: '7924d77d742ab297'
       n2: '39b90044ad25aea5'
@@ -1222,19 +1222,19 @@ edges:
     - length: 2.52545
       n1: 'e228dae36bd8be3e'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.83905
       n1: 'e228dae36bd8be3e'
       n2: '1998954e7298993d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.54791
       n1: 'e228dae36bd8be3e'
       n2: '39b90044ad25aea5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.84288
       n1: 'e228dae36bd8be3e'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.200006
       n1: 'e228dae36bd8be3e'
       n2: '8280664b4a8eacb4'
@@ -1242,15 +1242,15 @@ edges:
     - length: 1.54849
       n1: '8e78fcd9afe5d9ac'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.54525
       n1: '8e78fcd9afe5d9ac'
       n2: '1998954e7298993d'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.52938
       n1: '8e78fcd9afe5d9ac'
       n2: '39b90044ad25aea5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.200811
       n1: '8e78fcd9afe5d9ac'
       n2: 'db2371255ee9dd75'
@@ -1262,7 +1262,7 @@ edges:
     - length: 1.14967
       n1: 'cc4972cdda699a82'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.446138
       n1: 'cc4972cdda699a82'
       n2: '1998954e7298993d'
@@ -1270,15 +1270,15 @@ edges:
     - length: 0.848238
       n1: 'cc4972cdda699a82'
       n2: '39b90044ad25aea5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.82052
       n1: 'cc4972cdda699a82'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.93055
       n1: 'cc4972cdda699a82'
       n2: '8e78fcd9afe5d9ac'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.198041
       n1: 'cc4972cdda699a82'
       n2: 'a08d9a865bca201a'
@@ -1306,19 +1306,19 @@ edges:
     - length: 0.746273
       n1: '90b8d81780d6a726'
       n2: '6a94211a54516e94'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.72011
       n1: '90b8d81780d6a726'
       n2: '8e78fcd9afe5d9ac'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.64372
       n1: '90b8d81780d6a726'
       n2: 'db2371255ee9dd75'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 2.01483
       n1: '90b8d81780d6a726'
       n2: 'f5e260cc41db07fb'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.446869
       n1: '90b8d81780d6a726'
       n2: 'a08d9a865bca201a'
@@ -1466,19 +1466,19 @@ edges:
     - length: 1.25081
       n1: '360b9d977f01a933'
       n2: '11e273d45e5da04c'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.26612
       n1: '360b9d977f01a933'
       n2: '6dae73fe2ea694c4'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 1.46507
       n1: '360b9d977f01a933'
       n2: '486c8a807eeb4ba5'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.748103
       n1: '360b9d977f01a933'
       n2: '99a4c453f0d536fe'
-      std_dev: 0.1
+      std_dev: 0.2
     - length: 0.200009
       n1: '360b9d977f01a933'
       n2: 'b5b3eaa4814ea115'
