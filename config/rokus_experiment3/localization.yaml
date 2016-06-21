@@ -17,7 +17,7 @@ corner_detector:
 association:
     association_modules:
       - type: "nearest_neighbor"
-        min_association_prob: 0.95
+        min_association_prob: 0.999
       - type: "edge_tension"
         min_association_prob: 0.9
 odom_tracker:
@@ -32,6 +32,7 @@ initial_pose:
       node: 3
       std_dev: 0.10
 target_node: 21
+# target_node: 29
 visualization:
     lifetime: 0.1
     points:
