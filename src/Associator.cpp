@@ -10,6 +10,8 @@
 #include "triplet_graph/NearestNeighborPC.h"
 #include "triplet_graph/OdomModel.h"
 
+#include <tue/profiling/timer.h>
+
 namespace triplet_graph
 {
 
@@ -306,10 +308,13 @@ bool Associator::getAssociations( const Measurement& measurement, AssociatedMeas
         // Worst case scenario is that no points are associated, so this will be the initial benchmark.
         best_association_prob_ = intPow(min_assoc_probs_[i],unassociated_points_.points.size()-2);
 
+        tue::Timer timer;
+        timer.start();
+
         // Call the recursive association algorithms
         associate( path_positions, unassociated_points_, associations, *probCalculators_[i], min_assoc_probs_[i], 1.0);
 
-        std::cout << associations.nodes.size() << " associations found after using costcalculator " << i << std::endl;
+        std::cout << associations.nodes.size() << " associations found after using costcalculator " << i << " in " << timer.getElapsedTimeInMilliSec() << " msec" << std::endl;
 
         // Reduce unassociated_points with any associated points and path_positions with the associated nodes before calling associate
         for ( int j = 0; j < associations.nodes.size(); ++j )

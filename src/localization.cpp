@@ -269,16 +269,46 @@ int main(int argc, char** argv)
                 geo::Vec3d point = visualization_measurement.measurement.points[visualization_measurement.node_indices[target_node]];
                 geo::Vec3d point_gt;
                 geo::Vec3d point_amcl;
-                double a = (507.0-552.0)*0.025;
-                double b = (643.0-531.0)*0.025;
-                geo::Vec3d point_in_odom_frame = geo::Vec3d(a,b,0.0);
+                geo::Vec3d point_in_odom_frame;
+                geo::Vec3d point_in_map_frame;
+                double a,b;
+                if ( target_node == 21 )
+                {
+                    a = (507.0-552.0)*0.025;
+                    b = (643.0-531.0)*0.025;
+                    point_in_odom_frame = geo::Vec3d(a,b,0.0);
+                    point_in_map_frame = point_in_odom_frame;
+                }
+                else if ( target_node == 29 )
+                {
+                    a = -0.925;
+                    b = 1.65;
+                    point_in_map_frame = geo::Vec3d(a,b,0.0);
+                    double offset_x = 0.1;
+                    double offset_y = 0.1;
+                    point_in_odom_frame = geo::Vec3d(a+offset_x, b+offset_y, 0.0);
+                }
+                else if ( target_node == 34 )
+                {
+                    a = -1.125;
+                    b = 2.05;
+                    point_in_map_frame = geo::Vec3d(a,b,0.0);
+                    double offset_x = 0.1;
+                    double offset_y = 0.1;
+                    point_in_odom_frame = geo::Vec3d(a+offset_x, b+offset_y, 0.0);
+                }
+                else
+                {
+                    std::cout << "ERROR! Ground truth position of target node is unknown!" << std::endl;
+                    return -1;
+                }
                 geo::Vec3d zero(0.0,0.0,0.0);
                 geo::Vec3d robot_pos_gt;
                 geo::Vec3d robot_pos_amcl;
                 odomTracker.transformVector("/amigo/base_link", "/amigo/odom", zero, robot_pos_gt, measurement.time_stamp );
                 odomTracker.transformVector("/amigo/base_link", "/map", zero, robot_pos_amcl, measurement.time_stamp );
                 odomTracker.transformVector("/amigo/odom", "/amigo/base_laser", point_in_odom_frame, point_gt, measurement.time_stamp );
-                odomTracker.transformVector("/map", "/amigo/base_laser", point_in_odom_frame, point_amcl, measurement.time_stamp );
+                odomTracker.transformVector("/map", "/amigo/base_laser", point_in_map_frame, point_amcl, measurement.time_stamp );
 
                 output_file << (measurement.time_stamp - start_time).toSec() << ", "
                             << point_gt.x << ", " << point_gt.y << ", "
