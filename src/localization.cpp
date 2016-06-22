@@ -334,7 +334,7 @@ int main(int argc, char** argv)
 
         std::cout << "Loop time: " << timer.getElapsedTimeInMilliSec() << " ms" << std::endl;
         std::cout << std::endl << "----------------------------------------------------------" << std::endl;
-
+//getchar();
         loop_rate.sleep();
         ros::spinOnce();
 

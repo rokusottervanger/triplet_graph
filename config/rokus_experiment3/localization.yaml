@@ -19,7 +19,7 @@ association:
       - type: "nearest_neighbor"
         min_association_prob: 0.999
       - type: "edge_tension"
-        min_association_prob: 0.9
+        min_association_prob: 0.95
 odom_tracker:
     odom_frame: "amigo/odom"
     sensor_frame: "amigo/base_laser"

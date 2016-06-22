@@ -195,13 +195,13 @@ void CornerDetector::process(triplet_graph::Measurement& measurement)
     if ( jumps_as_corners_ )
     {
         std::cout << "Detecting jumps as corners" << std::endl;
-        for (int i = 1; i < num_beams; i++ )
+        for (int i = 1; i < num_beams-1; i++ )
         {
             if ( fabs(sensor_ranges[i]) < 1e-9 || fabs(sensor_ranges[i-1] < 1e-9) )
                 continue;
 
-            double diff = sensor_ranges[i]-sensor_ranges[i-1];
-            if ( fabs(diff) > jump_size_ )
+            double diff = sensor_ranges[i+1]-sensor_ranges[i-1];
+            if ( fabs(diff) > 0.1 )
             {
                 if ( diff < 0 )
                 {
