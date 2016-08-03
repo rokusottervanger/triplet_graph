@@ -4,8 +4,8 @@ The triplet graph package offers an implementation of the triplet graph as descr
 ## Dependencies
 Dependencies are:
 * ROS Indigo, including
-** tf
-** RViz
+ * tf
+ * RViz
 * [geolib2](https://github.com/tue-robotics/geolib2)
 * [tue_config](https://github.com/tue-robotics/tue_config)
 
@@ -45,7 +45,7 @@ Again, in RViz, you can visualize what is happening using the MarkerArray visual
 ### RViz Tool
 There is a simple RViz tool available for the triplet graph. This lets the user select nodes and set length uncertainty in the edges between them to a small value (this makes the structure of the selected nodes more rigid). To do this, make sure you only visualize the node markers (not the edges, points, or labels); select the nodes of a rigid object and press enter. The terminal in which you opened RViz will show you a little feedback. Note that is currently *not* possible to undo this action. 
 
-### TODO:
+## TODO:
 The RViz tool currently also has functionality for *merging or deleting nodes*, but the graph does not handle these requests as deleting nodes is a rather tricky operation. The current implementation of the function to delete nodes results in segfaults. Would be nice if this could be fixed.
 
 The *corner detector* needs some review. There is a bug in the detection of corners at jumps in the range data (it sometimes returns corners on the wrong side of the jump). But the entire algorithm does not handle real sensor data very well. A copletely different approach to detecting corners in the sensor data may show better results.
