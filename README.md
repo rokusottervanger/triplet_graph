@@ -18,6 +18,7 @@ Before we are going to create a graph using one of the executables, `cd` to  `<y
 * Odometry tracker,
 * Association algorithm and
 * Graph visualization
+
 has its own configuration parameters, and there are some general parameters such as 
 * the filename to find the existing graph or store a new or extended graph (in case of mapping), 
 * the task's target node and 
@@ -29,7 +30,10 @@ Note that the initial pose of the robot is not actually a pose. Rather, it speci
 Now that we know what the configuration parameters are, we can run some software. The main localization algorithm can only be used with a given graph description of the environment (the filename of which is specified in the config file for localization). Such a graph can be made using the mapping algorithm and preferably a simulator. A robot with good odometry and sensor data may perform well enough. So let's create a graph!
 
 Make sure all topics and tf frames are set correctly in the mapping.yaml config file. Now run your robot simulator and make sure that there are corners that can be detected from the produced sensor data. When that is done, execute
-    rosrun triplet_graph mapping <path/to/mapping.yaml>
+```
+rosrun triplet_graph mapping <path/to/mapping.yaml>
+```
+
 This will start the mapping algorithm, taking the corner points measured in the first measurement to relate points measured later to. The constructed graph can be visualised in RViz. To do this, add a MarkerArray to the visualization and select the mapping visualization topic. 
 
 You can now drive the robot around, for example using tele-operation. When the robot sees new points together with enough old points, it will extend the graph with nodes representing these new points. Note that once a node is added to the graph, it will not be removed or merged with another node if it later appears to be the same point as measured before. This means that you have to be careful to not let the robot add false nodes. Also, lengths of edges that are added to the graph once, will not be updated again.
@@ -38,7 +42,9 @@ In the current version of the software, the initial pose is not stored. So befor
 
 ### Localization
 Now that we have a graph, we can localize in it! To do that, make sure that the localization configuration file is in order: make sure the program will subscribe to the right topics, listen to the correct tf transformations, read the graph from the correct file and use the correct initial pose (the one you wrote down in the mapping step). Now the localization routine can be started, similar to the mapping program:
-    rosrun triplet_graph localization <path/to/localization.yaml>
+```
+rosrun triplet_graph localization <path/to/localization.yaml>
+```
 
 Again, in RViz, you can visualize what is happening using the MarkerArray visualization, but now subscribe to the localization visualization topic.
 
