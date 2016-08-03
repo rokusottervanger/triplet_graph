@@ -1,5 +1,0 @@
-First experiment:
-Stepwise. Pieces of tape on the floor, amigo makes steps of 20 cm or 45 deg at a time. Odom seems to be fairly accurate. It seems that not enough corners are detected all the time, which means that association cannot take place. Especially corners from jumps do not seem to be detected reliably. Maybe another feature detector could do miracles.
-
-Second experiment:
-Continuous. 
