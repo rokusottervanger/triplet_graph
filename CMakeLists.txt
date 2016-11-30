@@ -94,6 +94,7 @@ add_library(triplet_graph_tools ${SOURCE_FILES})
 ## "librviz_plugin_tutorials.so", or whatever is appropriate for your
 ## particular OS.
 target_link_libraries(triplet_graph_tools ${QT_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(triplet_graph_tools ${PROJECT_NAME}_gencpp)
 ## END_TUTORIAL
 
 
@@ -128,6 +129,7 @@ add_library(triplet_graph
 target_link_libraries(triplet_graph
     ${catkin_LIBRARIES}
 )
+add_dependencies(triplet_graph ${PROJECT_NAME}_gencpp)
 
 add_executable(mapping
     src/mapping.cpp
