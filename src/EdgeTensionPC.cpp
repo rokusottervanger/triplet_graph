@@ -73,8 +73,8 @@ double EdgeTensionPC::calculateProbability(const Graph& graph,
         double e2 = l_2_m - edge_2_it->l;
 
         // Calculate the 'stress' using the variance in the edge as well as the variance of the measurement. todo: Check the math on this
-        double stddev1 = edge_1_it->std_dev * edge_1_it->l;
-        double stddev2 = edge_2_it->std_dev * edge_2_it->l;
+        double stddev1 = edge_1_it->std_dev;
+        double stddev2 = edge_2_it->std_dev;
 
         double s1 = e1*e1 / ( 2 * ( stddev1*stddev1 + cur_measurement_std_dev_sq ));
         double s2 = e2*e2 / ( 2 * ( stddev2*stddev2 + cur_measurement_std_dev_sq ));
